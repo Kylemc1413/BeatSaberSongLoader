@@ -155,6 +155,8 @@ namespace SongLoaderPlugin
 				var song = CustomLevels.FirstOrDefault(x => x.levelID == level.level.levelID);
 				if (song == null) return;
 				NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
+
+                //Set enviroment colors for the song if it has song specific colors
                 song.SetSongColors(_currentLevelPlaying.colorLeft, _currentLevelPlaying.colorRight, _currentLevelPlaying.hasCustomColors);
 			}
 		}
