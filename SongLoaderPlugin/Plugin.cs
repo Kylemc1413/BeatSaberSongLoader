@@ -1,7 +1,8 @@
 ﻿using System;
 using IllusionPlugin;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
+using CustomUI.Settings;
 namespace SongLoaderPlugin
 {
 	public class Plugin : IPlugin
@@ -24,9 +25,27 @@ namespace SongLoaderPlugin
 		{
 			_sceneEvents = new GameObject("menu-signal").AddComponent<SceneEvents>();
 			_sceneEvents.MenuSceneEnabled += OnMenuSceneEnabled;
+            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+            
 		}
 
-		private void OnMenuSceneEnabled()
+        private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
+        {
+            if(scene.name == "Menu")
+            {
+                var subMenuCC = SettingsUI.CreateSubMenu("Songloader");
+
+                var colorOverrideOption= subMenuCC.AddBool("Allow Custom Song Colors");
+                colorOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongColors", true, true); };
+                colorOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
+            }
+
+
+
+
+        }
+
+        private void OnMenuSceneEnabled()
 		{
 			SongLoader.OnLoad();
 		}

@@ -50,7 +50,7 @@ namespace SongLoaderPlugin
 
 		private LogSeverity _minLogSeverity;
 		private bool _noArrowsSelected;
-		
+        private bool customSongColors;
 		public static void OnLoad()
 		{
 			if (Instance != null) return;
@@ -80,7 +80,8 @@ namespace SongLoaderPlugin
 		private void OnSceneTransitioned(Scene activeScene)
 		{
             GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
-			if (AreSongsLoading)
+            customSongColors = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongColors", true, true);
+            if (AreSongsLoading)
 			{
 				//Scene changing while songs are loading. Since we are using a separate thread while loading, this is bad and could cause a crash.
 				//So we have to stop loading.
@@ -157,6 +158,7 @@ namespace SongLoaderPlugin
 				NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
 
                 //Set enviroment colors for the song if it has song specific colors
+                if(customSongColors)
                 song.SetSongColors(_currentLevelPlaying.colorLeft, _currentLevelPlaying.colorRight, _currentLevelPlaying.hasCustomColors);
 			}
 		}

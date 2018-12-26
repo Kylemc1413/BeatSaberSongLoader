@@ -162,9 +162,7 @@ namespace SongLoaderPlugin.OverrideClasses
                         float? r = null;
                         float? g = null;
                         float? b = null;
-                        Console.WriteLine(split[i + 2].Split(',')[0], CultureInfo.InvariantCulture);
-                        Console.WriteLine(split[i + 3].Split(',')[0], CultureInfo.InvariantCulture);
-                        Console.WriteLine(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
+
                         if (split[i + 1].Contains("r"))
                            r = Convert.ToSingle(split[i + 2].Split(',')[0], CultureInfo.InvariantCulture);
                         if (split[i + 2].Contains("g"))
@@ -173,7 +171,6 @@ namespace SongLoaderPlugin.OverrideClasses
                             b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
                         
                         colorLeft = new Color(r.Value, g.Value, b.Value);
-                        Console.WriteLine("First Color Set");
                     }
                 if (split[i].Contains("_colorRight"))
                 {
@@ -189,7 +186,6 @@ namespace SongLoaderPlugin.OverrideClasses
                             b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
 
                         colorRight = new Color(r.Value, g.Value, b.Value);
-                        Console.WriteLine("Second Color Set");
                     }
                 }
                 catch(Exception ex)
