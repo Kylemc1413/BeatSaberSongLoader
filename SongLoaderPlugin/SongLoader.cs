@@ -421,29 +421,30 @@ namespace SongLoaderPlugin
 					path = path.Replace('\\', '/');
 
 					var currentHashes = new List<string>();
-					var cachedSongs = new string[0];
-					if (Directory.Exists(path + "/CustomSongs/.cache"))
-					{
-						cachedSongs = Directory.GetDirectories(path + "/CustomSongs/.cache");
-					}
-					
+
 					var songZips = Directory.GetFiles(path + "/CustomSongs")
-						.Where(x => x.ToLower().EndsWith(".zip") || x.ToLower().EndsWith(".beat")).ToArray();
+						.Where(x => x.ToLower().EndsWith(".zip") || x.ToLower().EndsWith(".beat") || x.ToLower().EndsWith(".bmap")).ToArray();
 					foreach (var songZip in songZips)
 					{
 						//Check cache if zip already is extracted
 						string hash;
 						if (Utils.CreateMD5FromFile(songZip, out hash))
-						{
-							currentHashes.Add(hash);
-							if (cachedSongs.Any(x => x.Contains(hash))) continue;
+                        { 
 
 							using (var unzip = new Unzip(songZip))
 							{
 								try
 								{
-									unzip.ExtractToDirectory(path + "/CustomSongs/.cache/" + hash);
-								}
+                                    Log(songZip.Split('.')[0]);
+                                    if (Directory.Exists(songZip.Split('.')[0]))
+                                    {
+                                        Log("Directory for Zip already exists, deleting existing directory.");
+                                        Utils.DeleteDirectory(songZip.Split('.')[0]);
+                                    }
+									unzip.ExtractToDirectory(path + "/CustomSongs/" + songZip.Replace(path + "/CustomSongs\\", "").Split('.')[0]);
+                                    //Add hash if successfully extracted
+                                    currentHashes.Add(hash);
+                                }
 								catch (Exception e)
 								{
 									Log("Error extracting zip " + songZip + "\n" + e, LogSeverity.Warn);
@@ -456,7 +457,20 @@ namespace SongLoaderPlugin
 						}
 					}
 
-					var songFolders = Directory.GetDirectories(path + "/CustomSongs").ToList();
+                    foreach (var songZip in songZips)
+                    {
+                        //Delete zip if successfully extracted
+                        string hash;
+                        if (Utils.CreateMD5FromFile(songZip, out hash))
+                        {
+                            if (currentHashes.Contains(hash))
+                            {
+                                Log("Zip Successfully Extracted, deleting zip.");
+                                File.Delete(songZip);
+                            }
+                        }
+                    }
+                    var songFolders = Directory.GetDirectories(path + "/CustomSongs").ToList();
 					
 					var loadedIDs = new List<string>();
 					
@@ -517,15 +531,6 @@ namespace SongLoaderPlugin
 						}
 					}
 
-					foreach (var song in cachedSongs)
-					{
-						var hash = Path.GetFileName(song);
-						if (!currentHashes.Contains(hash))
-						{
-							//Old cache
-							Directory.Delete(song, true);
-						}
-					}
 
 				}
 				catch (Exception e)
