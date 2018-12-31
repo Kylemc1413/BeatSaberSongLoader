@@ -428,6 +428,10 @@ namespace SongLoaderPlugin
 					{
 						//Check cache if zip already is extracted
 						string hash;
+                        string trimmedZip = songZip;
+                        Utils.TrimEnd(trimmedZip, ".zip");
+                        Utils.TrimEnd(trimmedZip, ".beat");
+                        Utils.TrimEnd(trimmedZip, ".bmap");
 						if (Utils.CreateMD5FromFile(songZip, out hash))
                         { 
 
@@ -435,12 +439,12 @@ namespace SongLoaderPlugin
 							{
 								try
 								{
-                                    if (Directory.Exists(songZip.Replace(".zip", "").Replace(".beat", "").Replace(".bmap", "")))
+                                    if (Directory.Exists(trimmedZip))
                                     {
                                         Log("Directory for Zip already exists, deleting existing directory.");
-                                        Directory.Delete(songZip.Replace(".zip", "").Replace(".beat", "").Replace(".bmap", ""), true);
+                                        Directory.Delete(trimmedZip, true);
                                     }
-									unzip.ExtractToDirectory(path + "/CustomSongs/" + songZip.Replace(path + "/CustomSongs\\", "").Replace(".zip", "").Replace(".beat", "").Replace(".bmap", ""));
+									unzip.ExtractToDirectory(path + "/CustomSongs/" + trimmedZip.Replace(path + "/CustomSongs\\", ""));
                                     //Add hash if successfully extracted
                                     currentHashes.Add(hash);
                                 }
