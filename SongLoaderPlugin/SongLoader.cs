@@ -195,7 +195,6 @@ namespace SongLoaderPlugin
 
 		private void StandardLevelListViewControllerOnDidSelectLevelEvent(LevelListViewController levelListViewController, IBeatmapLevel level)
 		{
-            Log("Level selected");
 			var customLevel = level as CustomLevel;
 			if (customLevel == null) return;
 
@@ -217,7 +216,6 @@ namespace SongLoaderPlugin
 
 		private void OnDidSelectBeatmapCharacteristicEvent(BeatmapCharacteristicSelectionViewController viewController, BeatmapCharacteristicSO characteristic)
 		{
-            Log(characteristic.characteristicName);
 			_noArrowsSelected = characteristic.characteristicName == "No Arrows";
 		}
 

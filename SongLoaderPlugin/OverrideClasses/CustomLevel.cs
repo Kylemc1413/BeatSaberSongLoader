@@ -110,7 +110,6 @@ namespace SongLoaderPlugin.OverrideClasses
 				var customBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
 				if (customBeatmap == null) continue;
 				customBeatmap.BeatmapDataSO.SetRequiredDataForLoad(_beatsPerMinute, _shuffle, _shufflePeriod);
-                    Console.WriteLine("Shuffle" + _shuffle + "ShufflePeriod" + _shufflePeriod + "BPM" + _beatsPerMinute);
 				customBeatmap.BeatmapDataSO.Load();
 			}
 
