@@ -56,23 +56,5 @@ namespace SongLoaderPlugin
 			}
 		}
 
-        public static void DeleteDirectory(string directory)
-        {
-            string[] files = Directory.GetFiles(directory);
-            string[] folders = Directory.GetDirectories(directory);
-
-            foreach (string file in files)
-            {
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.Delete(file);
-            }
-
-            foreach (string folder in folders)
-            {
-                DeleteDirectory(folder);
-            }
-
-            Directory.Delete(directory, false);
-        }
     }
 }

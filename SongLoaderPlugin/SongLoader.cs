@@ -435,13 +435,12 @@ namespace SongLoaderPlugin
 							{
 								try
 								{
-                                    Log(songZip.Split('.')[0]);
-                                    if (Directory.Exists(songZip.Split('.')[0]))
+                                    if (Directory.Exists(songZip.Replace(".zip", "").Replace(".beat", "").Replace(".bmap", "")))
                                     {
                                         Log("Directory for Zip already exists, deleting existing directory.");
-                                        Utils.DeleteDirectory(songZip.Split('.')[0]);
+                                        Directory.Delete(songZip.Replace(".zip", "").Replace(".beat", "").Replace(".bmap", ""), true);
                                     }
-									unzip.ExtractToDirectory(path + "/CustomSongs/" + songZip.Replace(path + "/CustomSongs\\", "").Split('.')[0]);
+									unzip.ExtractToDirectory(path + "/CustomSongs/" + songZip.Replace(path + "/CustomSongs\\", "").Replace(".zip", "").Replace(".beat", "").Replace(".bmap", ""));
                                     //Add hash if successfully extracted
                                     currentHashes.Add(hash);
                                 }
