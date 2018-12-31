@@ -429,9 +429,9 @@ namespace SongLoaderPlugin
 						//Check cache if zip already is extracted
 						string hash;
                         string trimmedZip = songZip;
-                        Utils.TrimEnd(trimmedZip, ".zip");
-                        Utils.TrimEnd(trimmedZip, ".beat");
-                        Utils.TrimEnd(trimmedZip, ".bmap");
+                        trimmedZip = Utils.TrimEnd(trimmedZip, ".zip");
+                        trimmedZip = Utils.TrimEnd(trimmedZip, ".beat");
+                        trimmedZip = Utils.TrimEnd(trimmedZip, ".bmap");
 						if (Utils.CreateMD5FromFile(songZip, out hash))
                         { 
 
