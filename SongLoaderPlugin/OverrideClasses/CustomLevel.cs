@@ -142,7 +142,7 @@ namespace SongLoaderPlugin.OverrideClasses
 				}
                 if (split[i].Contains("_noteJumpStartBeatOffset"))
                 {
-                    noteJumpStartBeatOffset = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                    noteJumpStartBeatOffset = (int)Convert.ToDouble(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
                 }
             }
 		}

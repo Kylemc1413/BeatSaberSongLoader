@@ -445,6 +445,7 @@ namespace SongLoaderPlugin
 									unzip.ExtractToDirectory(path + "/CustomSongs/" + trimmedZip.Replace(path + "/CustomSongs\\", ""));
                                     //Add hash if successfully extracted
                                     currentHashes.Add(hash);
+                                    unzip.Dispose();
                                 }
 								catch (Exception e)
 								{
@@ -458,19 +459,7 @@ namespace SongLoaderPlugin
 						}
 					}
 
-                    foreach (var songZip in songZips)
-                    {
-                        //Delete zip if successfully extracted
-                        string hash;
-                        if (Utils.CreateMD5FromFile(songZip, out hash))
-                        {
-                            if (currentHashes.Contains(hash))
-                            {
-                                Log("Zip Successfully Extracted, deleting zip.");
-                                File.Delete(songZip);
-                            }
-                        }
-                    }
+               
                     var songFolders = Directory.GetDirectories(path + "/CustomSongs").ToList();
 					
 					var loadedIDs = new List<string>();
@@ -532,13 +521,27 @@ namespace SongLoaderPlugin
 						}
 					}
 
-
-				}
+                    foreach (var songZip in songZips)
+                    {
+                        //Delete zip if successfully extracted
+                        string hash;
+                        if (Utils.CreateMD5FromFile(songZip, out hash))
+                        {
+                            if (currentHashes.Contains(hash))
+                            {
+                                Log("Zip Successfully Extracted, deleting zip.");
+                                File.SetAttributes(songZip, FileAttributes.Normal);
+                                File.Delete(songZip);
+                            }
+                        }
+                    }
+                }
 				catch (Exception e)
 				{
 					Log("RetrieveAllSongs failed:", LogSeverity.Error);
 					Log(e.ToString(), LogSeverity.Error);
 				}
+
 			};
 			
 			Action finish = delegate
@@ -565,6 +568,7 @@ namespace SongLoaderPlugin
 				{
 					SongsLoadedEvent(this, CustomLevels);
 				}
+
 			};
 			
 			_loadingTask = new HMTask(job, finish);
