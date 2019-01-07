@@ -445,7 +445,6 @@ namespace SongLoaderPlugin
 									unzip.ExtractToDirectory(path + "/CustomSongs/" + trimmedZip.Replace(path + "/CustomSongs\\", ""));
                                     //Add hash if successfully extracted
                                     currentHashes.Add(hash);
-                                    unzip.Dispose();
                                 }
 								catch (Exception e)
 								{
