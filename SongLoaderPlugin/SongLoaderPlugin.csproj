@@ -89,6 +89,8 @@
     <Reference Include="UnityEngine.UnityWebRequestWWWModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
+    <Reference Include="IllusionInjector" />
+    <Reference Include="CustomPlatforms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomSongInfo.cs" />

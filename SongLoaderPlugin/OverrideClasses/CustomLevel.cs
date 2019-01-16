@@ -26,6 +26,7 @@ namespace SongLoaderPlugin.OverrideClasses
 			_previewStartTime = customSongInfo.previewStartTime;
 			_previewDuration = customSongInfo.previewDuration;
 			_environmentSceneInfo = EnvironmentsLoader.GetSceneInfo(customSongInfo.environmentName);
+			string _customEnvironment = customSongInfo.customEnvironment;
 		}
 
 		public void SetAudioClip(AudioClip newAudioClip)

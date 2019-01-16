@@ -21,6 +21,8 @@ namespace SongLoaderPlugin
 		public static bool AreSongsLoading { get; private set; }
 		public static float LoadingProgress { get; private set; }
 		public static CustomLevelCollectionSO CustomLevelCollectionSO { get; private set; }
+		private bool CustomPlatformsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
+		private int _currentPlatform = -1;
 
 		public const string MenuSceneName = "Menu";
 		public const string GameSceneName = "GameCore";
@@ -51,6 +53,7 @@ namespace SongLoaderPlugin
 		private LogSeverity _minLogSeverity;
 		private bool _noArrowsSelected;
         private bool customSongColors;
+		private bool customSongPlatforms;
 		public static void OnLoad()
 		{
 			if (Instance != null) return;
@@ -81,7 +84,8 @@ namespace SongLoaderPlugin
 		{
             GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
             customSongColors = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongColors", true, true);
-            if (AreSongsLoading)
+			customSongPlatforms = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
+			if (AreSongsLoading)
 			{
 				//Scene changing while songs are loading. Since we are using a separate thread while loading, this is bad and could cause a crash.
 				//So we have to stop loading.
@@ -137,7 +141,14 @@ namespace SongLoaderPlugin
                     _characteristicViewController.didSelectBeatmapCharacteristicEvent += OnDidSelectBeatmapCharacteristicEvent;
                 }
 
-            }
+				if(CustomPlatformsPresent)
+				{
+					if(_currentPlatform != -1)
+					{
+						CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
+					}
+				}
+			}
             else if (activeScene.name == GameSceneName)
 			{
 				_standardLevelSceneSetupData = Resources.FindObjectsOfTypeAll<StandardLevelSceneSetupDataSO>().FirstOrDefault();
@@ -156,7 +167,20 @@ namespace SongLoaderPlugin
 				var song = CustomLevels.FirstOrDefault(x => x.levelID == level.level.levelID);
 				if (song == null) return;
 				NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
-
+				
+				//Set environment if the song has customEnvironment
+				if (song.customSongInfo.customEnvironment != null)
+				{
+					int _customPlatform = customEnvironment(song);
+					if (_customPlatform != -1)
+					{
+						_currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
+						if (customSongPlatforms && _customPlatform != _currentPlatform)
+						{
+							CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform);
+						}
+					}
+				}
                 //Set enviroment colors for the song if it has song specific colors
                 if(customSongColors)
                 song.SetSongColors(_currentLevelPlaying.colorLeft, _currentLevelPlaying.colorRight, _currentLevelPlaying.hasCustomColors);
@@ -756,6 +780,23 @@ namespace SongLoaderPlugin
 			path = path.Replace("%2F", "/"); //Forward slash gets encoded, but it shouldn't.
 			path = path.Replace("%3A", ":"); //Same with semicolon.
 			return path;
+		}
+
+		private int customEnvironment(CustomLevel song)
+		{
+			if(!CustomPlatformsPresent)
+				return -1;
+
+			CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
+			int platIndex = 0;
+			foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
+			{
+				Console.WriteLine(plat.platName);
+				if (plat.platName == song.customSongInfo.customEnvironment) 
+					return platIndex;
+				platIndex++;
+			}
+			return -1;
 		}
 	}
 }

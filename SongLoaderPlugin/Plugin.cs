@@ -38,7 +38,11 @@ namespace SongLoaderPlugin
                 var colorOverrideOption= subMenuCC.AddBool("Allow Custom Song Colors");
                 colorOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongColors", true, true); };
                 colorOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
-            }
+
+				var platformOverrideOption = subMenuCC.AddBool("Allow Custom Song Platforms");
+				platformOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true); };
+				platformOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
+			}
 
 
 
