@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SongLoaderPlugin")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCopyright("Copyright © xyonico 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -23,13 +23,13 @@ using System.Runtime.InteropServices;
 
 // Version information for an assembly consists of the following four values:
 //
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
+//	  Major Version
+//	  Minor Version 
+//	  Build Number
+//	  Revision
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("4.2.2")]
-[assembly: AssemblyFileVersion("4.2.2")]
+[assembly: AssemblyVersion("5.2.0")]
+[assembly: AssemblyFileVersion("5.2.0")]
