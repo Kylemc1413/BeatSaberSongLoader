@@ -7,7 +7,7 @@ namespace SongLoaderPlugin
 {
 	public class Plugin : IPlugin
 	{
-		public const string VersionNumber = "v5.1.3-beta";
+		public const string VersionNumber = "v5.2.0";
 
 		private SceneEvents _sceneEvents;
 		
