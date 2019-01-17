@@ -34,11 +34,11 @@ namespace SongLoaderPlugin
 		private LeaderboardScoreUploader _leaderboardScoreUploader;
 		private StandardLevelDetailViewController _standardLevelDetailViewController;
 		private StandardLevelSceneSetupDataSO _standardLevelSceneSetupData;
-        private BeatmapCharacteristicSelectionViewController _characteristicViewController;
-        private LevelListViewController _LevelListViewController;
+		private BeatmapCharacteristicSelectionViewController _characteristicViewController;
+		private LevelListViewController _LevelListViewController;
 
 
-        private readonly ScriptableObjectPool<CustomLevel> _customLevelPool = new ScriptableObjectPool<CustomLevel>();
+		private readonly ScriptableObjectPool<CustomLevel> _customLevelPool = new ScriptableObjectPool<CustomLevel>();
 		private readonly ScriptableObjectPool<CustomBeatmapDataSO> _beatmapDataPool = new ScriptableObjectPool<CustomBeatmapDataSO>();
 
 		private ProgressBar _progressBar;
@@ -53,7 +53,7 @@ namespace SongLoaderPlugin
 
 		private LogSeverity _minLogSeverity;
 		private bool _noArrowsSelected;
-        private bool customSongColors;
+		private bool customSongColors;
 		private bool customSongPlatforms;
 		public static void OnLoad()
 		{
@@ -83,8 +83,8 @@ namespace SongLoaderPlugin
 
 		private void OnSceneTransitioned(Scene activeScene)
 		{
-            GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
-            customSongColors = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongColors", true, true);
+			GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
+			customSongColors = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongColors", true, true);
 			customSongPlatforms = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
 			if (AreSongsLoading)
 			{
@@ -118,29 +118,29 @@ namespace SongLoaderPlugin
 					CustomLevelCollectionSO.ReplaceReferences();
 				}
 				if(_standardLevelDetailViewController == null)
-                {
+				{
 				_standardLevelDetailViewController = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().FirstOrDefault();
 				if (_standardLevelDetailViewController == null) return;
 				_standardLevelDetailViewController.didPressPlayButtonEvent += StandardLevelDetailControllerOnDidPressPlayButtonEvent;
-                }
+				}
 
-                if (_LevelListViewController == null)
-                {
-                    _LevelListViewController = Resources.FindObjectsOfTypeAll<LevelListViewController>().FirstOrDefault();
-                    if (_LevelListViewController == null) return;
+				if (_LevelListViewController == null)
+				{
+					_LevelListViewController = Resources.FindObjectsOfTypeAll<LevelListViewController>().FirstOrDefault();
+					if (_LevelListViewController == null) return;
 
-                    _LevelListViewController.didSelectLevelEvent += StandardLevelListViewControllerOnDidSelectLevelEvent;
-                }
+					_LevelListViewController.didSelectLevelEvent += StandardLevelListViewControllerOnDidSelectLevelEvent;
+				}
 
 
 
-                if (_characteristicViewController == null)
-                {
-                    _characteristicViewController = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicSelectionViewController>().FirstOrDefault();
-                    if (_characteristicViewController == null) return;
+				if (_characteristicViewController == null)
+				{
+					_characteristicViewController = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicSelectionViewController>().FirstOrDefault();
+					if (_characteristicViewController == null) return;
 
-                    _characteristicViewController.didSelectBeatmapCharacteristicEvent += OnDidSelectBeatmapCharacteristicEvent;
-                }
+					_characteristicViewController.didSelectBeatmapCharacteristicEvent += OnDidSelectBeatmapCharacteristicEvent;
+				}
 
 				if(CustomPlatformsPresent)
 				{
@@ -150,7 +150,7 @@ namespace SongLoaderPlugin
 					}
 				}
 			}
-            else if (activeScene.name == GameSceneName)
+			else if (activeScene.name == GameSceneName)
 			{
 				_standardLevelSceneSetupData = Resources.FindObjectsOfTypeAll<StandardLevelSceneSetupDataSO>().FirstOrDefault();
 				if (_standardLevelSceneSetupData == null) return;
@@ -182,9 +182,9 @@ namespace SongLoaderPlugin
 						}
 					}
 				}
-                //Set enviroment colors for the song if it has song specific colors
-                if(customSongColors)
-                song.SetSongColors(_currentLevelPlaying.colorLeft, _currentLevelPlaying.colorRight, _currentLevelPlaying.hasCustomColors);
+				//Set enviroment colors for the song if it has song specific colors
+				if(customSongColors)
+				song.SetSongColors(_currentLevelPlaying.colorLeft, _currentLevelPlaying.colorRight, _currentLevelPlaying.hasCustomColors);
 			}
 		}
 
@@ -207,9 +207,9 @@ namespace SongLoaderPlugin
 				}
 			}
 
-            //Also change beatmap to no arrow if no arrow was selected, since Beat Saber no longer does runtime conversion for that.
+			//Also change beatmap to no arrow if no arrow was selected, since Beat Saber no longer does runtime conversion for that.
 
-            if (!_noArrowsSelected) return;
+			if (!_noArrowsSelected) return;
 			var gameplayCore = Resources.FindObjectsOfTypeAll<GameplayCoreSceneSetup>().FirstOrDefault();
 			if (gameplayCore == null) return;
 			Console.WriteLine("Applying no arrow transformation");
@@ -444,52 +444,52 @@ namespace SongLoaderPlugin
 					path = path.Replace('\\', '/');
 
 					var currentHashes = new List<string>();
-                    var cachedHashes = new List<string>();
-                    var cachedSongs = new string[0];
+					var cachedHashes = new List<string>();
+					var cachedSongs = new string[0];
 
-                    if (Directory.Exists(path + "/CustomSongs/.cache"))
-                    {
-                        cachedSongs = Directory.GetDirectories(path + "/CustomSongs/.cache");
-                    }
-                    else
-                    {
-                        Directory.CreateDirectory(path + "/CustomSongs/.cache");
-                    }
+					if (Directory.Exists(path + "/CustomSongs/.cache"))
+					{
+						cachedSongs = Directory.GetDirectories(path + "/CustomSongs/.cache");
+					}
+					else
+					{
+						Directory.CreateDirectory(path + "/CustomSongs/.cache");
+					}
 
 
-                    var songZips = Directory.GetFiles(path + "/CustomSongs")
+					var songZips = Directory.GetFiles(path + "/CustomSongs")
 						.Where(x => x.ToLower().EndsWith(".zip") || x.ToLower().EndsWith(".beat") || x.ToLower().EndsWith(".bmap")).ToArray();
 					foreach (var songZip in songZips)
 					{
 						//Check cache if zip already is extracted
 						string hash;
-                        string trimmedZip = songZip;
-                        trimmedZip = Utils.TrimEnd(trimmedZip, ".zip");
-                        trimmedZip = Utils.TrimEnd(trimmedZip, ".beat");
-                        trimmedZip = Utils.TrimEnd(trimmedZip, ".bmap");
+						string trimmedZip = songZip;
+						trimmedZip = Utils.TrimEnd(trimmedZip, ".zip");
+						trimmedZip = Utils.TrimEnd(trimmedZip, ".beat");
+						trimmedZip = Utils.TrimEnd(trimmedZip, ".bmap");
 						if (Utils.CreateMD5FromFile(songZip, out hash))
-                        { 
+						{ 
 
 							using (var unzip = new Unzip(songZip))
 							{
 								try
 								{
-                                    if (Directory.Exists(trimmedZip))
-                                    {
-                                        Log("Directory for Zip already exists, Extracting Zip to Cache instead.");
-                                        cachedHashes.Add(hash);
-                                        if (cachedSongs.Any(x => x.Contains(hash))) continue;
-                                        unzip.ExtractToDirectory(path + "/CustomSongs/.cache/" + hash);
+									if (Directory.Exists(trimmedZip))
+									{
+										Log("Directory for Zip already exists, Extracting Zip to Cache instead.");
+										cachedHashes.Add(hash);
+										if (cachedSongs.Any(x => x.Contains(hash))) continue;
+										unzip.ExtractToDirectory(path + "/CustomSongs/.cache/" + hash);
 
-                                    }
-                                    else
-                                    {
+									}
+									else
+									{
 									unzip.ExtractToDirectory(path + "/CustomSongs/" + trimmedZip.Replace(path + "/CustomSongs\\", ""));
-                                    //Add hash if successfully extracted
-                                    currentHashes.Add(hash);
-                                    }
+									//Add hash if successfully extracted
+									currentHashes.Add(hash);
+									}
 
-                                }
+								}
 								catch (Exception e)
 								{
 									Log("Error extracting zip " + songZip + "\n" + e, LogSeverity.Warn);
@@ -502,38 +502,38 @@ namespace SongLoaderPlugin
 						}
 					}
 
-               
-                    var songFolders = Directory.GetDirectories(path + "/CustomSongs").ToList();
-                    var songCaches = Directory.GetDirectories(path + "/CustomSongs/.cache");
+			   
+					var songFolders = Directory.GetDirectories(path + "/CustomSongs").ToList();
+					var songCaches = Directory.GetDirectories(path + "/CustomSongs/.cache");
 
-                    foreach (var songZip in songZips)
-                    {
-                        //Delete zip if successfully extracted
-                        string hash;
-                        if (Utils.CreateMD5FromFile(songZip, out hash))
-                        {
-                            if (currentHashes.Contains(hash))
-                            {
-                                Log("Zip Successfully Extracted, deleting zip.");
-                                File.SetAttributes(songZip, FileAttributes.Normal);
-                                File.Delete(songZip);
-                            }
-                        }
-                    }
+					foreach (var songZip in songZips)
+					{
+						//Delete zip if successfully extracted
+						string hash;
+						if (Utils.CreateMD5FromFile(songZip, out hash))
+						{
+							if (currentHashes.Contains(hash))
+							{
+								Log("Zip Successfully Extracted, deleting zip.");
+								File.SetAttributes(songZip, FileAttributes.Normal);
+								File.Delete(songZip);
+							}
+						}
+					}
 
-                    foreach (var song in songCaches)
-                    {
-                        var hash = Path.GetFileName(song);
-                        if (!cachedHashes.Contains(hash))
-                        {
-                            //Old cache
-                            Directory.Delete(song, true);
-                        }
-                    }
+					foreach (var song in songCaches)
+					{
+						var hash = Path.GetFileName(song);
+						if (!cachedHashes.Contains(hash))
+						{
+							//Old cache
+							Directory.Delete(song, true);
+						}
+					}
 
 
 
-                    var loadedIDs = new List<string>();
+					var loadedIDs = new List<string>();
 					
 					float i = 0;
 					foreach (var song in songFolders)
@@ -609,7 +609,7 @@ namespace SongLoaderPlugin
 						}
 					}
 
-                }
+				}
 				catch (Exception e)
 				{
 					Log("RetrieveAllSongs failed:", LogSeverity.Error);
