@@ -55,6 +55,8 @@ The following is a template for you to use:
   "audioPath":"YourSong.ogg",
   "coverImagePath":"cover.jpg",
   "environmentName":"DefaultEnvironment",
+  "customEnvironment": "Platform Name",
+  "customEnvironmentHash": "<platform's ModelSaber md5sum hash>",
   "songTimeOffset":-2,
   "shuffle":1,
   "shufflePeriod":0.2,
@@ -78,6 +80,8 @@ ___
 "previewDuration" - Time in seconds the song will be previewed in selection screen
 "coverImagePath" - Cover image name
 "environmentName" - Game environment to be used
+"customEnvironment" - Custom Platform override, will use "environmentName" if CustomPlatforms isn't installed or disabled
+"customEnvironmentHash" - The hash found on ModelSaber, used to download missing platforms
 "songTimeOffset" - Time in seconds of how early a song should start. Negative numbers for starting the song later
 "shuffle" - Time in number of beats how much a note should shift
 "shufflePeriod" - Time in number of beats how often a note should shift. Don't ask me why this is a feature, I don't know
