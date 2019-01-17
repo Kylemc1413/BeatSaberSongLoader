@@ -19,6 +19,7 @@ namespace SongLoaderPlugin
 		public float shufflePeriod;
 		public string environmentName = "DefaultEnvironment";
 		public string customEnvironment;
+		public string customEnvironmentHash;
 		public string audioPath;
 		public string coverImagePath = "cover.jpg";
 		public bool oneSaber;

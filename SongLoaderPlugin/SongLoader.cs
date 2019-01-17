@@ -9,6 +9,7 @@ using SimpleJSON;
 using SongLoaderPlugin.Internals;
 using SongLoaderPlugin.OverrideClasses;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 
 namespace SongLoaderPlugin
 {
@@ -177,7 +178,7 @@ namespace SongLoaderPlugin
 						_currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
 						if (customSongPlatforms && _customPlatform != _currentPlatform)
 						{
-							CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform);
+							CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
 						}
 					}
 				}
@@ -560,6 +561,7 @@ namespace SongLoaderPlugin
 								}
 
 								var customSongInfo = GetCustomSongInfo(songPath);
+
 								if (customSongInfo == null) continue;
 								var id = customSongInfo.GetIdentifier();
 								if (loadedIDs.Any(x => x == id))
@@ -569,6 +571,22 @@ namespace SongLoaderPlugin
 								}
 
 								loadedIDs.Add(id);
+
+								if (CustomPlatformsPresent && customSongPlatforms)
+								{
+									if (customSongInfo.customEnvironment != null)
+									{
+										if (findCustomEnvironment(customSongInfo.customEnvironment) == -1)
+										{
+											Console.WriteLine("CustomPlatform not found: " + customSongInfo.customEnvironment);
+											if (customSongInfo.customEnvironmentHash != null)
+											{
+												Console.WriteLine("Downloading with hash: " + customSongInfo.customEnvironmentHash);
+												StartCoroutine(downloadCustomPlatform(customSongInfo.customEnvironmentHash, customSongInfo.customEnvironment));
+											}
+										}
+									}
+								}
 
 								var i1 = i;
 								HMMainThreadDispatcher.instance.Enqueue(delegate
@@ -786,17 +804,71 @@ namespace SongLoaderPlugin
 		{
 			if(!CustomPlatformsPresent)
 				return -1;
+			return findCustomEnvironment(song.customSongInfo.customEnvironment);
+		}
 
+		private int findCustomEnvironment(string name) {
 			CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
 			int platIndex = 0;
 			foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
 			{
-				Console.WriteLine(plat.platName);
-				if (plat.platName == song.customSongInfo.customEnvironment) 
+				if (plat.platName == name)
 					return platIndex;
 				platIndex++;
 			}
+			Console.WriteLine(name + " not found!");
 			return -1;
+		}
+
+		[Serializable]
+		public class platformDownloadData
+		{
+			public string name;
+			public string author;
+			public string image;
+			public string hash;
+			public string download;
+			public string date;
+		}
+
+		private IEnumerator downloadCustomPlatform(string hash, string name)
+		{
+			using (UnityWebRequest www = UnityWebRequest.Get("https://modelsaber.assistant.moe/api/v1/platform/get.php?filter=hash:" + hash))
+			{
+				yield return www.SendWebRequest();
+
+				if (www.isNetworkError || www.isHttpError)
+				{
+					Console.WriteLine(www.error);
+				}
+				else
+				{
+					platformDownloadData downloadData = JsonUtility.FromJson<platformDownloadData>(JSON.Parse(www.downloadHandler.text)[0].ToString());
+					if (downloadData.name == name)
+					{
+						StartCoroutine(_downloadCustomPlatform(downloadData));
+					}
+				}
+			}
+		}
+
+		private IEnumerator _downloadCustomPlatform(platformDownloadData downloadData)
+		{
+			using (UnityWebRequest www = UnityWebRequest.Get(downloadData.download))
+			{
+				yield return www.SendWebRequest();
+
+				if (www.isNetworkError || www.isHttpError)
+				{
+					Console.WriteLine(www.error);
+				}
+				else
+				{
+					string customPlatformsFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomPlatforms", downloadData.name);
+					System.IO.File.WriteAllBytes(@customPlatformsFolderPath + ".plat", www.downloadHandler.data);
+					//refreshPlatforms();
+				}
+			}
 		}
 	}
 }
