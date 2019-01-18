@@ -55,5 +55,13 @@ namespace SongLoaderPlugin
 				}
 			}
 		}
-	}
+        public static string TrimEnd(this string text, string value)
+        {
+            if (!text.EndsWith(value))
+                return text;
+
+            return text.Remove(text.LastIndexOf(value));
+        }
+
+    }
 }

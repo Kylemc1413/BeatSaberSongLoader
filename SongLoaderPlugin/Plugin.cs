@@ -1,10 +1,16 @@
-﻿using IllusionPlugin;
+﻿using System;
+using IllusionPlugin;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
+using CustomUI.Settings;
 namespace SongLoaderPlugin
 {
 	public class Plugin : IPlugin
-	{	
+	{
+		public const string VersionNumber = "v5.1.3-beta";
+
+		private SceneEvents _sceneEvents;
+		
 		public string Name
 		{
 			get { return "Song Loader Plugin"; }
@@ -12,12 +18,36 @@ namespace SongLoaderPlugin
 
 		public string Version
 		{
-			get { return "v4.2.2"; }
+			get { return VersionNumber; }
 		}
 		
 		public void OnApplicationStart()
 		{
-			
+			_sceneEvents = new GameObject("menu-signal").AddComponent<SceneEvents>();
+			_sceneEvents.MenuSceneEnabled += OnMenuSceneEnabled;
+            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+            
+		}
+
+        private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
+        {
+            if(scene.name == "Menu")
+            {
+                var subMenuCC = SettingsUI.CreateSubMenu("Songloader");
+
+                var colorOverrideOption= subMenuCC.AddBool("Allow Custom Song Colors");
+                colorOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongColors", true, true); };
+                colorOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
+            }
+
+
+
+
+        }
+
+        private void OnMenuSceneEnabled()
+		{
+			SongLoader.OnLoad();
 		}
 
 		public void OnApplicationQuit()
@@ -25,25 +55,20 @@ namespace SongLoaderPlugin
 			PlayerPrefs.DeleteKey("lbPatched");
 		}
 
-		public void OnLevelWasLoaded(int level)
-		{
-			
-		}
-
 		public void OnLevelWasInitialized(int level)
 		{
-			if (level != SongLoader.MenuIndex) return;
-			SongLoader.OnLoad();
 		}
 
 		public void OnUpdate()
 		{
-			
 		}
 
 		public void OnFixedUpdate()
-		{
-			
+		{	
+		}
+
+		public void OnLevelWasLoaded(int level)
+		{	
 		}
 	}
 }
