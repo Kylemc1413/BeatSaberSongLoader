@@ -36,7 +36,7 @@ namespace SongLoaderPlugin
 		{
 			var copy = destination.AddComponent(overridingType);
 			var fields = originalType.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance |
-			                                    BindingFlags.GetField);
+												BindingFlags.GetField);
 			foreach (var field in fields)
 			{
 				field.SetValue(copy, field.GetValue(original));

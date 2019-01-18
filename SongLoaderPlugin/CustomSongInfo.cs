@@ -18,6 +18,8 @@ namespace SongLoaderPlugin
 		public float shuffle;
 		public float shufflePeriod;
 		public string environmentName = "DefaultEnvironment";
+		public string customEnvironment;
+		public string customEnvironmentHash;
 		public string audioPath;
 		public string coverImagePath = "cover.jpg";
 		public bool oneSaber;
@@ -33,11 +35,11 @@ namespace SongLoaderPlugin
 			public string difficulty;
 			public int difficultyRank;
 			[Obsolete("audioPath has been moved to the song info. " +
-			          "If the song audioPath is empty, it will try to use the audioPath in the first difficulty it finds.")]
+					  "If the song audioPath is empty, it will try to use the audioPath in the first difficulty it finds.")]
 			public string audioPath;
 			public string jsonPath;
 			public string json;
-            public int noteJumpStartBeatOffset;
+			public int noteJumpStartBeatOffset;
 			public float noteJumpMovementSpeed;
 		}
 

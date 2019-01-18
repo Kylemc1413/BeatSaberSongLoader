@@ -7,7 +7,7 @@ namespace SongLoaderPlugin
 {
 	public class Plugin : IPlugin
 	{
-		public const string VersionNumber = "v5.1.3-beta";
+		public const string VersionNumber = "v5.2.0";
 
 		private SceneEvents _sceneEvents;
 		
@@ -25,27 +25,31 @@ namespace SongLoaderPlugin
 		{
 			_sceneEvents = new GameObject("menu-signal").AddComponent<SceneEvents>();
 			_sceneEvents.MenuSceneEnabled += OnMenuSceneEnabled;
-            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
-            
+			SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+			
 		}
 
-        private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
-        {
-            if(scene.name == "Menu")
-            {
-                var subMenuCC = SettingsUI.CreateSubMenu("Songloader");
+		private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
+		{
+			if(scene.name == "Menu")
+			{
+				var subMenuCC = SettingsUI.CreateSubMenu("Songloader");
 
-                var colorOverrideOption= subMenuCC.AddBool("Allow Custom Song Colors");
-                colorOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongColors", true, true); };
-                colorOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
-            }
+				var colorOverrideOption= subMenuCC.AddBool("Allow Custom Song Colors");
+				colorOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongColors", true, true); };
+				colorOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
+
+				var platformOverrideOption = subMenuCC.AddBool("Allow Custom Song Platforms");
+				platformOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true); };
+				platformOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
+			}
 
 
 
 
-        }
+		}
 
-        private void OnMenuSceneEnabled()
+		private void OnMenuSceneEnabled()
 		{
 			SongLoader.OnLoad();
 		}
