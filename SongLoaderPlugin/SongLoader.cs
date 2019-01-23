@@ -22,7 +22,7 @@ namespace SongLoaderPlugin
 		public static bool AreSongsLoading { get; private set; }
 		public static float LoadingProgress { get; private set; }
 		public static CustomLevelCollectionSO CustomLevelCollectionSO { get; private set; }
-		private bool CustomPlatformsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
+        private bool CustomPlatformsPresent = false;//IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
 		private int _currentPlatform = -1;
 
 		public const string MenuSceneName = "Menu";
@@ -146,7 +146,7 @@ namespace SongLoaderPlugin
 				{
 					if(_currentPlatform != -1)
 					{
-						CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
+			//			CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
 					}
 				}
 			}
@@ -175,10 +175,10 @@ namespace SongLoaderPlugin
 					int _customPlatform = customEnvironment(song);
 					if (_customPlatform != -1)
 					{
-						_currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
+					//	_currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
 						if (customSongPlatforms && _customPlatform != _currentPlatform)
 						{
-							CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
+					//		CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
 						}
 					}
 				}
@@ -808,6 +808,7 @@ namespace SongLoaderPlugin
 		}
 
 		private int findCustomEnvironment(string name) {
+            /*
 			CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
 			int platIndex = 0;
 			foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
@@ -817,6 +818,7 @@ namespace SongLoaderPlugin
 				platIndex++;
 			}
 			Console.WriteLine(name + " not found!");
+            */
 			return -1;
 		}
 

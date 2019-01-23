@@ -3,13 +3,14 @@ using IllusionPlugin;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using CustomUI.Settings;
+using Harmony;
 namespace SongLoaderPlugin
 {
 	public class Plugin : IPlugin
 	{
 		public const string VersionNumber = "v5.2.0";
-
-		private SceneEvents _sceneEvents;
+        internal static HarmonyInstance harmony;
+        private SceneEvents _sceneEvents;
 		
 		public string Name
 		{
@@ -26,8 +27,11 @@ namespace SongLoaderPlugin
 			_sceneEvents = new GameObject("menu-signal").AddComponent<SceneEvents>();
 			_sceneEvents.MenuSceneEnabled += OnMenuSceneEnabled;
 			SceneManager.sceneLoaded += SceneManager_sceneLoaded;
-			
-		}
+
+            harmony = HarmonyInstance.Create("com.xyoncio.BeatSaber.SongLoaderPlugin");
+            harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
+
+        }
 
 		private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
 		{
