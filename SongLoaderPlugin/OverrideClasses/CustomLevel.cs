@@ -204,6 +204,7 @@ namespace SongLoaderPlugin.OverrideClasses
             public Color colorLeft { get; private set; }
             public Color colorRight { get; private set; }
             public bool hasCustomColors { get; set; } = false;
+
             private List<string> Requirements = new List<string>();
             public System.Collections.ObjectModel.ReadOnlyCollection<string> requirements
             {

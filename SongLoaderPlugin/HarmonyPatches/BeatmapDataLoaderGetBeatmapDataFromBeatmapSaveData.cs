@@ -86,7 +86,12 @@ namespace SongLoaderPlugin.Harmony_Patches
                     float realTimeFromBPMTime3 = GetRealTimeFromBPMTime(obstacleData.duration, beatsPerMinute, shuffle, shufflePeriod);
                     int width = obstacleData.width;
                     ObstacleData item = new ObstacleData(num++, realTimeFromBPMTime2, lineIndex2, type2, realTimeFromBPMTime3, width);
-                    array[lineIndex2].Add(item);
+                int number2 = lineIndex2;
+                if (number2 < 0)
+                    number2 = 0;
+                if (number2 > 3)
+                    number2 = 3;
+                array[number2].Add(item);
                 }
                 foreach (BeatmapSaveData.EventData eventData in eventsSaveData)
                 {
