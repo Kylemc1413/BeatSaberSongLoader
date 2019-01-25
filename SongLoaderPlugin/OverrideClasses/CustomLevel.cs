@@ -11,8 +11,8 @@ namespace SongLoaderPlugin.OverrideClasses
 		public CustomSongInfo customSongInfo { get; private set; }
 		public bool AudioClipLoading { get; set; }
 		public bool BPMAndNoteSpeedFixed { get; private set; }
-		
-		public void Init(CustomSongInfo newCustomSongInfo)
+        public bool HasExtraLanes { get; private set; }
+        public void Init(CustomSongInfo newCustomSongInfo)
 		{
 			customSongInfo = newCustomSongInfo;
 			_levelID = customSongInfo.GetIdentifier();
@@ -28,6 +28,7 @@ namespace SongLoaderPlugin.OverrideClasses
 			_environmentSceneInfo = EnvironmentsLoader.GetSceneInfo(customSongInfo.environmentName);
 			string _customEnvironment = customSongInfo.customEnvironment;
 			string _customEnvironmentHash = customSongInfo.customEnvironmentHash;
+            
 		}
 
 		public void SetAudioClip(AudioClip newAudioClip)
@@ -59,7 +60,7 @@ namespace SongLoaderPlugin.OverrideClasses
 				if (string.IsNullOrEmpty(diffLevel.json)) continue;
 				float? bpm, noteSpeed;
 				Color? colorLeft, colorRight;
-				int? noteJumpStartBeatOffset; 
+				int? noteJumpStartBeatOffset;
 				GetBPMAndNoteJump(diffLevel.json, out bpm, out noteSpeed, out noteJumpStartBeatOffset);
 				GetColors(diffLevel.json, out colorLeft, out colorRight);
 				if (bpm.HasValue)
@@ -80,7 +81,9 @@ namespace SongLoaderPlugin.OverrideClasses
 					diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
 				var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
 				if (customBeatmap == null) continue;
-				customBeatmap.SetNoteJumpMovementSpeed(noteSpeed.Value);
+                        customBeatmap.CheckExtraLanes(diffLevel.json);
+                Console.WriteLine("Has Extra Lanes | " + customBeatmap.HasExtraLanes);
+                customBeatmap.SetNoteJumpMovementSpeed(noteSpeed.Value);
 				if(noteJumpStartBeatOffset.HasValue)
 					customBeatmap.SetNoteJumpStartBeatOffset(noteJumpStartBeatOffset.Value);
 				
@@ -201,7 +204,8 @@ namespace SongLoaderPlugin.OverrideClasses
 		{
 			public Color colorLeft { get; private set; }
 			public Color colorRight { get; private set; }
-			public bool hasCustomColors { get; set; } = false;
+            public bool HasExtraLanes { get; private set; } = false;
+            public bool hasCustomColors { get; set; } = false;
 			public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData) : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
 			{
 			}
@@ -232,9 +236,36 @@ namespace SongLoaderPlugin.OverrideClasses
 			{
 				this.colorRight = colorRight;
 			}
-		}
 
-		public void Reset()
+            internal void CheckExtraLanes(string json)
+            {
+                HasExtraLanes = false;
+                int value;
+                var split = json.Split(':');
+                for (var i = 0; i < split.Length; i++)
+                {
+                    if (split[i].Contains("_lineIndex"))
+                    {
+                        value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                        if (value < 0 || value > 3) HasExtraLanes = true;
+                    }
+                    if (split[i].Contains("_lineLayer"))
+                    {
+                        value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                        if (value < 0 || value > 2) HasExtraLanes = true;
+                    }
+                    //          if (split[i].Contains("_cutDirection"))
+                    //          {
+                    //               value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                    //               if (value < 0 || value > 9) return true;
+                    //     }
+
+                }
+            }
+
+        }
+
+        public void Reset()
 		{
 			_audioClip = null;
 			BPMAndNoteSpeedFixed = false;

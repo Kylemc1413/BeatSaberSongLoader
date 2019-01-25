@@ -22,7 +22,7 @@ namespace SongLoaderPlugin.Harmony_Patches
     {
         static bool Prefix(List<BeatmapSaveData.NoteData> notesSaveData, List<BeatmapSaveData.ObstacleData> obstaclesSaveData, List<BeatmapSaveData.EventData> eventsSaveData, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData __result)
         {
-
+            
                 List<BeatmapObjectData>[] array = new List<BeatmapObjectData>[4];
                 List<BeatmapEventData> list = new List<BeatmapEventData>(eventsSaveData.Count);
                 for (int i = 0; i < 4; i++)
@@ -116,6 +116,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                     array2[j].beatmapObjectsData = array[j].ToArray();
                 }
                 __result = new BeatmapData(array2, list.ToArray());
+            
                 return false;
             
 
