@@ -15,6 +15,14 @@ namespace SongLoaderPlugin
 {
 	public class SongLoader : MonoBehaviour
 	{
+        private static List<string> _capabilities = new List<string>();
+        public static System.Collections.ObjectModel.ReadOnlyCollection<string> capabilities
+        {
+            get { return _capabilities.AsReadOnly(); }
+        }
+
+
+
 		public static event Action<SongLoader> LoadingStartedEvent;
 		public static event Action<SongLoader, List<CustomLevel>> SongsLoadedEvent;
 		public static List<CustomLevel> CustomLevels = new List<CustomLevel>();
@@ -47,7 +55,8 @@ namespace SongLoaderPlugin
 		private bool _loadingCancelled;
 		private SceneEvents _sceneEvents;
 
-		private CustomLevel.CustomDifficultyBeatmap _currentLevelPlaying;
+		public static CustomLevel.CustomDifficultyBeatmap CurrentLevelPlaying { get; private set; }
+        public static System.Collections.ObjectModel.ReadOnlyCollection<string> currentRequirements;
 
 		public static readonly AudioClip TemporaryAudioClip = AudioClip.Create("temp", 1, 2, 1000, true);
 
@@ -106,7 +115,7 @@ namespace SongLoaderPlugin
 			
 			if (activeScene.name == MenuSceneName)
 			{
-				_currentLevelPlaying = null;
+				CurrentLevelPlaying = null;
 
 				if (CustomLevelCollectionSO == null)
 				{
@@ -158,7 +167,7 @@ namespace SongLoaderPlugin
 				var beatmap = level as CustomLevel.CustomDifficultyBeatmap;
 				if (beatmap != null)
 				{
-					_currentLevelPlaying = beatmap;
+					CurrentLevelPlaying = beatmap;
 					
 					//The note jump movement speed now gets set in the Start method, so we're too early here. We have to wait a bit before overriding.
 					Invoke(nameof(DelayedNoteJumpMovementSpeedFix), 0.1f);
@@ -184,7 +193,7 @@ namespace SongLoaderPlugin
 				}
 				//Set enviroment colors for the song if it has song specific colors
 				if(customSongColors)
-				song.SetSongColors(_currentLevelPlaying.colorLeft, _currentLevelPlaying.colorRight, _currentLevelPlaying.hasCustomColors);
+				song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
 			}
 		}
 
@@ -193,7 +202,7 @@ namespace SongLoaderPlugin
 			//Beat Saber 0.11.1 introduced a check for if noteJumpMovementSpeed <= 0
 			//This breaks songs that have a negative noteJumpMovementSpeed and previously required a patcher to get working again
 			//I've added this to add support for that again, because why not.
-			if (_currentLevelPlaying.noteJumpMovementSpeed <= 0)
+			if (CurrentLevelPlaying.noteJumpMovementSpeed <= 0)
 			{
 				var beatmapObjectSpawnController =
 					Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
@@ -201,9 +210,9 @@ namespace SongLoaderPlugin
 				{
 					var disappearingArrows = beatmapObjectSpawnController.GetPrivateField<bool>("_disappearingArrows");
 
-					beatmapObjectSpawnController.Init(_currentLevelPlaying.level.beatsPerMinute,
-						_currentLevelPlaying.beatmapData.beatmapLinesData.Length,
-						_currentLevelPlaying.noteJumpMovementSpeed, _currentLevelPlaying.noteJumpStartBeatOffset, disappearingArrows);
+					beatmapObjectSpawnController.Init(CurrentLevelPlaying.level.beatsPerMinute,
+						CurrentLevelPlaying.beatmapData.beatmapLinesData.Length,
+						CurrentLevelPlaying.noteJumpMovementSpeed, CurrentLevelPlaying.noteJumpStartBeatOffset, disappearingArrows);
 				}
 			}
 
@@ -213,7 +222,7 @@ namespace SongLoaderPlugin
 			var gameplayCore = Resources.FindObjectsOfTypeAll<GameplayCoreSceneSetup>().FirstOrDefault();
 			if (gameplayCore == null) return;
 			Console.WriteLine("Applying no arrow transformation");
-			var transformedBeatmap = BeatmapDataNoArrowsTransform.CreateTransformedData(_currentLevelPlaying.beatmapData);
+			var transformedBeatmap = BeatmapDataNoArrowsTransform.CreateTransformedData(CurrentLevelPlaying.beatmapData);
 			var beatmapDataModel = gameplayCore.GetPrivateField<BeatmapDataModel>("_beatmapDataModel");
 			beatmapDataModel.SetPrivateField("_beatmapData", transformedBeatmap);
 		}
@@ -751,7 +760,7 @@ namespace SongLoaderPlugin
 		{
 			if (Input.GetKeyDown(KeyCode.R))
 			{
-				if (_currentLevelPlaying != null)
+				if (CurrentLevelPlaying != null)
 				{
 					ReloadCurrentSong();
 					return;
@@ -763,13 +772,13 @@ namespace SongLoaderPlugin
 		private void ReloadCurrentSong()
 		{
 			if (!_standardLevelSceneSetupData.gameplayCoreSetupData.gameplayModifiers.noFail) return;
-			var reloadedLevel = LoadSong(GetCustomSongInfo(_currentLevelPlaying.customLevel.customSongInfo.path));
+			var reloadedLevel = LoadSong(GetCustomSongInfo(CurrentLevelPlaying.customLevel.customSongInfo.path));
 			if (reloadedLevel == null) return;
 			
 			reloadedLevel.FixBPMAndGetNoteJumpMovementSpeed();
-			reloadedLevel.SetAudioClip(_currentLevelPlaying.customLevel.audioClip);
+			reloadedLevel.SetAudioClip(CurrentLevelPlaying.customLevel.audioClip);
 					
-			RemoveSong(_currentLevelPlaying.customLevel);
+			RemoveSong(CurrentLevelPlaying.customLevel);
 			CustomLevels.Add(reloadedLevel);
 			
 			CustomLevelCollectionSO.AddCustomLevel(reloadedLevel);
@@ -872,5 +881,12 @@ namespace SongLoaderPlugin
 				}
 			}
 		}
+
+        public static void RegisterCapability(string capability)
+        {
+            _capabilities.Add(capability);
+        }
+
+
 	}
 }

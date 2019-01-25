@@ -14,19 +14,35 @@ namespace SongLoaderPlugin.Harmony_Patches
 
     class StandardLevelDetailViewRefreshContent
     {
-        static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____difficultyBeatmap, ref IPlayer ____player, ref TextMeshProUGUI ____songNameText)
+        static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____difficultyBeatmap,
+            ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton)
         {
             IBeatmapLevel level = ____difficultyBeatmap.level;
             CustomLevel.CustomDifficultyBeatmap beatmap = ____difficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
-            Console.WriteLine("Beatmap Extra:   " + beatmap.HasExtraLanes);
-            if (beatmap.HasExtraLanes)
-            {
+            ____playButton.interactable = true;
+            ____practiceButton.interactable = true;
             ____songNameText.overflowMode = TextOverflowModes.Overflow;
             ____songNameText.enableWordWrapping = false;
             ____songNameText.richText = true;
-            ____songNameText.text += "<size=75%>\r\n <#FFD42A> Has Extra Lanes ";
+            SongLoader.currentRequirements = beatmap.requirements;
+            ____songNameText.text += "<size=75%>\r\n <#FFD42A> Requirements: ";
+            foreach(string req in beatmap.requirements)
+            {
+                Console.WriteLine(req);
+                if (!SongLoader.capabilities.Contains(req))
+                {
+                ____songNameText.text += "<#FF0000>" + req + "<#FFD42A> | ";
+                ____playButton.interactable = false;
+                    ____practiceButton.interactable = false;
+                }
+                else
+                {
+                    ____songNameText.text += "<#FFD42A>" + req + " | ";
+                }
+
 
             }
+
 
 
         }
