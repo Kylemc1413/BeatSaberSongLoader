@@ -260,6 +260,13 @@ namespace SongLoaderPlugin.OverrideClasses
                 var split = json.Split(':');
                 for (var i = 0; i < split.Length; i++)
                 {
+                    if (split[i].Contains("_warning"))
+                    {
+                        string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
+                        AddWarning(req);
+
+                    }
+
                     if (split[i].Contains("_requirement"))
                     {
                         string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
@@ -270,12 +277,6 @@ namespace SongLoaderPlugin.OverrideClasses
                     {
                         string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
                         AddSuggestion(req);
-
-                    }
-                    if (split[i].Contains("_warning"))
-                    {
-                        string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
-                        AddWarning(req);
 
                     }
                     if (split[i].Contains("_lineIndex"))

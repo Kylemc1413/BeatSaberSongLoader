@@ -791,6 +791,18 @@ namespace SongLoaderPlugin
             //   suggestionsList.text = "";
 
             reqViewController.Data.Clear();
+
+            if (beatmap.warnings.Count > 0)
+            {
+                foreach (string req in beatmap.warnings)
+                {
+
+                    //    Console.WriteLine(req);
+
+                    reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
+                }
+            }
+
             if (beatmap.requirements.Count > 0)
             {
                 foreach(string req in beatmap.requirements)
@@ -812,16 +824,6 @@ namespace SongLoaderPlugin
                         reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));
                     else
                         reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon));
-                }
-            }
-            if (beatmap.warnings.Count > 0)
-            {
-                foreach (string req in beatmap.warnings)
-                {
-
-                    //    Console.WriteLine(req);
-
-                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
                 }
             }
             /*
