@@ -81,7 +81,7 @@ namespace SongLoaderPlugin.OverrideClasses
                     diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
                 var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
                 if (customBeatmap == null) continue;
-                customBeatmap.CheckExtraLanes(diffLevel.json);
+                customBeatmap.CheckRequirements(diffLevel.json);
                 customBeatmap.SetNoteJumpMovementSpeed(noteSpeed.Value);
                 if (noteJumpStartBeatOffset.HasValue)
                     customBeatmap.SetNoteJumpStartBeatOffset(noteJumpStartBeatOffset.Value);
@@ -210,6 +210,11 @@ namespace SongLoaderPlugin.OverrideClasses
             {
                 get { return Requirements.AsReadOnly(); }
             }
+            private List<string> Suggestions = new List<string>();
+            public System.Collections.ObjectModel.ReadOnlyCollection<string> suggestions
+            {
+                get { return Suggestions.AsReadOnly(); }
+            }
 
 
             public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData) : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
@@ -244,36 +249,57 @@ namespace SongLoaderPlugin.OverrideClasses
                 this.colorRight = colorRight;
             }
 
-            internal void CheckExtraLanes(string json)
+            internal void CheckRequirements(string json)
             {
                 int value;
                 var split = json.Split(':');
                 for (var i = 0; i < split.Length; i++)
                 {
+                    if (split[i].Contains("_requirement"))
+                    {
+                        string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
+                        AddRequirement(req);
+
+                    }
+                    if (split[i].Contains("_suggestion"))
+                    {
+                        string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
+                        AddSuggestion(req);
+
+                    }
                     if (split[i].Contains("_lineIndex"))
                     {
                         value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                        if (value < 0 || value > 3) AddRequirement("Extra Lanes");
+                        if ((value < 0 || value > 3) && !(value >= 1000 || value <= -1000)) AddRequirement("ME-More Lanes");
+                        if (value >= 1000 || value <= -1000) AddRequirement("ME-Precision Placement");
                     }
                     if (split[i].Contains("_lineLayer"))
                     {
                         value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                        if (value < 0 || value > 2) AddRequirement("Extra Lanes");
+                        if ((value < 0 || value > 2) && !(value >= 1000 || value <= -1000)) AddRequirement("ME-More Lanes");
+                        if (value >= 1000 || value <= -1000) AddRequirement("ME-Precision Placement");
                     }
-                    //          if (split[i].Contains("_cutDirection"))
-                    //          {
-                    //               value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                    //               if (value < 0 || value > 9) return true;
-                    //     }
+                    if (split[i].Contains("_cutDirection"))
+                    {
+                        value = Convert.ToInt32(split[i + 1].Split(',', '}')[0], CultureInfo.InvariantCulture);
+                        if ((value >= 1000 && value <= 1360) || (value >= 2000 && value <= 2360))
+                            AddRequirement("ME-Extra Note Angles");
+                    }
 
                 }
-                AddRequirement("ChromaToggle");
+                //          AddRequirement("ChromaToggle");
             }
 
-            public void AddRequirement(string req)
+            public void AddRequirement(string requirement)
             {
-                if(!Requirements.Contains(req))
-                Requirements.Add(req);
+                if (!Requirements.Contains(requirement))
+                    Requirements.Add(requirement);
+            }
+
+            public void AddSuggestion(string suggestion)
+            {
+                if (!Suggestions.Contains(suggestion))
+                    Suggestions.Add(suggestion);
             }
 
 

@@ -7,6 +7,8 @@ using Harmony;
 using UnityEngine;
 using TMPro;
 using SongLoaderPlugin.OverrideClasses;
+using UnityEngine.UI;
+using CustomUI.BeatSaber;
 namespace SongLoaderPlugin.Harmony_Patches
 {
     [HarmonyPatch(typeof(StandardLevelDetailViewController))]
@@ -17,34 +19,76 @@ namespace SongLoaderPlugin.Harmony_Patches
         static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____difficultyBeatmap,
             ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton)
         {
-            IBeatmapLevel level = ____difficultyBeatmap.level;
-            CustomLevel.CustomDifficultyBeatmap beatmap = ____difficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
+            IBeatmapLevel level = ____difficultyBeatmap?.level;
+
             ____playButton.interactable = true;
             ____practiceButton.interactable = true;
+            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
             ____songNameText.overflowMode = TextOverflowModes.Overflow;
             ____songNameText.enableWordWrapping = false;
             ____songNameText.richText = true;
-            SongLoader.currentRequirements = beatmap.requirements;
-            ____songNameText.text += "<size=75%>\r\n <#FFD42A> Requirements: ";
-            foreach(string req in beatmap.requirements)
+            if (level != null)
             {
-                Console.WriteLine(req);
-                if (!SongLoader.capabilities.Contains(req))
+                CustomLevel.CustomDifficultyBeatmap beatmap = ____difficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
+                if (SongLoader.infoButton == null)
                 {
-                ____songNameText.text += "<#FF0000>" + req + "<#FFD42A> | ";
-                ____playButton.interactable = false;
-                    ____practiceButton.interactable = false;
+                    SongLoader.infoButton = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PlayButton")), (RectTransform)____playButton.transform.parent.transform, false);
+                    SongLoader.infoButton.SetButtonText("?");
+                    //   SongLoader.infoButton = CustomUI.BeatSaber.BeatSaberUI.CreateUIButton((RectTransform)____playButton.transform.parent.transform, "PlayButton", null, "?");
+                    SongLoader.infoButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
+                    (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.1f, 0.1f);
+                }
+
+
+
+
+                if (beatmap != null)
+                {
+                    SongLoader.infoButton.onClick.RemoveAllListeners();
+                    SongLoader.infoButton.onClick.AddListener(delegate ()
+                    {
+                        if (beatmap != null)
+                            SongLoader.showSongRequirements(beatmap);
+                    });
+
+                    if (beatmap.requirements.Count == 0 && beatmap.suggestions.Count == 0)
+                    {
+                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
+                        SongLoader.infoButton.interactable = false;
+                    }
+                    else
+                    {
+                        SongLoader.infoButton.interactable = true;
+                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                    }
+
+
+                    SongLoader.currentRequirements = beatmap.requirements;
+                    SongLoader.currentSuggestions = beatmap.suggestions;
+                    for (int i = 0; i < beatmap.requirements.Count; i++)
+                    {
+                        if (!SongLoader.capabilities.Contains(beatmap.requirements[i]))
+                        {
+                            ____playButton.interactable = false;
+                            ____practiceButton.interactable = false;
+                            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                            SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
+                        }
+
+                    }
+
                 }
                 else
                 {
-                    ____songNameText.text += "<#FFD42A>" + req + " | ";
+                    SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
+                    SongLoader.infoButton.interactable = false;
                 }
 
 
             }
 
 
-
         }
     }
 }
+

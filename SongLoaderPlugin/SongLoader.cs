@@ -10,7 +10,9 @@ using SongLoaderPlugin.Internals;
 using SongLoaderPlugin.OverrideClasses;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
-
+using CustomUI.BeatSaber;
+using UnityEngine.UI;
+using TMPro;
 namespace SongLoaderPlugin
 {
 	public class SongLoader : MonoBehaviour
@@ -22,8 +24,16 @@ namespace SongLoaderPlugin
         }
 
 
+        public static UnityEngine.UI.Button infoButton;
+        internal static CustomUI.BeatSaber.CustomMenu reqDialog;
+        internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
+        internal static TextMeshProUGUI requirementsText;
+        internal static TextMeshProUGUI requirementsList;
+        internal static TextMeshProUGUI suggestionsText;
+        internal static TextMeshProUGUI suggestionsList;
 
-		public static event Action<SongLoader> LoadingStartedEvent;
+
+        public static event Action<SongLoader> LoadingStartedEvent;
 		public static event Action<SongLoader, List<CustomLevel>> SongsLoadedEvent;
 		public static List<CustomLevel> CustomLevels = new List<CustomLevel>();
 		public static bool AreSongsLoaded { get; private set; }
@@ -57,8 +67,9 @@ namespace SongLoaderPlugin
 
 		public static CustomLevel.CustomDifficultyBeatmap CurrentLevelPlaying { get; private set; }
         public static System.Collections.ObjectModel.ReadOnlyCollection<string> currentRequirements;
+        public static System.Collections.ObjectModel.ReadOnlyCollection<string> currentSuggestions;
 
-		public static readonly AudioClip TemporaryAudioClip = AudioClip.Create("temp", 1, 2, 1000, true);
+        public static readonly AudioClip TemporaryAudioClip = AudioClip.Create("temp", 1, 2, 1000, true);
 
 		private LogSeverity _minLogSeverity;
 		private bool _noArrowsSelected;
@@ -756,7 +767,90 @@ namespace SongLoaderPlugin
 			Console.WriteLine("Song Loader [" + severity.ToString().ToUpper() + "]: " + message);
 		}
 
-		private void Update()
+        private static void InitRequirementsMenu()
+        {
+            reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Song Requirements");
+            reqViewController = BeatSaberUI.CreateViewController<CustomListViewController>();
+
+            RectTransform confirmContainer = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
+            confirmContainer.SetParent(reqViewController.rectTransform, false);
+            confirmContainer.sizeDelta = new Vector2(60f, 0f);
+
+            requirementsText = new GameObject("songRequirementsText").AddComponent<TextMeshProUGUI>();
+            requirementsText.rectTransform.SetParent(confirmContainer, false);
+            requirementsText.rectTransform.anchoredPosition = new Vector2(35f, 35f);
+            requirementsText.fontSize = 6f;
+            requirementsText.color = Color.white;
+    //        requirementsText.text = "<b><u>Requirements</b></u>";
+            requirementsText.alignment = TextAlignmentOptions.Left;
+            requirementsText.enableWordWrapping = true;
+
+            requirementsList = new GameObject("songRequirementsList").AddComponent<TextMeshProUGUI>();
+            requirementsList.rectTransform.SetParent(confirmContainer, false);
+            requirementsList.rectTransform.anchoredPosition = new Vector2(35f, 25f);
+            requirementsList.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 120f);
+            requirementsList.fontSize = 5f;
+            requirementsList.color = Color.white;
+            requirementsList.text = "";
+            requirementsList.alignment = TextAlignmentOptions.Left;
+            requirementsList.enableWordWrapping = true;
+
+            reqDialog.SetMainViewController(reqViewController, true);
+
+        }
+
+        internal static void showSongRequirements(CustomLevel.CustomDifficultyBeatmap beatmap)
+        {
+            if (reqDialog == null)
+                InitRequirementsMenu();
+            requirementsList.text = "";
+            //   suggestionsList.text = "";
+
+            reqViewController.Data.Clear();
+            if (beatmap.requirements.Count > 0)
+            {
+                foreach(string req in beatmap.requirements)
+                {
+                    Console.WriteLine(req);
+                    if (!capabilities.Contains(req))
+                        reqViewController.Data.Add(new CustomCellInfo("<#FF0000>" + req, "Missing Requirement"));
+                    else
+                        reqViewController.Data.Add(new CustomCellInfo("<#00FF00>" + req, "Requirement"));
+                }
+            }
+            if (beatmap.suggestions.Count > 0)
+            {
+                foreach (string req in beatmap.suggestions)
+                {
+
+                    Console.WriteLine(req);
+                    if (!capabilities.Contains(req))
+                        reqViewController.Data.Add(new CustomCellInfo(req, "Suggestion"));
+                    else
+                        reqViewController.Data.Add(new CustomCellInfo(req, "Suggestion"));
+                }
+            }
+            /*
+             *  if (!SongLoader.capabilities.Contains(req))
+                    {
+                        reqString += "<#FF0000>" + req + "<#FFD42A> | ";
+                        ____playButton.interactable = false;
+                        ____practiceButton.interactable = false;
+                        ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+
+                    }
+                    else
+                    {//(0.000, 0.706, 1.000, 0.784)
+                        reqString += "<#FFD42A>" + req + " | ";
+                    } 
+             *
+             * */
+            reqDialog.Present();
+            reqViewController._customListTableView.ReloadData();
+        }
+                
+        
+        private void Update()
 		{
 			if (Input.GetKeyDown(KeyCode.R))
 			{
