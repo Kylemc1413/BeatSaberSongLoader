@@ -31,6 +31,7 @@ namespace SongLoaderPlugin
         internal static Sprite MissingReqIcon;
         internal static Sprite HaveSuggestionIcon;
         internal static Sprite MissingSuggestionIcon;
+        internal static Sprite WarningIcon;
 
 
 
@@ -794,7 +795,7 @@ namespace SongLoaderPlugin
             {
                 foreach(string req in beatmap.requirements)
                 {
-                    Console.WriteLine(req);
+                //    Console.WriteLine(req);
                     if (!capabilities.Contains(req))
                         reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
                     else
@@ -806,11 +807,21 @@ namespace SongLoaderPlugin
                 foreach (string req in beatmap.suggestions)
                 {
 
-                    Console.WriteLine(req);
+                //    Console.WriteLine(req);
                     if (!capabilities.Contains(req))
                         reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));
                     else
                         reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon));
+                }
+            }
+            if (beatmap.warnings.Count > 0)
+            {
+                foreach (string req in beatmap.warnings)
+                {
+
+                    //    Console.WriteLine(req);
+
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
                 }
             }
             /*
@@ -838,7 +849,7 @@ namespace SongLoaderPlugin
                 HaveReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
                 HaveSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
                 MissingSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
-
+                WarningIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
 
         }
         private void Update()

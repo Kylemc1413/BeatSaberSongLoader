@@ -71,7 +71,6 @@
     <Compile Include="CustomSongInfo.cs" />
     <Compile Include="EnvironmentsLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData.cs" />
-    <Compile Include="HarmonyPatches\FlyingScoreSpawnerSpawnFlyingScore.cs" />
     <Compile Include="HarmonyPatches\StandardLevelDetailViewRefreshContent.cs" />
     <Compile Include="Internals\Unzip.cs" />
     <Compile Include="IScriptableObjectResetable.cs" />
@@ -109,6 +108,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Warning.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

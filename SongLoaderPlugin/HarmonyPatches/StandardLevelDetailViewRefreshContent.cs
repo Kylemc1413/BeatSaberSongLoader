@@ -51,15 +51,20 @@ namespace SongLoaderPlugin.Harmony_Patches
                             SongLoader.showSongRequirements(beatmap);
                     });
 
-                    if (beatmap.requirements.Count == 0 && beatmap.suggestions.Count == 0)
+                    if (beatmap.requirements.Count == 0 && beatmap.suggestions.Count == 0 && beatmap.warnings.Count == 0)
                     {
                         SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
                         SongLoader.infoButton.interactable = false;
                     }
-                    else
+                    else if(beatmap.warnings.Count == 0)
                     {
                         SongLoader.infoButton.interactable = true;
                         SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                    }
+                    else if(beatmap.warnings.Count > 0)
+                    {
+                        SongLoader.infoButton.interactable = true;
+                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
                     }
 
 

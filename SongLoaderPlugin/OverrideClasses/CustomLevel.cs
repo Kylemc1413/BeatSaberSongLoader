@@ -215,6 +215,11 @@ namespace SongLoaderPlugin.OverrideClasses
             {
                 get { return Suggestions.AsReadOnly(); }
             }
+            private List<string> Warnings = new List<string>();
+            public System.Collections.ObjectModel.ReadOnlyCollection<string> warnings
+            {
+                get { return Warnings.AsReadOnly(); }
+            }
 
 
             public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData) : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
@@ -267,6 +272,12 @@ namespace SongLoaderPlugin.OverrideClasses
                         AddSuggestion(req);
 
                     }
+                    if (split[i].Contains("_warning"))
+                    {
+                        string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
+                        AddWarning(req);
+
+                    }
                     if (split[i].Contains("_lineIndex"))
                     {
                         value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
@@ -302,7 +313,11 @@ namespace SongLoaderPlugin.OverrideClasses
                     Suggestions.Add(suggestion);
             }
 
-
+            public void AddWarning(string warning)
+            {
+                if (!Warnings.Contains(warning))
+                    Warnings.Add(warning);
+            }
         }
 
         public void Reset()
