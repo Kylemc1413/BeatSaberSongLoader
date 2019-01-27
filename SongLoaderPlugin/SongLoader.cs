@@ -27,10 +27,12 @@ namespace SongLoaderPlugin
         public static UnityEngine.UI.Button infoButton;
         internal static CustomUI.BeatSaber.CustomMenu reqDialog;
         internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
-        internal static TextMeshProUGUI requirementsText;
-        internal static TextMeshProUGUI requirementsList;
-        internal static TextMeshProUGUI suggestionsText;
-        internal static TextMeshProUGUI suggestionsList;
+        internal static Sprite HaveReqIcon;
+        internal static Sprite MissingReqIcon;
+        internal static Sprite HaveSuggestionIcon;
+        internal static Sprite MissingSuggestionIcon;
+
+
 
 
         public static event Action<SongLoader> LoadingStartedEvent;
@@ -775,27 +777,9 @@ namespace SongLoaderPlugin
             RectTransform confirmContainer = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
             confirmContainer.SetParent(reqViewController.rectTransform, false);
             confirmContainer.sizeDelta = new Vector2(60f, 0f);
-
-            requirementsText = new GameObject("songRequirementsText").AddComponent<TextMeshProUGUI>();
-            requirementsText.rectTransform.SetParent(confirmContainer, false);
-            requirementsText.rectTransform.anchoredPosition = new Vector2(35f, 35f);
-            requirementsText.fontSize = 6f;
-            requirementsText.color = Color.white;
-    //        requirementsText.text = "<b><u>Requirements</b></u>";
-            requirementsText.alignment = TextAlignmentOptions.Left;
-            requirementsText.enableWordWrapping = true;
-
-            requirementsList = new GameObject("songRequirementsList").AddComponent<TextMeshProUGUI>();
-            requirementsList.rectTransform.SetParent(confirmContainer, false);
-            requirementsList.rectTransform.anchoredPosition = new Vector2(35f, 25f);
-            requirementsList.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 120f);
-            requirementsList.fontSize = 5f;
-            requirementsList.color = Color.white;
-            requirementsList.text = "";
-            requirementsList.alignment = TextAlignmentOptions.Left;
-            requirementsList.enableWordWrapping = true;
-
+            GetIcons();
             reqDialog.SetMainViewController(reqViewController, true);
+
 
         }
 
@@ -803,7 +787,6 @@ namespace SongLoaderPlugin
         {
             if (reqDialog == null)
                 InitRequirementsMenu();
-            requirementsList.text = "";
             //   suggestionsList.text = "";
 
             reqViewController.Data.Clear();
@@ -813,9 +796,9 @@ namespace SongLoaderPlugin
                 {
                     Console.WriteLine(req);
                     if (!capabilities.Contains(req))
-                        reqViewController.Data.Add(new CustomCellInfo("<#FF0000>" + req, "Missing Requirement"));
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
                     else
-                        reqViewController.Data.Add(new CustomCellInfo("<#00FF00>" + req, "Requirement"));
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
                 }
             }
             if (beatmap.suggestions.Count > 0)
@@ -825,9 +808,9 @@ namespace SongLoaderPlugin
 
                     Console.WriteLine(req);
                     if (!capabilities.Contains(req))
-                        reqViewController.Data.Add(new CustomCellInfo(req, "Suggestion"));
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));
                     else
-                        reqViewController.Data.Add(new CustomCellInfo(req, "Suggestion"));
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon));
                 }
             }
             /*
@@ -849,7 +832,15 @@ namespace SongLoaderPlugin
             reqViewController._customListTableView.ReloadData();
         }
                 
-        
+        internal static void GetIcons()
+        {
+                MissingReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
+                HaveReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
+                HaveSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
+                MissingSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
+
+
+        }
         private void Update()
 		{
 			if (Input.GetKeyDown(KeyCode.R))

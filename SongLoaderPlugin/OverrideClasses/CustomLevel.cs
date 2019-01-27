@@ -270,20 +270,20 @@ namespace SongLoaderPlugin.OverrideClasses
                     if (split[i].Contains("_lineIndex"))
                     {
                         value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                        if ((value < 0 || value > 3) && !(value >= 1000 || value <= -1000)) AddRequirement("ME-More Lanes");
-                        if (value >= 1000 || value <= -1000) AddRequirement("ME-Precision Placement");
+                        if ((value < 0 || value > 3) && !(value >= 1000 || value <= -1000)) AddRequirement("Mapping Extensions-More Lanes");
+                        if (value >= 1000 || value <= -1000) AddRequirement("Mapping Extensions-Precision Placement");
                     }
                     if (split[i].Contains("_lineLayer"))
                     {
                         value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                        if ((value < 0 || value > 2) && !(value >= 1000 || value <= -1000)) AddRequirement("ME-More Lanes");
-                        if (value >= 1000 || value <= -1000) AddRequirement("ME-Precision Placement");
+                        if ((value < 0 || value > 2) && !(value >= 1000 || value <= -1000)) AddRequirement("Mapping Extensions-More Lanes");
+                        if (value >= 1000 || value <= -1000) AddRequirement("Mapping Extensions-Precision Placement");
                     }
                     if (split[i].Contains("_cutDirection"))
                     {
                         value = Convert.ToInt32(split[i + 1].Split(',', '}')[0], CultureInfo.InvariantCulture);
                         if ((value >= 1000 && value <= 1360) || (value >= 2000 && value <= 2360))
-                            AddRequirement("ME-Extra Note Angles");
+                            AddRequirement("Mapping Extensions-Extra Note Angles");
                     }
 
                 }
