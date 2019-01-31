@@ -65,11 +65,17 @@ namespace SongLoaderPlugin.Harmony_Patches
                     {
                         SongLoader.infoButton.interactable = true;
                         SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                        if (beatmap.warnings.Contains("WIP"))
+                        {
+                            ____playButton.interactable = false;
+                            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                        }
                     }
 
 
                     SongLoader.currentRequirements = beatmap.requirements;
                     SongLoader.currentSuggestions = beatmap.suggestions;
+                    
                     for (int i = 0; i < beatmap.requirements.Count; i++)
                     {
                         if (!SongLoader.capabilities.Contains(beatmap.requirements[i]))
@@ -79,8 +85,9 @@ namespace SongLoaderPlugin.Harmony_Patches
                             ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
                             SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
                         }
-
                     }
+
+
 
                 }
                 else

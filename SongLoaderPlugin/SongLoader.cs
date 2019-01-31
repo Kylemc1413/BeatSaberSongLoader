@@ -43,7 +43,7 @@ namespace SongLoaderPlugin
 		public static bool AreSongsLoading { get; private set; }
 		public static float LoadingProgress { get; private set; }
 		public static CustomLevelCollectionSO CustomLevelCollectionSO { get; private set; }
-        private bool CustomPlatformsPresent = false;//IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
+        private bool CustomPlatformsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms" && x.Version != "2.5.0");
 		private int _currentPlatform = -1;
 
 		public const string MenuSceneName = "Menu";
@@ -165,14 +165,10 @@ namespace SongLoaderPlugin
 					_characteristicViewController.didSelectBeatmapCharacteristicEvent += OnDidSelectBeatmapCharacteristicEvent;
 				}
 
-				if(CustomPlatformsPresent)
-				{
-					if(_currentPlatform != -1)
-					{
-			//			CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
-					}
-				}
-			}
+                if (CustomPlatformsPresent)
+                   CheckForPreviousPlatform();
+
+            }
 			else if (activeScene.name == GameSceneName)
 			{
 				_standardLevelSceneSetupData = Resources.FindObjectsOfTypeAll<StandardLevelSceneSetupDataSO>().FirstOrDefault();
@@ -191,20 +187,10 @@ namespace SongLoaderPlugin
 				var song = CustomLevels.FirstOrDefault(x => x.levelID == level.level.levelID);
 				if (song == null) return;
 				NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
-				
-				//Set environment if the song has customEnvironment
-				if (song.customSongInfo.customEnvironment != null)
-				{
-					int _customPlatform = customEnvironment(song);
-					if (_customPlatform != -1)
-					{
-					//	_currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
-						if (customSongPlatforms && _customPlatform != _currentPlatform)
-						{
-					//		CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
-						}
-					}
-				}
+
+                //Set environment if the song has customEnvironment
+                if(CustomPlatformsPresent)
+                CheckCustomSongEnvironment(song);
 				//Set enviroment colors for the song if it has song specific colors
 				if(customSongColors)
 				song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
@@ -240,6 +226,29 @@ namespace SongLoaderPlugin
 			var beatmapDataModel = gameplayCore.GetPrivateField<BeatmapDataModel>("_beatmapDataModel");
 			beatmapDataModel.SetPrivateField("_beatmapData", transformedBeatmap);
 		}
+
+        private void CheckForPreviousPlatform()
+        {
+            if (_currentPlatform != -1)
+            {
+                CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
+            }
+        }
+        private void CheckCustomSongEnvironment(CustomLevel song)
+        {
+            if (song.customSongInfo.customEnvironment != null)
+            {
+                int _customPlatform = customEnvironment(song);
+                if (_customPlatform != -1)
+                {
+                    _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
+                    if (customSongPlatforms && _customPlatform != _currentPlatform)
+                    {
+                        CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
+                    }
+                }
+            }
+        }
 
 		private void StandardLevelListViewControllerOnDidSelectLevelEvent(LevelListViewController levelListViewController, IBeatmapLevel level)
 		{
@@ -915,7 +924,7 @@ namespace SongLoaderPlugin
 		}
 
 		private int findCustomEnvironment(string name) {
-            /*
+            
 			CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
 			int platIndex = 0;
 			foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
@@ -925,7 +934,7 @@ namespace SongLoaderPlugin
 				platIndex++;
 			}
 			Console.WriteLine(name + " not found!");
-            */
+            
 			return -1;
 		}
 
@@ -975,7 +984,7 @@ namespace SongLoaderPlugin
 				{
 					string customPlatformsFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomPlatforms", downloadData.name);
 					System.IO.File.WriteAllBytes(@customPlatformsFolderPath + ".plat", www.downloadHandler.data);
-					//refreshPlatforms();
+				    //refreshPlatforms();
 				}
 			}
 		}
