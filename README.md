@@ -100,6 +100,30 @@ All possible environmentNames:
   ]
 ```
 
+### Difficulty json additional fields, (i.e. expert.json,  etc.)
+#### The following you can have multiple instances of as needed for the difficulty, a single instance is formatted like below
+```json
+"_warning":"WarningText",   - A warning you would like the player to be aware of before playing the song
+
+"_suggestion":"ModCapability", - A Mod to suggest the player uses for playing the song, must be supported by mod in question
+
+"_requirement":"ModCapability", - A Mod to require the player has before being able to play the song, must be supported by mod in question otherwise song will simply not be playable
+```
+#### The following is only put in the difficulty json once, and is formatted like below
+```json
+"_colorLeft":{"r":1, "g":1, "b":1}, - A color to override the left color to if the player has custom song colors enabled, color range for r,g, and b is a 0-1 scale, not 0-255 scale 
+
+"_colorRight":{"r":1, "g":1, "b":1}, - A color to override the left color to if the player has custom song colors enabled, color range for r,g, and b is a 0-1 scale, not 0-255 scale
+
+If using either color override you must add a color for both sides
+Default colors are approximately
+Left: 1,0,0
+Right, 0, 0.706, 1
+
+
+"_noteJumpStartBeatOffset":1, - Set the noteJumpStartBeatOffset for the song, default value is 0 if not implemented
+```
+
 # Keyboard Shortcuts
 *(Make sure Beat Saber's window is in focus when using these shortcuts)*
 ---
