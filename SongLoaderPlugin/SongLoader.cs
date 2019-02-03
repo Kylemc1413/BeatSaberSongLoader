@@ -991,9 +991,15 @@ namespace SongLoaderPlugin
 
         public static void RegisterCapability(string capability)
         {
+            if(!_capabilities.Contains(capability))
             _capabilities.Add(capability);
         }
 
+        public static void DeregisterizeCapability(string capability)
+        {
+                _capabilities.Remove(capability);
+        }
 
-	}
+
+    }
 }
