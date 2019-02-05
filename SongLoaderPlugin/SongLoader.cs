@@ -75,7 +75,7 @@ namespace SongLoaderPlugin
         public static readonly AudioClip TemporaryAudioClip = AudioClip.Create("temp", 1, 2, 1000, true);
 
 		private LogSeverity _minLogSeverity;
-		private bool _noArrowsSelected;
+		internal static bool _noArrowsSelected;
 		private bool customSongColors;
 		private bool customSongPlatforms;
 		public static void OnLoad()
