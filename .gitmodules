@@ -1,0 +1,3 @@
+[submodule "BuildTools"]
+	path = BuildTools
+	url = https://github.com/nike4613/BS-Plugin-BuildTools.git
