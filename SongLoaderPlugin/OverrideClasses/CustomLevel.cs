@@ -226,7 +226,8 @@ namespace SongLoaderPlugin.OverrideClasses
                             if (split[i + 3].Contains("b"))
                                 b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
 
-                            colorLeft = new Color(r.Value, g.Value, b.Value);
+                            if (!(r.Value < 0 || g.Value < 0 || b.Value < 0))
+                                colorLeft = new Color(r.Value, g.Value, b.Value);
                         }
                         if (split[i].Contains("_colorRight"))
                         {
@@ -241,6 +242,7 @@ namespace SongLoaderPlugin.OverrideClasses
                             if (split[i + 3].Contains("b"))
                                 b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
 
+                            if(!(r.Value < 0 || g.Value < 0 || b.Value < 0))
                             colorRight = new Color(r.Value, g.Value, b.Value);
                         }
 

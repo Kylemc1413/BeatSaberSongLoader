@@ -8,7 +8,7 @@ namespace SongLoaderPlugin
 {
 	public class Plugin : IPlugin
 	{
-		public const string VersionNumber = "6.2.0";
+		public const string VersionNumber = "6.2.1";
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
 		
