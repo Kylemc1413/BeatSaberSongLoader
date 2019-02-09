@@ -105,11 +105,11 @@ All possible environmentNames:
 
 ### Difficulty json additional fields, (i.e. expert.json,  etc.)
 ```json
-"_warnings":["Warning1","Warning2",...."WarningX"],   - Any warnings you would like the player to be aware of before playing the song
+"_warnings":["Warning1","Warning2","WarningX"],   - Any warnings you would like the player to be aware of before playing the song
 
-"_suggestions":["Mod1","Mod2",...."ModX"], - Any Mods to suggest the player uses for playing the song, must be supported by the mod in question otherwise the player will constantly be informed they are missing suggested mod(s)
+"_suggestions":["Mod1","Mod2","ModX"], - Any Mods to suggest the player uses for playing the song, must be supported by the mod in question otherwise the player will constantly be informed they are missing suggested mod(s)
 
-"_requirements":["Mod1","Mod2",...."ModX"], - Any Mods to require the player has before being able to play the song, must be supported by mod in question otherwise song will simply not be playable
+"_requirements":["Mod1","Mod2","ModX"], - Any Mods to require the player has before being able to play the song, must be supported by mod in question otherwise song will simply not be playable
 
 "_colorLeft":{"r":1, "g":1, "b":1}, - A color to override the left color to if the player has custom song colors enabled, color range for r,g, and b is a 0-1 scale, not 0-255 scale 
 
