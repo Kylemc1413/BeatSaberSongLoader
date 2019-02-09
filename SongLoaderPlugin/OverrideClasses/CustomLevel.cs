@@ -58,11 +58,17 @@ namespace SongLoaderPlugin.OverrideClasses
             foreach (var diffLevel in customSongInfo.difficultyLevels)
             {
                 if (string.IsNullOrEmpty(diffLevel.json)) continue;
+
                 float? bpm, noteSpeed;
                 Color? colorLeft, colorRight;
                 int? noteJumpStartBeatOffset;
-                GetBPMAndNoteJump(diffLevel.json, out bpm, out noteSpeed, out noteJumpStartBeatOffset);
-                GetColors(diffLevel.json, out colorLeft, out colorRight);
+              
+                var diffBeatmap = _difficultyBeatmaps.FirstOrDefault(x =>
+                    diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
+                var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
+                if (customBeatmap == null) continue;
+
+                customBeatmap.ParseDiffJson(diffLevel.json, out bpm, out noteSpeed, out noteJumpStartBeatOffset, out colorLeft, out colorRight);
                 if (bpm.HasValue)
                 {
                     if (bpms.ContainsKey(bpm.Value))
@@ -77,11 +83,6 @@ namespace SongLoaderPlugin.OverrideClasses
 
 
                 if (!noteSpeed.HasValue) return;
-                var diffBeatmap = _difficultyBeatmaps.FirstOrDefault(x =>
-                    diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
-                var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
-                if (customBeatmap == null) continue;
-                customBeatmap.CheckRequirements(diffLevel.json);
                 customBeatmap.SetNoteJumpMovementSpeed(noteSpeed.Value);
                 if (noteJumpStartBeatOffset.HasValue)
                     customBeatmap.SetNoteJumpStartBeatOffset(noteJumpStartBeatOffset.Value);
@@ -126,84 +127,11 @@ namespace SongLoaderPlugin.OverrideClasses
 
         }
 
-        //This is quicker than using a JSON parser
-        private void GetBPMAndNoteJump(string json, out float? bpm, out float? noteJumpSpeed, out int? noteJumpStartBeatOffset)
-        {
-            bpm = null;
-            noteJumpSpeed = null;
-            noteJumpStartBeatOffset = null;
-            var split = json.Split(':');
-            for (var i = 0; i < split.Length; i++)
-            {
-                if (split[i].Contains("_beatsPerMinute"))
-                {
-                    bpm = Convert.ToSingle(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                }
-
-                if (split[i].Contains("_noteJumpSpeed"))
-                {
-                    noteJumpSpeed = Convert.ToSingle(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                }
-                if (split[i].Contains("_noteJumpStartBeatOffset"))
-                {
-                    noteJumpStartBeatOffset = (int)Convert.ToDouble(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                }
-            }
-        }
-
-        private void GetColors(string json, out Color? colorLeft, out Color? colorRight)
-        {
-            colorLeft = null;
-            colorRight = null;
-            var split = json.Split(':');
-            for (var i = 0; i < split.Length; i++)
-            {
-                try
-                {
-                    if (split[i].Contains("_colorLeft"))
-                    {
-                        float? r = null;
-                        float? g = null;
-                        float? b = null;
-
-                        if (split[i + 1].Contains("r"))
-                            r = Convert.ToSingle(split[i + 2].Split(',')[0], CultureInfo.InvariantCulture);
-                        if (split[i + 2].Contains("g"))
-                            g = Convert.ToSingle(split[i + 3].Split(',')[0], CultureInfo.InvariantCulture);
-                        if (split[i + 3].Contains("b"))
-                            b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
-
-                        colorLeft = new Color(r.Value, g.Value, b.Value);
-                    }
-                    if (split[i].Contains("_colorRight"))
-                    {
-                        float? r = null;
-                        float? g = null;
-                        float? b = null;
-
-                        if (split[i + 1].Contains("r"))
-                            r = Convert.ToSingle(split[i + 2].Split(',')[0], CultureInfo.InvariantCulture);
-                        if (split[i + 2].Contains("g"))
-                            g = Convert.ToSingle(split[i + 3].Split(',')[0], CultureInfo.InvariantCulture);
-                        if (split[i + 3].Contains("b"))
-                            b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
-
-                        colorRight = new Color(r.Value, g.Value, b.Value);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-
-            }
-
-        }
         public class CustomDifficultyBeatmap : DifficultyBeatmap
         {
             public Color colorLeft { get; private set; }
             public Color colorRight { get; private set; }
-            public bool hasCustomColors { get; set; } = false;
+            internal bool hasCustomColors { get;  set; } = false;
 
             private List<string> Requirements = new List<string>();
             public System.Collections.ObjectModel.ReadOnlyCollection<string> requirements
@@ -254,52 +182,123 @@ namespace SongLoaderPlugin.OverrideClasses
                 this.colorRight = colorRight;
             }
 
-            internal void CheckRequirements(string json)
+
+            //This is quicker than using a JSON parser
+            internal void ParseDiffJson(string json, out float? bpm, out float? noteJumpSpeed, out int? noteJumpStartBeatOffset, out Color? colorLeft, out Color? colorRight)
             {
                 int value;
+                bpm = null;
+                noteJumpSpeed = null;
+                noteJumpStartBeatOffset = null;
+                colorLeft = null;
+                colorRight = null;
                 var split = json.Split(':');
                 for (var i = 0; i < split.Length; i++)
                 {
-                    if (split[i].Contains("_warning"))
+                    try
                     {
-                        string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
-                        AddWarning(req);
+                        //BPM and NoteJump
+                        if (split[i].Contains("_beatsPerMinute"))
+                        {
+                            bpm = Convert.ToSingle(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                        }
+
+                        if (split[i].Contains("_noteJumpSpeed"))
+                        {
+                            noteJumpSpeed = Convert.ToSingle(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                        }
+                        if (split[i].Contains("_noteJumpStartBeatOffset"))
+                        {
+                            noteJumpStartBeatOffset = (int)Convert.ToDouble(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                        }
+
+                        //Song Colors
+                        if (split[i].Contains("_colorLeft"))
+                        {
+                            float? r = null;
+                            float? g = null;
+                            float? b = null;
+
+                            if (split[i + 1].Contains("r"))
+                                r = Convert.ToSingle(split[i + 2].Split(',')[0], CultureInfo.InvariantCulture);
+                            if (split[i + 2].Contains("g"))
+                                g = Convert.ToSingle(split[i + 3].Split(',')[0], CultureInfo.InvariantCulture);
+                            if (split[i + 3].Contains("b"))
+                                b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
+
+                            colorLeft = new Color(r.Value, g.Value, b.Value);
+                        }
+                        if (split[i].Contains("_colorRight"))
+                        {
+                            float? r = null;
+                            float? g = null;
+                            float? b = null;
+
+                            if (split[i + 1].Contains("r"))
+                                r = Convert.ToSingle(split[i + 2].Split(',')[0], CultureInfo.InvariantCulture);
+                            if (split[i + 2].Contains("g"))
+                                g = Convert.ToSingle(split[i + 3].Split(',')[0], CultureInfo.InvariantCulture);
+                            if (split[i + 3].Contains("b"))
+                                b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
+
+                            colorRight = new Color(r.Value, g.Value, b.Value);
+                        }
+
+                        //Requirements etc
+                        if (split[i].Contains("_warnings"))
+                        {
+                            string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
+                            for (int j = 0; j < reqs.Length; j++)
+                                AddWarning(reqs[j]);
+                          
+
+                        }
+
+                        if (split[i].Contains("_requirements"))
+                        {
+                            string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
+                            for (int j = 0; j < reqs.Length; j++)
+                                AddRequirement(reqs[j]);
+                        }
+
+                        if (split[i].Contains("_suggestions"))
+                        {
+                            string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
+                            for (int j = 0; j < reqs.Length; j++)
+                                AddSuggestion(reqs[j]);
+                        }
+
+                        //Check for Mapping Extensions Requirements
+                        if (split[i].Contains("_lineIndex"))
+                        {
+                            value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                            if ((value < 0 || value > 3) && !(value >= 1000 || value <= -1000)) AddRequirement("Mapping Extensions-More Lanes");
+                            if (value >= 1000 || value <= -1000) AddRequirement("Mapping Extensions-Precision Placement");
+                        }
+                        if (split[i].Contains("_lineLayer"))
+                        {
+                            value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                            if ((value < 0 || value > 2) && !(value >= 1000 || value <= -1000)) AddRequirement("Mapping Extensions-More Lanes");
+                            if (value >= 1000 || value <= -1000) AddRequirement("Mapping Extensions-Precision Placement");
+                        }
+                        if (split[i].Contains("_cutDirection"))
+                        {
+                            value = Convert.ToInt32(split[i + 1].Split(',', '}')[0], CultureInfo.InvariantCulture);
+                            if ((value >= 1000 && value <= 1360) || (value >= 2000 && value <= 2360))
+                                AddRequirement("Mapping Extensions-Extra Note Angles");
+                        }
 
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
 
-                    if (split[i].Contains("_requirement"))
-                    {
-                        string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
-                        AddRequirement(req);
 
-                    }
-                    if (split[i].Contains("_suggestion"))
-                    {
-                        string req = split[i + 1].Split(',')[0].Split('"', '"')[1];
-                        AddSuggestion(req);
 
-                    }
-                    if (split[i].Contains("_lineIndex"))
-                    {
-                        value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                        if ((value < 0 || value > 3) && !(value >= 1000 || value <= -1000)) AddRequirement("Mapping Extensions-More Lanes");
-                        if (value >= 1000 || value <= -1000) AddRequirement("Mapping Extensions-Precision Placement");
-                    }
-                    if (split[i].Contains("_lineLayer"))
-                    {
-                        value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                        if ((value < 0 || value > 2) && !(value >= 1000 || value <= -1000)) AddRequirement("Mapping Extensions-More Lanes");
-                        if (value >= 1000 || value <= -1000) AddRequirement("Mapping Extensions-Precision Placement");
-                    }
-                    if (split[i].Contains("_cutDirection"))
-                    {
-                        value = Convert.ToInt32(split[i + 1].Split(',', '}')[0], CultureInfo.InvariantCulture);
-                        if ((value >= 1000 && value <= 1360) || (value >= 2000 && value <= 2360))
-                            AddRequirement("Mapping Extensions-Extra Note Angles");
-                    }
+
 
                 }
-                //          AddRequirement("ChromaToggle");
             }
 
             public void AddRequirement(string requirement)
