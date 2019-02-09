@@ -101,9 +101,6 @@ All possible environmentNames:
 ```
 
 ### Difficulty json additional fields, (i.e. expert.json,  etc.)
-#### The following you can have multiple instances of as needed for the difficulty, a single instance is formatted like below
-
-### Difficulty json additional fields, (i.e. expert.json,  etc.)
 ```json
 "_warnings":["Warning1","Warning2","WarningX"],   - Any warnings you would like the player to be aware of before playing the song
 
