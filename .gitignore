@@ -288,3 +288,4 @@ __pycache__/
 *.xsd.cs
 
 /bsinstalldir.txt
+SongLoaderPlugin/SongLoaderPlugin.sln
