@@ -11,7 +11,6 @@ namespace SongLoaderPlugin.OverrideClasses
         public CustomSongInfo customSongInfo { get; private set; }
         public bool AudioClipLoading { get; set; }
         public bool BPMAndNoteSpeedFixed { get; private set; }
-        public bool HasExtraLanes { get; private set; }
         public void Init(CustomSongInfo newCustomSongInfo)
         {
             customSongInfo = newCustomSongInfo;
@@ -148,6 +147,11 @@ namespace SongLoaderPlugin.OverrideClasses
             {
                 get { return Warnings.AsReadOnly(); }
             }
+            private List<string> Information = new List<string>();
+            public System.Collections.ObjectModel.ReadOnlyCollection<string> information
+            {
+                get { return Information.AsReadOnly(); }
+            }
 
 
             public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData) : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
@@ -269,6 +273,13 @@ namespace SongLoaderPlugin.OverrideClasses
                             for (int j = 0; j < reqs.Length; j++)
                                 AddSuggestion(reqs[j]);
                         }
+                        if (split[i].Contains("_information"))
+                        {
+                            string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
+                            for (int j = 0; j < reqs.Length; j++)
+                                AddInformation(reqs[j]);
+                        }
+                     
 
                         //Check for Mapping Extensions Requirements
                         if (split[i].Contains("_lineIndex"))
@@ -319,6 +330,11 @@ namespace SongLoaderPlugin.OverrideClasses
             {
                 if (!Warnings.Contains(warning))
                     Warnings.Add(warning);
+            }
+            public void AddInformation(string info)
+            {
+                if (!Information.Contains(info))
+                    Information.Add(info);
             }
         }
 

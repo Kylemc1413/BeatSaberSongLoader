@@ -143,6 +143,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Icons\Warning.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Info.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
   </Target>

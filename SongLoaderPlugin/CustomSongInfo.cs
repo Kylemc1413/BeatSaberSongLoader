@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-
+using System.Linq;
+using System.Collections.Generic;
 namespace SongLoaderPlugin
 {
 	[Serializable]
@@ -28,8 +29,9 @@ namespace SongLoaderPlugin
 		public DifficultyLevel[] difficultyLevels;
 		public string path;
 		public string levelId;
-
-		[Serializable]
+        public string[] mappers;
+        public string[] lighters;
+        [Serializable]
 		public class DifficultyLevel
 		{
 			public string difficulty;

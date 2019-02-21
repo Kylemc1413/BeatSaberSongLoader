@@ -32,6 +32,7 @@ namespace SongLoaderPlugin
         internal static Sprite HaveSuggestionIcon;
         internal static Sprite MissingSuggestionIcon;
         internal static Sprite WarningIcon;
+        internal static Sprite InfoIcon;
 
 
 
@@ -748,9 +749,13 @@ namespace SongLoaderPlugin
 			}
 
 			songInfo.path = songPath;
+            if (songInfo.lighters == null)
+                songInfo.lighters = new string[0];
+            if (songInfo.mappers == null)
+                songInfo.mappers = new string[0];
 
-			//Here comes SimpleJSON to the rescue when JSONUtility can't handle an array.
-			var diffLevels = new List<CustomSongInfo.DifficultyLevel>();
+            //Here comes SimpleJSON to the rescue when JSONUtility can't handle an array.
+            var diffLevels = new List<CustomSongInfo.DifficultyLevel>();
 			var n = JSON.Parse(infoText);
 			var diffs = n["difficultyLevels"];
 			for (int i = 0; i < diffs.AsArray.Count; i++)
@@ -781,7 +786,7 @@ namespace SongLoaderPlugin
 
         private static void InitRequirementsMenu()
         {
-            reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Song Requirements");
+            reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
             reqViewController = BeatSaberUI.CreateViewController<CustomListViewController>();
 
             RectTransform confirmContainer = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
@@ -793,14 +798,38 @@ namespace SongLoaderPlugin
 
         }
 
-        internal static void showSongRequirements(CustomLevel.CustomDifficultyBeatmap beatmap)
+        internal static void showSongRequirements(CustomLevel.CustomDifficultyBeatmap beatmap, CustomSongInfo songInfo)
         {
             if (reqDialog == null)
                 InitRequirementsMenu();
             //   suggestionsList.text = "";
 
             reqViewController.Data.Clear();
-
+            if(songInfo?.mappers?.Length > 0)
+            {
+                foreach (string mapper in songInfo.mappers)
+                {
+                    reqViewController.Data.Add(new CustomCellInfo(mapper, "Mapping", InfoIcon));
+                }
+            }
+            if (songInfo?.lighters?.Length > 0)
+            {
+                foreach (string lighter in songInfo.lighters)
+                {
+                    reqViewController.Data.Add(new CustomCellInfo(lighter, "Lighting", InfoIcon));
+                }
+            }
+            if (beatmap.requirements.Count > 0)
+            {
+                foreach (string req in beatmap.requirements)
+                {
+                    //    Console.WriteLine(req);
+                    if (!capabilities.Contains(req))
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
+                    else
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
+                }
+            }
             if (beatmap.warnings.Count > 0)
             {
                 foreach (string req in beatmap.warnings)
@@ -811,16 +840,14 @@ namespace SongLoaderPlugin
                     reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
                 }
             }
-
-            if (beatmap.requirements.Count > 0)
+            if (beatmap.information.Count > 0)
             {
-                foreach(string req in beatmap.requirements)
+                foreach (string req in beatmap.information)
                 {
-                //    Console.WriteLine(req);
-                    if (!capabilities.Contains(req))
-                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
-                    else
-                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
+
+                    //    Console.WriteLine(req);
+
+                    reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Info", InfoIcon));
                 }
             }
             if (beatmap.suggestions.Count > 0)
@@ -835,21 +862,7 @@ namespace SongLoaderPlugin
                         reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon));
                 }
             }
-            /*
-             *  if (!SongLoader.capabilities.Contains(req))
-                    {
-                        reqString += "<#FF0000>" + req + "<#FFD42A> | ";
-                        ____playButton.interactable = false;
-                        ____practiceButton.interactable = false;
-                        ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
 
-                    }
-                    else
-                    {//(0.000, 0.706, 1.000, 0.784)
-                        reqString += "<#FFD42A>" + req + " | ";
-                    } 
-             *
-             * */
             reqDialog.Present();
             reqViewController._customListTableView.ReloadData();
         }
@@ -861,7 +874,7 @@ namespace SongLoaderPlugin
                 HaveSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
                 MissingSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
                 WarningIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
-
+                InfoIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
         }
         private void Update()
 		{

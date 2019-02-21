@@ -67,7 +67,6 @@ namespace SongLoaderPlugin.OverrideClasses
 				{
 					characteristics.Add(_oneSaberCharacteristic);
 				}
-			
 				customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
 				
 				_levelList.Add(customLevel);

@@ -20,7 +20,7 @@ namespace SongLoaderPlugin.Harmony_Patches
             ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton)
         {
             IBeatmapLevel level = ____difficultyBeatmap?.level;
-
+           
             ____playButton.interactable = true;
             ____practiceButton.interactable = true;
             ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
@@ -29,6 +29,8 @@ namespace SongLoaderPlugin.Harmony_Patches
             ____songNameText.richText = true;
             if (level != null)
             {
+                var customLevel = level as CustomLevel;
+
                 CustomLevel.CustomDifficultyBeatmap beatmap = ____difficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
                 if (SongLoader.infoButton == null)
                 {
@@ -41,22 +43,21 @@ namespace SongLoaderPlugin.Harmony_Patches
 
 
 
-
                 if (beatmap != null)
                 {
                     SongLoader.infoButton.onClick.RemoveAllListeners();
                     SongLoader.infoButton.onClick.AddListener(delegate ()
                     {
                         if (beatmap != null)
-                            SongLoader.showSongRequirements(beatmap);
+                            SongLoader.showSongRequirements(beatmap, customLevel.customSongInfo);
                     });
-
-                    if (beatmap.requirements.Count == 0 && beatmap.suggestions.Count == 0 && beatmap.warnings.Count == 0)
+                    if (beatmap.requirements.Count == 0 && beatmap.suggestions.Count == 0 && beatmap.warnings.Count == 0 && 
+                        customLevel?.customSongInfo?.mappers?.Length == 0 && customLevel?.customSongInfo?.lighters?.Length == 0 && beatmap.information.Count == 0)
                     {
                         SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
                         SongLoader.infoButton.interactable = false;
                     }
-                    else if(beatmap.warnings.Count == 0)
+                    else if (beatmap.warnings.Count == 0)
                     {
                         SongLoader.infoButton.interactable = true;
                         SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
