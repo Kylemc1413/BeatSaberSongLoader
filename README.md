@@ -49,6 +49,8 @@ The following is a template for you to use:
   "songName":"YourSongName",
   "songSubName":"ft. Name",
   "songAuthorName":"AuthorName",
+  "mappers":["Name One", "Name Two"],
+  "lighters":["Name One", "Name Two"],
   "beatsPerMinute":179.0, 
   "previewStartTime":12.0,
   "previewDuration":10.0,
@@ -73,6 +75,8 @@ ___
 ```
 "songName" - Name of your song
 "songSubName" - Text rendered in smaller letters next to song name. (ft. Artist)
+"mappers" - People who contributed to mapping for the various difficulties of the map to be listed in the additional information display
+"lighters" - People who contributed to lighting for the various difficulties of the map to be listed in the additional information display
 "beatsPerMinute" - BPM of the song you are using
 "previewStartTime" - How many seconds into the song the preview should start
 "previewDuration" - Time in seconds the song will be previewed in selection screen
@@ -103,6 +107,8 @@ All possible environmentNames:
 ### Difficulty json additional fields, (i.e. expert.json,  etc.)
 ```json
 "_warnings":["Warning1","Warning2","WarningX"],   - Any warnings you would like the player to be aware of before playing the song
+
+"_information":["Thing1","Thing2","ThingX"],   - Any general information you would like the player to be aware of before playing the song
 
 "_suggestions":["Mod1","Mod2","ModX"], - Any Mods to suggest the player uses for playing the song, must be supported by the mod in question otherwise the player will constantly be informed they are missing suggested mod(s)
 
