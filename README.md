@@ -126,7 +126,14 @@ Right, 0, 0.706, 1
 
 "_noteJumpStartBeatOffset":1, - Set the noteJumpStartBeatOffset for the song, default value is 0 if not implemented
 ```
-
+### For modders
+ * You can add/remove capabilities to your mods for maps to be able to use by doing the following
+ ```csharp
+ // To register
+ SongLoaderPlugin.SongLoader.RegisterCapability("Capability name");
+ // To remove
+ SongLoaderPlugin.SongLoader.DeregisterizeCapability("Capability name");
+ ```
 # Keyboard Shortcuts
 *(Make sure Beat Saber's window is in focus when using these shortcuts)*
 ---
