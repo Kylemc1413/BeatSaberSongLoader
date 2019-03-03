@@ -95,6 +95,7 @@ All possible environmentNames:
 -TriangleEnvironment
 -NiceEnvironment
 -KDAEnvironment
+
 "difficultyLevels": [
 	{
 		"difficulty": This can only be set to Easy, Normal, Hard, Expert or ExpertPlus,
