@@ -6,11 +6,12 @@ using UnityEngine;
 
 namespace SongLoaderPlugin.OverrideClasses
 {
-    public class CustomLevel : LevelSO, IScriptableObjectResetable
+    public class CustomLevel : BeatmapLevelSO, IScriptableObjectResetable
     {
         public CustomSongInfo customSongInfo { get; private set; }
         public bool AudioClipLoading { get; set; }
         public bool BPMAndNoteSpeedFixed { get; private set; }
+
         public void Init(CustomSongInfo newCustomSongInfo)
         {
             customSongInfo = newCustomSongInfo;
@@ -27,7 +28,7 @@ namespace SongLoaderPlugin.OverrideClasses
             _environmentSceneInfo = EnvironmentsLoader.GetSceneInfo(customSongInfo.environmentName);
             string _customEnvironment = customSongInfo.customEnvironment;
             string _customEnvironmentHash = customSongInfo.customEnvironmentHash;
-
+           
         }
 
         public void SetAudioClip(AudioClip newAudioClip)
@@ -40,9 +41,10 @@ namespace SongLoaderPlugin.OverrideClasses
             _coverImage = newCoverImage;
         }
 
-        public void SetDifficultyBeatmaps(DifficultyBeatmap[] newDifficultyBeatmaps)
+        public void SetDifficultyBeatmaps(DifficultyBeatmap[] newDifficultyBeatmaps, BeatmapCharacteristicSO characteristicSO)
         {
-            _difficultyBeatmaps = newDifficultyBeatmaps;
+            DifficultyBeatmapSet difficultyBeatmapSet = new DifficultyBeatmapSet(characteristicSO, newDifficultyBeatmaps);
+            _difficultyBeatmapSets = new DifficultyBeatmapSet[] { difficultyBeatmapSet };
         }
 
         public void SetBeatmapCharacteristics(BeatmapCharacteristicSO[] newBeatmapCharacteristics)
@@ -62,7 +64,7 @@ namespace SongLoaderPlugin.OverrideClasses
                 Color? colorLeft, colorRight;
                 int? noteJumpStartBeatOffset;
               
-                var diffBeatmap = _difficultyBeatmaps.FirstOrDefault(x =>
+                var diffBeatmap = _difficultyBeatmapSets[0].difficultyBeatmaps.FirstOrDefault(x =>
                     diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
                 var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
                 if (customBeatmap == null) continue;
@@ -109,7 +111,7 @@ namespace SongLoaderPlugin.OverrideClasses
             _beatsPerMinute = bpms.OrderByDescending(x => x.Value).First().Key;
             try
             {
-                foreach (var difficultyBeatmap in _difficultyBeatmaps)
+                foreach (var difficultyBeatmap in _difficultyBeatmapSets[0].difficultyBeatmaps)
                 {
                     var customBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
                     if (customBeatmap == null) continue;

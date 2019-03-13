@@ -5,23 +5,20 @@ using UnityEngine;
 
 namespace SongLoaderPlugin.OverrideClasses
 {
-	public class CustomLevelCollectionSO : LevelCollectionSO
-	{
-		private readonly List<LevelSO> _levelList = new List<LevelSO>();
+	public class CustomLevelCollectionSO : BeatmapLevelCollectionSO
+        {
+		public readonly List<BeatmapLevelSO> _levelList = new List<BeatmapLevelSO>();
 
 		private static BeatmapCharacteristicSO _standardCharacteristic;
 		private static BeatmapCharacteristicSO _oneSaberCharacteristic;
 		private static BeatmapCharacteristicSO _noArrowsCharacteristic;
 
-		public static CustomLevelCollectionSO ReplaceOriginal(LevelCollectionSO original)
+		public static CustomLevelCollectionSO ReplaceOriginal(BeatmapLevelCollectionSO original)
 		{
 			var newCollection = CreateInstance<CustomLevelCollectionSO>();
-			newCollection._levelList.AddRange(original.levels);
 			newCollection.UpdateArray();
 
-			newCollection.ReplaceReferences();
-
-			foreach (var originalLevel in original.levels)
+			foreach (var originalLevel in original.beatmapLevels)
 			{
 				if (_standardCharacteristic == null)
 				{
@@ -41,22 +38,7 @@ namespace SongLoaderPlugin.OverrideClasses
 
 			return newCollection;
 		}
-
-		public void ReplaceReferences()
-		{
-			var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
-			if (soloFreePlay != null)
-			{
-				soloFreePlay.SetPrivateField("_levelCollection", this);
-			}
-			
-			var partyFreePlay = Resources.FindObjectsOfTypeAll<PartyFreePlayFlowCoordinator>().FirstOrDefault();
-			if (partyFreePlay != null)
-			{
-				partyFreePlay.SetPrivateField("_levelCollection", this);
-			}
-		}
-
+        
 		public void AddCustomLevels(IEnumerable<CustomLevel> customLevels)
 		{
 			foreach (var customLevel in customLevels)
@@ -91,7 +73,7 @@ namespace SongLoaderPlugin.OverrideClasses
 			UpdateArray();
 		}
 
-		public bool RemoveLevel(LevelSO level)
+		public bool RemoveLevel(BeatmapLevelSO level)
 		{
 			var removed = _levelList.Remove(level);
 
@@ -105,7 +87,7 @@ namespace SongLoaderPlugin.OverrideClasses
 
 		private void UpdateArray()
 		{
-			_levels = _levelList.ToArray();
+			_beatmapLevels = _levelList.ToArray();
 		}
 	}
 }

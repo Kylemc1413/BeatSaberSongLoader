@@ -44,10 +44,12 @@ namespace SongLoaderPlugin
 		public static bool AreSongsLoading { get; private set; }
 		public static float LoadingProgress { get; private set; }
 		public static CustomLevelCollectionSO CustomLevelCollectionSO { get; private set; }
+        public static CustomBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
+        public static CustomBeatmapLevelPackSO  CustomBeatmapLevelPackSO { get; private set; }
         private bool CustomPlatformsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms" && x.Version != "2.5.0");
 		private int _currentPlatform = -1;
 
-		public const string MenuSceneName = "Menu";
+		public const string MenuSceneName = "MenuCore";
 		public const string GameSceneName = "GameCore";
 		
 		private static readonly Dictionary<string, Sprite> LoadedSprites = new Dictionary<string, Sprite>();
@@ -55,10 +57,11 @@ namespace SongLoaderPlugin
 		
 		private LeaderboardScoreUploader _leaderboardScoreUploader;
 		private StandardLevelDetailViewController _standardLevelDetailViewController;
-		private StandardLevelSceneSetupDataSO _standardLevelSceneSetupData;
+		private StandardLevelScenesTransitionSetupDataSO _standardLevelSceneSetupData;
 		private BeatmapCharacteristicSelectionViewController _characteristicViewController;
-		private LevelListViewController _LevelListViewController;
+		private LevelPackLevelsViewController _LevelListViewController;
 
+        private BeatmapCharacteristicSO beatmapCharacteristicSO;
 
 		private readonly ScriptableObjectPool<CustomLevel> _customLevelPool = new ScriptableObjectPool<CustomLevel>();
 		private readonly ScriptableObjectPool<CustomBeatmapDataSO> _beatmapDataPool = new ScriptableObjectPool<CustomBeatmapDataSO>();
@@ -90,23 +93,21 @@ namespace SongLoaderPlugin
 		private void Awake()
 		{
 			Instance = this;
-			
 			_minLogSeverity = Environment.CommandLine.Contains("--mute-song-loader")
 				? LogSeverity.Error
 				: LogSeverity.Info;
-			
+            _minLogSeverity = LogSeverity.Info;
 			_progressBar = ProgressBar.Create();
-			
-			OnSceneTransitioned(SceneManager.GetActiveScene());
-			RefreshSongs();
-
-			DontDestroyOnLoad(gameObject);
+            OnSceneTransitioned(SceneManager.GetActiveScene());
+            RefreshSongs();
+            DontDestroyOnLoad(gameObject);
 
 			SceneEvents.Instance.SceneTransitioned += OnSceneTransitioned;
 		}
 
 		private void OnSceneTransitioned(Scene activeScene)
 		{
+            Console.WriteLine(activeScene.name);
 			GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
 			customSongColors = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongColors", true, true);
 			customSongPlatforms = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
@@ -127,21 +128,30 @@ namespace SongLoaderPlugin
 			}
 			
 			StartCoroutine(WaitRemoveScores());
-			
-			if (activeScene.name == MenuSceneName)
-			{
-				CurrentLevelPlaying = null;
+            if (activeScene.name == MenuSceneName) {
+                CurrentLevelPlaying = null;
+                if (CustomLevelCollectionSO == null) {
+                    var levelCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelCollectionSO>().FirstOrDefault();
+                    CustomLevelCollectionSO = CustomLevelCollectionSO.ReplaceOriginal(levelCollectionSO);
+                }
 
-				if (CustomLevelCollectionSO == null)
-				{
-					var levelCollectionSO = Resources.FindObjectsOfTypeAll<LevelCollectionSO>().FirstOrDefault();
-					CustomLevelCollectionSO = CustomLevelCollectionSO.ReplaceOriginal(levelCollectionSO);
-				}
-				else
-				{
-					CustomLevelCollectionSO.ReplaceReferences();
-				}
-				if(_standardLevelDetailViewController == null)
+                if (CustomBeatmapLevelPackCollectionSO == null) {
+                    var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
+                    CustomBeatmapLevelPackCollectionSO = CustomBeatmapLevelPackCollectionSO.ReplaceOriginal(beatmapLevelPackCollectionSO);
+                    CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
+                    CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
+                    CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
+                } else {
+                    CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
+                }
+
+                beatmapCharacteristicSO = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics[0];
+
+                var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
+                LevelPacksViewController levelPacksViewController = (LevelPacksViewController)soloFreePlay.GetField("_levelPacksViewController");
+                levelPacksViewController.SetData(CustomBeatmapLevelPackCollectionSO, 0);
+
+                if (_standardLevelDetailViewController == null)
 				{
 				_standardLevelDetailViewController = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().FirstOrDefault();
 				if (_standardLevelDetailViewController == null) return;
@@ -150,7 +160,7 @@ namespace SongLoaderPlugin
 
 				if (_LevelListViewController == null)
 				{
-					_LevelListViewController = Resources.FindObjectsOfTypeAll<LevelListViewController>().FirstOrDefault();
+					_LevelListViewController = Resources.FindObjectsOfTypeAll<LevelPackLevelsViewController>().FirstOrDefault();
 					if (_LevelListViewController == null) return;
 
 					_LevelListViewController.didSelectLevelEvent += StandardLevelListViewControllerOnDidSelectLevelEvent;
@@ -166,35 +176,38 @@ namespace SongLoaderPlugin
 					_characteristicViewController.didSelectBeatmapCharacteristicEvent += OnDidSelectBeatmapCharacteristicEvent;
 				}
 
-                if (CustomPlatformsPresent)
-                   CheckForPreviousPlatform();
+                //if (CustomPlatformsPresent)
+                //   CheckForPreviousPlatform();
 
             }
 			else if (activeScene.name == GameSceneName)
 			{
-				_standardLevelSceneSetupData = Resources.FindObjectsOfTypeAll<StandardLevelSceneSetupDataSO>().FirstOrDefault();
-				if (_standardLevelSceneSetupData == null) return;
-				var level = _standardLevelSceneSetupData.difficultyBeatmap;
-				var beatmap = level as CustomLevel.CustomDifficultyBeatmap;
-				if (beatmap != null)
-				{
-					CurrentLevelPlaying = beatmap;
-					
-					//The note jump movement speed now gets set in the Start method, so we're too early here. We have to wait a bit before overriding.
-					Invoke(nameof(DelayedNoteJumpMovementSpeedFix), 0.1f);
-				}
-				
-				if (NoteHitVolumeChanger.PrefabFound) return;
-				var song = CustomLevels.FirstOrDefault(x => x.levelID == level.level.levelID);
-				if (song == null) return;
-				NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
+                    var test = Resources.FindObjectsOfTypeAll<ScenesTransitionSetupDataSO>().FirstOrDefault();
+                    GameplayCoreSceneSetupData data = (GameplayCoreSceneSetupData)test.sceneInfoSceneSetupDataPairs[2].data;
 
-                //Set environment if the song has customEnvironment
-                if(CustomPlatformsPresent)
-                CheckCustomSongEnvironment(song);
-				//Set enviroment colors for the song if it has song specific colors
-				if(customSongColors)
-				song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
+                    _standardLevelSceneSetupData = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+                    if (_standardLevelSceneSetupData == null) return;
+                    var level = data.difficultyBeatmap;
+                    var beatmap = level as CustomLevel.CustomDifficultyBeatmap;
+                    if (beatmap != null) {
+                        CurrentLevelPlaying = beatmap;
+
+                        //The note jump movement speed now gets set in the Start method, so we're too early here. We have to wait a bit before overriding.
+                        Invoke(nameof(DelayedNoteJumpMovementSpeedFix), 0.1f);
+                    }
+
+                    if (NoteHitVolumeChanger.PrefabFound) return;
+                    var song = CustomLevels.FirstOrDefault(x => x.levelID == level.level.levelID);
+                    if (song == null) return;
+                    NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
+
+                    //Set environment if the song has customEnvironment
+                    if (CustomPlatformsPresent)
+                        //CheckCustomSongEnvironment(song);
+                        //Set enviroment colors for the song if it has song specific colors
+                        if (customSongColors)
+                            song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
+               
 			}
 		}
 
@@ -210,10 +223,11 @@ namespace SongLoaderPlugin
 				if (beatmapObjectSpawnController != null)
 				{
 					var disappearingArrows = beatmapObjectSpawnController.GetPrivateField<bool>("_disappearingArrows");
+                    var ghostNotes = beatmapObjectSpawnController.GetPrivateField<bool>("_ghostNotes");
 
-					beatmapObjectSpawnController.Init(CurrentLevelPlaying.level.beatsPerMinute,
+                    beatmapObjectSpawnController.Init(CurrentLevelPlaying.level.beatsPerMinute,
 						CurrentLevelPlaying.beatmapData.beatmapLinesData.Length,
-						CurrentLevelPlaying.noteJumpMovementSpeed, CurrentLevelPlaying.noteJumpStartBeatOffset, disappearingArrows);
+						CurrentLevelPlaying.noteJumpMovementSpeed, CurrentLevelPlaying.noteJumpStartBeatOffset, disappearingArrows, ghostNotes);
 				}
 			}
 
@@ -223,47 +237,44 @@ namespace SongLoaderPlugin
 			var gameplayCore = Resources.FindObjectsOfTypeAll<GameplayCoreSceneSetup>().FirstOrDefault();
 			if (gameplayCore == null) return;
 			Console.WriteLine("Applying no arrow transformation");
-			var transformedBeatmap = BeatmapDataNoArrowsTransform.CreateTransformedData(CurrentLevelPlaying.beatmapData);
+			var transformedBeatmap = BeatmapDataNoArrowsTransform.CreateTransformedData(CurrentLevelPlaying.beatmapData, true);
 			var beatmapDataModel = gameplayCore.GetPrivateField<BeatmapDataModel>("_beatmapDataModel");
 			beatmapDataModel.SetPrivateField("_beatmapData", transformedBeatmap);
 		}
 
-        private void CheckForPreviousPlatform()
-        {
-            if (_currentPlatform != -1)
-            {
-                CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
-            }
-        }
-        private void CheckCustomSongEnvironment(CustomLevel song)
-        {
-            if (song.customSongInfo.customEnvironment != null)
-            {
-                int _customPlatform = customEnvironment(song);
-                if (_customPlatform != -1)
-                {
-                    _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
-                    if (customSongPlatforms && _customPlatform != _currentPlatform)
-                    {
-                        CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
-                    }
-                }
-            }
-        }
+        //private void CheckForPreviousPlatform()
+        //{
+        //    if (_currentPlatform != -1)
+        //    {
+        //        CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
+        //    }
+        //}
+        //private void CheckCustomSongEnvironment(CustomLevel song)
+        //{
+        //    if (song.customSongInfo.customEnvironment != null)
+        //    {
+        //        int _customPlatform = customEnvironment(song);
+        //        if (_customPlatform != -1)
+        //        {
+        //            _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
+        //            if (customSongPlatforms && _customPlatform != _currentPlatform)
+        //            {
+        //                CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
+        //            }
+        //        }
+        //    }
+        //}
 
-		private void StandardLevelListViewControllerOnDidSelectLevelEvent(LevelListViewController levelListViewController, IBeatmapLevel level)
+		private void StandardLevelListViewControllerOnDidSelectLevelEvent(LevelPackLevelsViewController levelListViewController, IPreviewBeatmapLevel level)
 		{
 			var customLevel = level as CustomLevel;
 			if (customLevel == null) return;
 
-			if (customLevel.audioClip != TemporaryAudioClip || customLevel.AudioClipLoading) return;
-
-			var levels = levelListViewController.GetPrivateField<IBeatmapLevel[]>("_levels").ToList();
-			
+			if (customLevel.previewAudioClip != TemporaryAudioClip || customLevel.AudioClipLoading) return;
+            
 			Action callback = delegate
 			{
-				levelListViewController.SetPrivateField("_selectedLevel", null);
-				levelListViewController.HandleLevelListTableViewDidSelectRow(null, levels.IndexOf(customLevel));
+				levelListViewController.HandleLevelPackLevelsTableViewDidSelectLevel(null, level);
 			};
 
 			customLevel.FixBPMAndGetNoteJumpMovementSpeed();
@@ -274,7 +285,7 @@ namespace SongLoaderPlugin
 
 		private void OnDidSelectBeatmapCharacteristicEvent(BeatmapCharacteristicSelectionViewController viewController, BeatmapCharacteristicSO characteristic)
 		{
-			_noArrowsSelected = characteristic.characteristicName == "No Arrows";
+            _noArrowsSelected = characteristic.characteristicName == "No Arrows";
 		}
 
 		public void LoadAudioClipForLevel(CustomLevel customLevel, Action<CustomLevel> clipReadyCallback)
@@ -296,7 +307,7 @@ namespace SongLoaderPlugin
 		private void StandardLevelDetailControllerOnDidPressPlayButtonEvent(StandardLevelDetailViewController songDetailViewController)
 		{
 			if (!NoteHitVolumeChanger.PrefabFound) return;
-			var level = songDetailViewController.difficultyBeatmap.level;
+			var level = songDetailViewController.selectedDifficultyBeatmap.level;
 			var song = CustomLevels.FirstOrDefault(x => x.levelID == level.levelID);
 			if (song == null) return;
 			NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
@@ -328,6 +339,7 @@ namespace SongLoaderPlugin
 
 			foreach (var customLevel in CustomLevels)
 			{
+               
 				CustomLevelCollectionSO.RemoveLevel(customLevel);
 			}
 
@@ -358,7 +370,7 @@ namespace SongLoaderPlugin
 
 			CustomLevelCollectionSO.RemoveLevel(customLevel);
 
-			foreach (var difficultyBeatmap in customLevel.difficultyBeatmaps)
+			foreach (var difficultyBeatmap in customLevel.difficultyBeatmapSets[0].difficultyBeatmaps)
 			{
 				var customDifficulty = difficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
 				if (customDifficulty == null) continue;
@@ -605,21 +617,21 @@ namespace SongLoaderPlugin
 
 								loadedIDs.Add(id);
 
-								if (CustomPlatformsPresent && customSongPlatforms)
-								{
-									if (customSongInfo.customEnvironment != null)
-									{
-										if (findCustomEnvironment(customSongInfo.customEnvironment) == -1)
-										{
-											Console.WriteLine("CustomPlatform not found: " + customSongInfo.customEnvironment);
-											if (customSongInfo.customEnvironmentHash != null)
-											{
-												Console.WriteLine("Downloading with hash: " + customSongInfo.customEnvironmentHash);
-												StartCoroutine(downloadCustomPlatform(customSongInfo.customEnvironmentHash, customSongInfo.customEnvironment));
-											}
-										}
-									}
-								}
+								//if (CustomPlatformsPresent && customSongPlatforms)
+								//{
+								//	if (customSongInfo.customEnvironment != null)
+								//	{
+								//		if (findCustomEnvironment(customSongInfo.customEnvironment) == -1)
+								//		{
+								//			Console.WriteLine("CustomPlatform not found: " + customSongInfo.customEnvironment);
+								//			if (customSongInfo.customEnvironmentHash != null)
+								//			{
+								//				Console.WriteLine("Downloading with hash: " + customSongInfo.customEnvironmentHash);
+								//				StartCoroutine(downloadCustomPlatform(customSongInfo.customEnvironmentHash, customSongInfo.customEnvironment));
+								//			}
+								//		}
+								//	}
+								//}
 
 								var i1 = i;
 								HMMainThreadDispatcher.instance.Enqueue(delegate
@@ -665,22 +677,51 @@ namespace SongLoaderPlugin
 					CustomLevelCollectionSO.AddCustomLevel(customLevel);
 				}
 
-				AreSongsLoaded = true;
+                ReloadHashes();
+
+                AreSongsLoaded = true;
 				AreSongsLoading = false;
 				LoadingProgress = 1;
 
 				_loadingTask = null;
-				
-				if (SongsLoadedEvent != null)
-				{
-					SongsLoadedEvent(this, CustomLevels);
-				}
 
-			};
+                SongsLoadedEvent?.Invoke(this, CustomLevels);
+
+            };
 			
 			_loadingTask = new HMTask(job, finish);
 			_loadingTask.Run();
 		}
+
+        private void ReloadHashes() {
+            var additionalContentModelSO = Resources.FindObjectsOfTypeAll<AdditionalContentModelSO>().FirstOrDefault();
+            HashSet<string> _alwaysOwnedBeatmapLevelIds = (HashSet<string>)additionalContentModelSO.GetField("_alwaysOwnedBeatmapLevelIds");
+
+            foreach (CustomLevel level in CustomLevelCollectionSO._levelList) {
+                _alwaysOwnedBeatmapLevelIds.Add(level.levelID);
+            }
+
+            additionalContentModelSO.SetPrivateField("_alwaysOwnedBeatmapLevelIds", _alwaysOwnedBeatmapLevelIds);
+
+            BeatmapLevelsModelSO beatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
+            Dictionary<string, IBeatmapLevel> _loadedBeatmapLevels = (Dictionary<string, IBeatmapLevel>)beatmapLevelsModelSO.GetField("_loadedBeatmapLevels");
+            Dictionary<string, IPreviewBeatmapLevel> _loadedPreviewBeatmapLevels = (Dictionary<string, IPreviewBeatmapLevel>)beatmapLevelsModelSO.GetField("_loadedPreviewBeatmapLevels");
+            
+                foreach (var packs in CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks) {
+                    foreach (var level in packs.beatmapLevelCollection.beatmapLevels) {
+                        if (!_loadedPreviewBeatmapLevels.ContainsKey(level.levelID)) { _loadedPreviewBeatmapLevels.Add(level.levelID, level); }
+                        if ((level as IBeatmapLevel) != null) {
+                            if (!_loadedBeatmapLevels.ContainsKey(level.levelID)) {
+                                _loadedBeatmapLevels.Add(level.levelID, (IBeatmapLevel)level);
+                            }
+                        }
+                    }
+                }
+
+            beatmapLevelsModelSO.SetField("_loadedBeatmapLevels", _loadedBeatmapLevels);
+            beatmapLevelsModelSO.SetField("_loadedPreviewBeatmapLevels", _loadedPreviewBeatmapLevels);
+
+        }
 
 		private CustomLevel LoadSong(CustomSongInfo song)
 		{
@@ -690,7 +731,7 @@ namespace SongLoaderPlugin
 				newLevel.Init(song);
 				newLevel.SetAudioClip(TemporaryAudioClip);
 
-				var difficultyBeatmaps = new List<LevelSO.DifficultyBeatmap>();
+				var difficultyBeatmaps = new List<BeatmapLevelSO.DifficultyBeatmap>();
 				foreach (var diffBeatmap in song.difficultyLevels)
 				{
 					try
@@ -719,7 +760,7 @@ namespace SongLoaderPlugin
 
 				if (difficultyBeatmaps.Count == 0) return null;
 
-				newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray());
+				newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), beatmapCharacteristicSO);
 				newLevel.InitData();
 
 				LoadSprite(song.path + "/" + song.coverImagePath, newLevel);
@@ -780,7 +821,6 @@ namespace SongLoaderPlugin
 
 		private void Log(string message, LogSeverity severity = LogSeverity.Info)
 		{
-			if (severity < _minLogSeverity) return;
 			Console.WriteLine("Song Loader [" + severity.ToString().ToUpper() + "]: " + message);
 		}
 
@@ -891,25 +931,27 @@ namespace SongLoaderPlugin
 
 		private void ReloadCurrentSong()
 		{
-			if (!_standardLevelSceneSetupData.gameplayCoreSetupData.gameplayModifiers.noFail) return;
+            var test = Resources.FindObjectsOfTypeAll<ScenesTransitionSetupDataSO>().FirstOrDefault();
+            GameplayCoreSceneSetupData data = (GameplayCoreSceneSetupData)test.sceneInfoSceneSetupDataPairs[2].data;
+
+            if (!data.gameplayModifiers.noFail) return;
 			var reloadedLevel = LoadSong(GetCustomSongInfo(CurrentLevelPlaying.customLevel.customSongInfo.path));
 			if (reloadedLevel == null) return;
 			
 			reloadedLevel.FixBPMAndGetNoteJumpMovementSpeed();
-			reloadedLevel.SetAudioClip(CurrentLevelPlaying.customLevel.audioClip);
+			reloadedLevel.SetAudioClip(CurrentLevelPlaying.customLevel.previewAudioClip);
 					
 			RemoveSong(CurrentLevelPlaying.customLevel);
 			CustomLevels.Add(reloadedLevel);
-			
-			CustomLevelCollectionSO.AddCustomLevel(reloadedLevel);
+
+            ReloadHashes();
+
+            CustomLevelCollectionSO.AddCustomLevel(reloadedLevel);
 			
 			var orderedList = CustomLevels.OrderBy(x => x.songName);
 			CustomLevels = orderedList.ToList();
-			
-			_standardLevelSceneSetupData.__WillBeUsedInTransition();
-			_standardLevelSceneSetupData.Init(
-				reloadedLevel.GetDifficultyBeatmap(_standardLevelSceneSetupData.difficultyBeatmap.difficulty),
-				_standardLevelSceneSetupData.gameplayCoreSetupData);
+            
+			_standardLevelSceneSetupData.Init(data.difficultyBeatmap, data.gameplayModifiers, data.playerSpecificSettings, data.practiceSettings);
 
 			var restartController = Resources.FindObjectsOfTypeAll<StandardLevelRestartController>().FirstOrDefault();
 			if (restartController == null)
@@ -931,25 +973,26 @@ namespace SongLoaderPlugin
 
 		private int customEnvironment(CustomLevel song)
 		{
-			if(!CustomPlatformsPresent)
-				return -1;
-			return findCustomEnvironment(song.customSongInfo.customEnvironment);
-		}
+            return -1;
+            //if(!CustomPlatformsPresent)
+            //	return -1;
+            //return findCustomEnvironment(song.customSongInfo.customEnvironment);
+        }
 
-		private int findCustomEnvironment(string name) {
+		//private int findCustomEnvironment(string name) {
             
-			CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
-			int platIndex = 0;
-			foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
-			{
-				if (plat.platName == name)
-					return platIndex;
-				platIndex++;
-			}
-			Console.WriteLine(name + " not found!");
+		//	CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
+		//	int platIndex = 0;
+		//	foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
+		//	{
+		//		if (plat.platName == name)
+		//			return platIndex;
+		//		platIndex++;
+		//	}
+		//	Console.WriteLine(name + " not found!");
             
-			return -1;
-		}
+		//	return -1;
+		//}
 
 		[Serializable]
 		public class platformDownloadData
