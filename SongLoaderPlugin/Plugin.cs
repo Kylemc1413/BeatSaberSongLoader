@@ -24,18 +24,16 @@ namespace SongLoaderPlugin
 		
 		public void OnApplicationStart()
 		{
-			_sceneEvents = new GameObject("menu-signal").AddComponent<SceneEvents>();
-			_sceneEvents.MenuSceneEnabled += OnMenuSceneEnabled;
-			SceneManager.sceneLoaded += SceneManager_sceneLoaded;
-
-            harmony = HarmonyInstance.Create("com.xyoncio.BeatSaber.SongLoaderPlugin");
-            harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
-
+            _sceneEvents = new GameObject("menu-signal").AddComponent<SceneEvents>();
+            _sceneEvents.MenuSceneEnabled += OnMenuSceneEnabled;
+            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+            //harmony = HarmonyInstance.Create("com.xyoncio.BeatSaber.SongLoaderPlugin");
+            //harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
         }
 
 		private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
 		{
-			if(scene.name == "Menu")
+            if (scene.name == "MenuViewControllers")
 			{
 				var subMenuCC = SettingsUI.CreateSubMenu("Songloader");
 
@@ -46,16 +44,13 @@ namespace SongLoaderPlugin
 				var platformOverrideOption = subMenuCC.AddBool("Allow Custom Song Platforms");
 				platformOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true); };
 				platformOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
-			}
-
-
-
-
+            }
+            
 		}
 
 		private void OnMenuSceneEnabled()
 		{
-			SongLoader.OnLoad();
+            SongLoader.OnLoad();
 		}
 
 		public void OnApplicationQuit()
