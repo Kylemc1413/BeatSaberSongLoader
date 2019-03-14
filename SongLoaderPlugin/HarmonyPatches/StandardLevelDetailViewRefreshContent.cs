@@ -8,7 +8,7 @@ using UnityEngine;
 using TMPro;
 using SongLoaderPlugin.OverrideClasses;
 using UnityEngine.UI;
-using CustomUI.BeatSaber;
+//using CustomUI.BeatSaber;
 namespace SongLoaderPlugin.Harmony_Patches
 {
     [HarmonyPatch(typeof(StandardLevelDetailViewController))]
@@ -35,7 +35,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                 if (SongLoader.infoButton == null)
                 {
                     SongLoader.infoButton = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PlayButton")), (RectTransform)____playButton.transform.parent.transform, false);
-                    SongLoader.infoButton.SetButtonText("?");
+                //    SongLoader.infoButton.SetButtonText("?");
                     //   SongLoader.infoButton = CustomUI.BeatSaber.BeatSaberUI.CreateUIButton((RectTransform)____playButton.transform.parent.transform, "PlayButton", null, "?");
                     SongLoader.infoButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
                     (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.1f, 0.1f);

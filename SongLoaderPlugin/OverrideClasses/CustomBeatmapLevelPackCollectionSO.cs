@@ -7,12 +7,12 @@ using UnityEngine;
 namespace SongLoaderPlugin.OverrideClasses {
     public class CustomBeatmapLevelPackCollectionSO : BeatmapLevelPackCollectionSO {
 
-        private List<BeatmapLevelPackSO> _customBeatmapLevelPacks = new List<BeatmapLevelPackSO>();
+        internal List<BeatmapLevelPackSO> _customBeatmapLevelPacks = new List<BeatmapLevelPackSO>();
 
         public static CustomBeatmapLevelPackCollectionSO ReplaceOriginal(BeatmapLevelPackCollectionSO original) {
             var newCollection = CreateInstance<CustomBeatmapLevelPackCollectionSO>();
             newCollection._customBeatmapLevelPacks.AddRange((BeatmapLevelPackSO[])original.GetField("_beatmapLevelPacks"));
-            newCollection._customBeatmapLevelPacks.RemoveAt(0);
+            // newCollection._customBeatmapLevelPacks.RemoveAt(0);
             newCollection.UpdateArray();
             newCollection.ReplaceReferences();
             return newCollection;
