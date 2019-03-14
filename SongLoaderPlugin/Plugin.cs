@@ -2,7 +2,7 @@
 using IllusionPlugin;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-//using CustomUI.Settings;
+using CustomUI.Settings;
 using Harmony;
 namespace SongLoaderPlugin
 {
@@ -27,14 +27,14 @@ namespace SongLoaderPlugin
             _sceneEvents = new GameObject("menu-signal").AddComponent<SceneEvents>();
             _sceneEvents.MenuSceneEnabled += OnMenuSceneEnabled;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
-            //harmony = HarmonyInstance.Create("com.xyoncio.BeatSaber.SongLoaderPlugin");
-            //harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
+            harmony = HarmonyInstance.Create("com.xyoncio.BeatSaber.SongLoaderPlugin");
+           harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
         }
 
 		private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
 		{
             if (scene.name == "MenuViewControllers")
-			{/*
+			{
 				var subMenuCC = SettingsUI.CreateSubMenu("Songloader");
 
 				var colorOverrideOption= subMenuCC.AddBool("Allow Custom Song Colors");
@@ -44,7 +44,7 @@ namespace SongLoaderPlugin
 				var platformOverrideOption = subMenuCC.AddBool("Allow Custom Song Platforms");
 				platformOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true); };
 				platformOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
-                */
+                
             }
             
 		}

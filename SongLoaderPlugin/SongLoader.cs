@@ -10,7 +10,7 @@ using SongLoaderPlugin.Internals;
 using SongLoaderPlugin.OverrideClasses;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
-//using CustomUI.BeatSaber;
+using CustomUI.BeatSaber;
 using UnityEngine.UI;
 using TMPro;
 namespace SongLoaderPlugin
@@ -25,8 +25,8 @@ namespace SongLoaderPlugin
 
 
         public static UnityEngine.UI.Button infoButton;
-        //   internal static CustomUI.BeatSaber.CustomMenu reqDialog;
-        //   internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
+           internal static CustomUI.BeatSaber.CustomMenu reqDialog;
+           internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
         internal static Sprite HaveReqIcon;
         internal static Sprite MissingReqIcon;
         internal static Sprite HaveSuggestionIcon;
@@ -130,6 +130,7 @@ namespace SongLoaderPlugin
             StartCoroutine(WaitRemoveScores());
             if (activeScene.name == MenuSceneName)
             {
+                BS_Utils.Gameplay.Gamemode.Init();
                 CurrentLevelPlaying = null;
                 if (CustomLevelCollectionSO == null)
                 {
@@ -199,11 +200,9 @@ namespace SongLoaderPlugin
             }
             else if (activeScene.name == GameSceneName)
             {
-                var test = Resources.FindObjectsOfTypeAll<ScenesTransitionSetupDataSO>().FirstOrDefault();
-                GameplayCoreSceneSetupData data = (GameplayCoreSceneSetupData)test.sceneInfoSceneSetupDataPairs[2].data;
-
-                _standardLevelSceneSetupData = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-                if (_standardLevelSceneSetupData == null) return;
+                GameplayCoreSceneSetupData data = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData;
+                Console.WriteLine("Is Set? : " + BS_Utils.Plugin.LevelData.IsSet);
+                if (!BS_Utils.Plugin.LevelData.IsSet) return;
                 var level = data.difficultyBeatmap;
                 var beatmap = level as CustomLevel.CustomDifficultyBeatmap;
                 if (beatmap != null)
@@ -882,7 +881,7 @@ namespace SongLoaderPlugin
         {
             Console.WriteLine("Song Loader [" + severity.ToString().ToUpper() + "]: " + message);
         }
-        /*
+        
                 private static void InitRequirementsMenu()
                 {
                     reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
@@ -896,11 +895,11 @@ namespace SongLoaderPlugin
 
 
                 }
-                */
+                
 
         internal static void showSongRequirements(CustomLevel.CustomDifficultyBeatmap beatmap, CustomSongInfo songInfo)
         {
-            /*
+            
             if (reqDialog == null)
                 InitRequirementsMenu();
             //   suggestionsList.text = "";
@@ -966,18 +965,18 @@ namespace SongLoaderPlugin
 
             reqDialog.Present();
             reqViewController._customListTableView.ReloadData();
-            */
+            
         }
 
         internal static void GetIcons()
-        {/*
+        {
                 MissingReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
                 HaveReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
                 HaveSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
                 MissingSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
                 WarningIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
                 InfoIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
-                */
+                
         }
         private void Update()
         {
@@ -994,8 +993,9 @@ namespace SongLoaderPlugin
 
         private void ReloadCurrentSong()
         {
-            var test = Resources.FindObjectsOfTypeAll<ScenesTransitionSetupDataSO>().FirstOrDefault();
-            GameplayCoreSceneSetupData data = (GameplayCoreSceneSetupData)test.sceneInfoSceneSetupDataPairs[2].data;
+            GameplayCoreSceneSetupData data = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData;
+            Console.WriteLine("Is Set? : " + BS_Utils.Plugin.LevelData.IsSet);
+            if (!BS_Utils.Plugin.LevelData.IsSet) return;
 
             if (!data.gameplayModifiers.noFail) return;
             var reloadedLevel = LoadSong(GetCustomSongInfo(CurrentLevelPlaying.customLevel.customSongInfo.path));

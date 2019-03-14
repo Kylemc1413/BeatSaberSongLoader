@@ -8,18 +8,18 @@ using UnityEngine;
 using TMPro;
 using SongLoaderPlugin.OverrideClasses;
 using UnityEngine.UI;
-//using CustomUI.BeatSaber;
+using CustomUI.BeatSaber;
 namespace SongLoaderPlugin.Harmony_Patches
 {
-    [HarmonyPatch(typeof(StandardLevelDetailViewController))]
+    [HarmonyPatch(typeof(StandardLevelDetailView))]
     [HarmonyPatch("RefreshContent", MethodType.Normal)]
 
     class StandardLevelDetailViewRefreshContent
     {
-        static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____difficultyBeatmap,
+        static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
             ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton)
         {
-            IBeatmapLevel level = ____difficultyBeatmap?.level;
+            IBeatmapLevel level = ____selectedDifficultyBeatmap?.level;
            
             ____playButton.interactable = true;
             ____practiceButton.interactable = true;
@@ -29,16 +29,17 @@ namespace SongLoaderPlugin.Harmony_Patches
             ____songNameText.richText = true;
             if (level != null)
             {
+                /*
                 var customLevel = level as CustomLevel;
 
-                CustomLevel.CustomDifficultyBeatmap beatmap = ____difficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
+                CustomLevel.CustomDifficultyBeatmap beatmap = ____selectedDifficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
                 if (SongLoader.infoButton == null)
                 {
                     SongLoader.infoButton = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PlayButton")), (RectTransform)____playButton.transform.parent.transform, false);
-                //    SongLoader.infoButton.SetButtonText("?");
-                    //   SongLoader.infoButton = CustomUI.BeatSaber.BeatSaberUI.CreateUIButton((RectTransform)____playButton.transform.parent.transform, "PlayButton", null, "?");
+                    SongLoader.infoButton.SetButtonText("?");
+                     SongLoader.infoButton = CustomUI.BeatSaber.BeatSaberUI.CreateUIButton((RectTransform)____playButton.transform.parent.transform, "PlayButton", null, "?");
                     SongLoader.infoButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
-                    (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.1f, 0.1f);
+                  //  (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.1f, 0.1f);
                 }
 
 
@@ -97,7 +98,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                     SongLoader.infoButton.interactable = false;
                 }
 
-
+    */
             }
 
 
