@@ -868,7 +868,7 @@ namespace SongLoaderPlugin
             var diffLevels = new List<CustomSongInfo.DifficultyLevel>();
             var n = JSON.Parse(infoText);
             var diffs = n["difficultyLevels"];
-            for (int i = diffs.AsArray.Count - 1; i >= 0; i--)
+            for (int i = 0; i < diffs.AsArray.Count; i++)
             {
                 n = diffs[i];
                 var difficulty = Utils.ToEnum(n["difficulty"], BeatmapDifficulty.Normal);
