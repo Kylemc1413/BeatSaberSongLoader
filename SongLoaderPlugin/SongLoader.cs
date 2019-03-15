@@ -798,6 +798,7 @@ namespace SongLoaderPlugin
             {
                 var newLevel = _customLevelPool.Get();
                 newLevel.Init(song);
+                song.difficultyLevels = song.difficultyLevels.ToList().OrderBy(x => x.difficultyRank).ToList().ToArray();
                 newLevel.SetAudioClip(TemporaryAudioClip);
 
                 var difficultyBeatmaps = new List<BeatmapLevelSO.DifficultyBeatmap>();
