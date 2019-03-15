@@ -12,7 +12,23 @@ namespace SongLoaderPlugin.OverrideClasses {
         public static CustomBeatmapLevelPackCollectionSO ReplaceOriginal(BeatmapLevelPackCollectionSO original) {
             var newCollection = CreateInstance<CustomBeatmapLevelPackCollectionSO>();
             newCollection._customBeatmapLevelPacks.AddRange((BeatmapLevelPackSO[])original.GetField("_beatmapLevelPacks"));
-            // newCollection._customBeatmapLevelPacks.RemoveAt(0);
+            //Figure out how to properly add the preview song packs
+            
+            var previewpacks = (PreviewBeatmapLevelPackSO[])original.GetField("_previewBeatmapLevelPack");
+            IBeatmapLevelPack pack = null;
+            foreach (PreviewBeatmapLevelPackSO previewpack in previewpacks)
+            {
+                pack = previewpack;
+                BeatmapLevelPackSO newpack = pack as BeatmapLevelPackSO;
+                if (newpack != null)
+                {
+                    Console.WriteLine("Adding Preview Pack: " + newpack.packName);
+                    newCollection._customBeatmapLevelPacks.Add(pack as BeatmapLevelPackSO);
+                }
+                else
+                    Console.WriteLine("Preview Pack Null, not adding.");
+            }
+            
             newCollection.UpdateArray();
             newCollection.ReplaceReferences();
             return newCollection;

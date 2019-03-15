@@ -80,6 +80,7 @@ namespace SongLoaderPlugin
 
         private LogSeverity _minLogSeverity;
         internal static bool _noArrowsSelected;
+        internal static bool firstLoad = false;
         private bool customSongColors;
         private bool customSongPlatforms;
         public static void OnLoad()
@@ -152,11 +153,12 @@ namespace SongLoaderPlugin
                 var Extras = CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Where(x => x.packName.Contains("Extras")).First();
                 if(Extras != null)
                 {
-                    BeatmapLevelSO[] ExtrasLevels = Extras.GetField<BeatmapLevelCollectionSO>("_beatmapLevelCollection").GetField<BeatmapLevelSO[]>("_beatmapLevels"); ;
+                    BeatmapLevelSO[] ExtrasLevels = Extras.GetField<BeatmapLevelCollectionSO>("_beatmapLevelCollection").GetField<BeatmapLevelSO[]>("_beatmapLevels");
+                    if(!firstLoad)
                     foreach(BeatmapLevelSO level in ExtrasLevels)
                     {
                         CustomLevelCollectionSO._levelList.Add(level);
-
+                            firstLoad = true;
                     }
 
                     ReflectionUtil.SetPrivateField(Extras,"_beatmapLevelCollection", CustomLevelCollectionSO);
@@ -515,6 +517,7 @@ namespace SongLoaderPlugin
             }
 
             customLevel.SetAudioClip(audioClip);
+            customLevel.InitData();
             callback.Invoke();
             customLevel.AudioClipLoading = false;
         }
@@ -756,16 +759,24 @@ namespace SongLoaderPlugin
             }
 
             additionalContentModelSO.SetPrivateField("_alwaysOwnedBeatmapLevelIds", _alwaysOwnedBeatmapLevelIds);
-
+          //  Console.WriteLine("1");
             BeatmapLevelsModelSO beatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
             Dictionary<string, IBeatmapLevel> _loadedBeatmapLevels = (Dictionary<string, IBeatmapLevel>)beatmapLevelsModelSO.GetField("_loadedBeatmapLevels");
             Dictionary<string, IPreviewBeatmapLevel> _loadedPreviewBeatmapLevels = (Dictionary<string, IPreviewBeatmapLevel>)beatmapLevelsModelSO.GetField("_loadedPreviewBeatmapLevels");
-
+         //   Console.WriteLine("2");
             foreach (var packs in CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks)
             {
-                foreach (var level in packs.beatmapLevelCollection.beatmapLevels)
+         //       Console.WriteLine("3.1  " + packs?.packName);
+                if(packs == null)
                 {
-                    if (!_loadedPreviewBeatmapLevels.ContainsKey(level.levelID)) { _loadedPreviewBeatmapLevels.Add(level.levelID, level); }
+                    Console.WriteLine("Null Pack, Removing");
+                    CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(packs as BeatmapLevelPackSO);
+                }
+                foreach (var level in packs?.beatmapLevelCollection?.beatmapLevels)
+                {
+           //             Console.WriteLine("3.2");
+                    if(level != null)
+                        if (!_loadedPreviewBeatmapLevels.ContainsKey(level.levelID)) { _loadedPreviewBeatmapLevels.Add(level.levelID, level); }
                     if ((level as IBeatmapLevel) != null)
                     {
                         if (!_loadedBeatmapLevels.ContainsKey(level.levelID))
@@ -775,7 +786,7 @@ namespace SongLoaderPlugin
                     }
                 }
             }
-
+       //     Console.WriteLine("4");
             beatmapLevelsModelSO.SetField("_loadedBeatmapLevels", _loadedBeatmapLevels);
             beatmapLevelsModelSO.SetField("_loadedPreviewBeatmapLevels", _loadedPreviewBeatmapLevels);
 
@@ -819,7 +830,7 @@ namespace SongLoaderPlugin
                 if (difficultyBeatmaps.Count == 0) return null;
 
                 newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), beatmapCharacteristicSO);
-                newLevel.InitData();
+            //    newLevel.InitData();
 
                 LoadSprite(song.path + "/" + song.coverImagePath, newLevel);
                 return newLevel;

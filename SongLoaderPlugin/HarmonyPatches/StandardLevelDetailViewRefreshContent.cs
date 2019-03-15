@@ -29,7 +29,7 @@ namespace SongLoaderPlugin.Harmony_Patches
             ____songNameText.richText = true;
             if (level != null)
             {
-                /*
+                
                 var customLevel = level as CustomLevel;
 
                 CustomLevel.CustomDifficultyBeatmap beatmap = ____selectedDifficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
@@ -98,7 +98,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                     SongLoader.infoButton.interactable = false;
                 }
 
-    */
+    
             }
 
 
