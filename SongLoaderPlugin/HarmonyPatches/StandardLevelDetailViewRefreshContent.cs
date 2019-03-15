@@ -33,6 +33,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                 var customLevel = level as CustomLevel;
 
                 CustomLevel.CustomDifficultyBeatmap beatmap = ____selectedDifficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
+                /*
                 if (SongLoader.infoButton == null)
                 {
                     SongLoader.infoButton = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PlayButton")), (RectTransform)____playButton.transform.parent.transform, false);
@@ -41,32 +42,32 @@ namespace SongLoaderPlugin.Harmony_Patches
                     SongLoader.infoButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
                   //  (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.1f, 0.1f);
                 }
-
+                */
 
 
                 if (beatmap != null)
                 {
-                    SongLoader.infoButton.onClick.RemoveAllListeners();
-                    SongLoader.infoButton.onClick.AddListener(delegate ()
-                    {
-                        if (beatmap != null)
-                            SongLoader.showSongRequirements(beatmap, customLevel.customSongInfo);
-                    });
+              //      SongLoader.infoButton.onClick.RemoveAllListeners();
+              //      SongLoader.infoButton.onClick.AddListener(delegate ()
+               //     {
+               //         if (beatmap != null)
+               //             SongLoader.showSongRequirements(beatmap, customLevel.customSongInfo);
+               //     });
                     if (beatmap.requirements.Count == 0 && beatmap.suggestions.Count == 0 && beatmap.warnings.Count == 0 && 
                         customLevel?.customSongInfo?.mappers?.Length == 0 && customLevel?.customSongInfo?.lighters?.Length == 0 && beatmap.information.Count == 0)
                     {
-                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
-                        SongLoader.infoButton.interactable = false;
+                 //       SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
+                 //       SongLoader.infoButton.interactable = false;
                     }
                     else if (beatmap.warnings.Count == 0)
                     {
-                        SongLoader.infoButton.interactable = true;
-                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                 //       SongLoader.infoButton.interactable = true;
+                 //       SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
                     }
                     else if(beatmap.warnings.Count > 0)
                     {
-                        SongLoader.infoButton.interactable = true;
-                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                  //      SongLoader.infoButton.interactable = true;
+                   //     SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
                         if (beatmap.warnings.Contains("WIP"))
                         {
                             ____playButton.interactable = false;
@@ -85,7 +86,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                             ____playButton.interactable = false;
                             ____practiceButton.interactable = false;
                             ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
-                            SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
+                          //  SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
                         }
                     }
 
@@ -94,8 +95,8 @@ namespace SongLoaderPlugin.Harmony_Patches
                 }
                 else
                 {
-                    SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
-                    SongLoader.infoButton.interactable = false;
+                 //   SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
+                 //   SongLoader.infoButton.interactable = false;
                 }
 
     

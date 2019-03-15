@@ -349,14 +349,16 @@ namespace SongLoaderPlugin.OverrideClasses
         public void SetSongColors(Color colorLeft, Color colorRight, bool hasColors)
         {
             if (!hasColors) return;
-            EnvironmentColorsSetter colorSetter = new GameObject("SongLoader Color Setter").AddComponent<EnvironmentColorsSetter>();
+            GameObject colorSetterObj = new GameObject("SongLoader Color Setter");
+            colorSetterObj.SetActive(false);
+            EnvironmentColorsSetter colorSetter = colorSetterObj.AddComponent<EnvironmentColorsSetter>();
             var scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
             SimpleColorSO[] A = new SimpleColorSO[2];
             SimpleColorSO[] B = new SimpleColorSO[2];
             foreach (var color in scriptableColors)
             {
                 int i = 0;
-                if (color.name == "Color0")
+                if (color.name == "BaseNoteColor0")
                 {
                     B[0] = color;
                     i++;
@@ -366,7 +368,7 @@ namespace SongLoaderPlugin.OverrideClasses
                     A[0] = color;
                     i++;
                 }
-                else if (color.name == "Color1")
+                else if (color.name == "BaseNoteColor1")
                 {
                     A[1] = color;
                     i++;
@@ -382,7 +384,9 @@ namespace SongLoaderPlugin.OverrideClasses
             colorSetter.SetPrivateField("_colorManager", Resources.FindObjectsOfTypeAll<ColorManager>().First());
             colorSetter.SetPrivateField("_overrideColorA", colorRight);
             colorSetter.SetPrivateField("_overrideColorB", colorLeft);
+            colorSetterObj.SetActive(true);
             colorSetter.Awake();
+
         }
     }
 }
