@@ -32,6 +32,8 @@ namespace SongLoaderPlugin
 
 		private void SceneManagerOnActiveSceneChanged(Scene oldScene, Scene newScene)
 		{
+            Console.WriteLine("Destroying Color Setter");
+            GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
 			if (_gameScenesManager == null)
 			{
 				_gameScenesManager = Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault();

@@ -138,8 +138,6 @@ namespace SongLoaderPlugin
                     var levelCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelCollectionSO>().FirstOrDefault();
                     CustomLevelCollectionSO = CustomLevelCollectionSO.ReplaceOriginal(levelCollectionSO);
                 }
-                var a = Resources.FindObjectsOfTypeAll<LevelPacksViewController>().FirstOrDefault();
-                a.didActivateEvent += A_didActivateEvent;
                 
                 if (CustomBeatmapLevelPackCollectionSO == null) {
                     var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
@@ -230,39 +228,6 @@ namespace SongLoaderPlugin
             }
         }
 
-        private void A_didActivateEvent(bool firstActivation, VRUI.VRUIViewController.ActivationType activationType)
-        {
-            var a = Resources.FindObjectsOfTypeAll<LevelPacksViewController>().FirstOrDefault();
-            var packs = Resources.FindObjectsOfTypeAll<BeatmapLevelPackSO>();
-            Console.WriteLine("Packs: " + packs.Length);
-            foreach (BeatmapLevelPackSO pack in packs)
-            {
-                Console.WriteLine("Pack: " + pack.packName);
-
-            }
-            /*
-            if (CustomBeatmapLevelPackCollectionSO == null)
-            {
-                var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
-                CustomBeatmapLevelPackCollectionSO = CustomBeatmapLevelPackCollectionSO.ReplaceOriginal(beatmapLevelPackCollectionSO);
-                   CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
-                 CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
-                CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
-            }
-            else
-            {
-                CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
-            }
-            var table = a.GetPrivateField<LevelPacksTableView>("_levelPacksTableView");
-            var packs2 = Resources.FindObjectsOfTypeAll<BeatmapLevelPackSO>();
-            Console.WriteLine("Packs: " + packs2.Length);
-            foreach (BeatmapLevelPackSO pack in packs2)
-            {
-                Console.WriteLine("Pack: " + pack.packName);
-                Console.WriteLine("Songs: " + pack.beatmapLevelCollection.beatmapLevels.Length);
-            }
-            */
-        }
 
         private void DelayedNoteJumpMovementSpeedFix()
         {

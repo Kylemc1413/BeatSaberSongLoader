@@ -349,26 +349,40 @@ namespace SongLoaderPlugin.OverrideClasses
         public void SetSongColors(Color colorLeft, Color colorRight, bool hasColors)
         {
             if (!hasColors) return;
-            GameObject colorSetterObj = new GameObject("SongLoader Color Setter");
-            colorSetterObj.SetActive(false);
-            EnvironmentColorsSetter colorSetter = colorSetterObj.AddComponent<EnvironmentColorsSetter>();
+            Console.WriteLine("Colors: " + colorLeft.ToString() + "    " + colorRight.ToString());
+            GameObject colorSetterObj = null;
+            EnvironmentColorsSetter colorSetter;
+            if (customSongInfo.environmentName.Contains("KDA"))
+            {
+                Console.WriteLine("KDA");
+                 colorSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
+            }
+            else
+            {
+            colorSetterObj = new GameObject("SongLoader Color Setter");
+
+                colorSetterObj.SetActive(false);
+                colorSetter = colorSetterObj.AddComponent<EnvironmentColorsSetter>();
+            }
+
             var scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
             SimpleColorSO[] A = new SimpleColorSO[2];
             SimpleColorSO[] B = new SimpleColorSO[2];
             foreach (var color in scriptableColors)
             {
+                Console.WriteLine("Color: " + color.name);
                 int i = 0;
-                if (color.name == "BaseNoteColor0")
+                if (color.name == "BaseNoteColor1")
                 {
                     B[0] = color;
                     i++;
                 }
-                else if (color.name == "BaseColor0")
+                else if (color.name == "BaseNoteColor0")
                 {
                     A[0] = color;
                     i++;
                 }
-                else if (color.name == "BaseNoteColor1")
+                else if (color.name == "BaseColor0")
                 {
                     A[1] = color;
                     i++;
@@ -384,7 +398,10 @@ namespace SongLoaderPlugin.OverrideClasses
             colorSetter.SetPrivateField("_colorManager", Resources.FindObjectsOfTypeAll<ColorManager>().First());
             colorSetter.SetPrivateField("_overrideColorA", colorRight);
             colorSetter.SetPrivateField("_overrideColorB", colorLeft);
+            Console.WriteLine("Turning on");
+            if(colorSetterObj != null)
             colorSetterObj.SetActive(true);
+
             colorSetter.Awake();
 
         }

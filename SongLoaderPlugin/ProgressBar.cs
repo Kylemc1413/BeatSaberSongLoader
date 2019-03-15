@@ -25,13 +25,13 @@ namespace SongLoaderPlugin
 
 		private const string AuthorNameText = "xyonico's";
 		private const float AuthorNameFontSize = 7f;
-		private static readonly Vector2 AuthorNamePosition = new Vector2(27, 35);
+		private static readonly Vector2 AuthorNamePosition = new Vector2(10, 31);
 		
 		private const string PluginNameText = "Song Loader Plugin <size=75%>" + Plugin.VersionNumber + "</size>";
 		private const float PluginNameFontSize = 9f;
-		private static readonly Vector2 PluginNamePosition = new Vector2(50, 26);
+		private static readonly Vector2 PluginNamePosition = new Vector2(10, 23);
 		
-		private static readonly Vector2 HeaderPosition = new Vector2(50, 15);
+		private static readonly Vector2 HeaderPosition = new Vector2(10, 15);
 		private static readonly Vector2 HeaderSize = new Vector2(100, 20);
 		private const string HeaderText = "Loading songs...";
 		private const float HeaderFontSize = 15f;
