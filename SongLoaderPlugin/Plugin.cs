@@ -8,7 +8,7 @@ namespace SongLoaderPlugin
 {
     public class Plugin : IPlugin
     {
-        public const string VersionNumber = "6.4.0";
+        public const string VersionNumber = "6.5.0";
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
 
@@ -36,11 +36,14 @@ namespace SongLoaderPlugin
         {
             if (scene.name == "MenuViewControllers")
             {
+                if (SongLoader.reqDialog == null)
+                    SongLoader.InitRequirementsMenu();
+
                 var subMenuCC = SettingsUI.CreateSubMenu("Songloader");
 
-                var colorOverrideOption = subMenuCC.AddBool("Allow Custom Song Colors");
-                colorOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongColors", true, true); };
-                colorOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
+     //           var colorOverrideOption = subMenuCC.AddBool("Allow Custom Song Colors");
+     //           colorOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongColors", true, true); };
+     //           colorOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
 
                 var platformOverrideOption = subMenuCC.AddBool("Allow Custom Song Platforms");
                 platformOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true); };

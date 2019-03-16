@@ -58,7 +58,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                     SongLoader.infoButton.onClick.RemoveAllListeners();
                     SongLoader.infoButton.onClick.AddListener(delegate ()
                     {
-                        Console.WriteLine("Click");
+                        //Console.WriteLine("Click");
                         if (beatmap != null)
                             SongLoader.showSongRequirements(beatmap, customLevel.customSongInfo);
                     });

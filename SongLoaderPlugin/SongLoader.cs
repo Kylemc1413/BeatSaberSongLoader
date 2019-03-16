@@ -57,11 +57,10 @@ namespace SongLoaderPlugin
 
         private LeaderboardScoreUploader _leaderboardScoreUploader;
         private StandardLevelDetailViewController _standardLevelDetailViewController;
-        private StandardLevelScenesTransitionSetupDataSO _standardLevelSceneSetupData;
         private BeatmapCharacteristicSelectionViewController _characteristicViewController;
         private LevelPackLevelsViewController _LevelListViewController;
 
-        private BeatmapCharacteristicSO beatmapCharacteristicSO;
+        private BeatmapCharacteristicSO[] beatmapCharacteristicSOCollection;
 
         private readonly ScriptableObjectPool<CustomLevel> _customLevelPool = new ScriptableObjectPool<CustomLevel>();
         private readonly ScriptableObjectPool<CustomBeatmapDataSO> _beatmapDataPool = new ScriptableObjectPool<CustomBeatmapDataSO>();
@@ -162,8 +161,8 @@ namespace SongLoaderPlugin
                     ReflectionUtil.SetPrivateField(Extras,"_beatmapLevelCollection", CustomLevelCollectionSO);
                     ReloadHashes();
                 }
-
-                beatmapCharacteristicSO = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics[0];
+                
+                beatmapCharacteristicSOCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
 
                 var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
                 LevelPacksViewController levelPacksViewController = (LevelPacksViewController)soloFreePlay.GetField("_levelPacksViewController");
@@ -222,8 +221,10 @@ namespace SongLoaderPlugin
                 //    if (CustomPlatformsPresent)
                 //CheckCustomSongEnvironment(song);
                 //Set enviroment colors for the song if it has song specific colors
-                if (customSongColors)
-                    song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
+
+
+            //    if (customSongColors)
+           //         song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
 
             }
         }
@@ -795,7 +796,7 @@ namespace SongLoaderPlugin
 
                 if (difficultyBeatmaps.Count == 0) return null;
 
-                newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), beatmapCharacteristicSO);
+                newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), newLevel.customSongInfo.oneSaber? beatmapCharacteristicSOCollection[1] : beatmapCharacteristicSOCollection[0]);
             //    newLevel.InitData();
 
                 LoadSprite(song.path + "/" + song.coverImagePath, newLevel);
@@ -859,7 +860,7 @@ namespace SongLoaderPlugin
             Console.WriteLine("Song Loader [" + severity.ToString().ToUpper() + "]: " + message);
         }
         
-                private static void InitRequirementsMenu()
+                internal static void InitRequirementsMenu()
                 {
                     reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
                     reqViewController = BeatSaberUI.CreateViewController<CustomListViewController>();
@@ -876,9 +877,6 @@ namespace SongLoaderPlugin
 
         internal static void showSongRequirements(CustomLevel.CustomDifficultyBeatmap beatmap, CustomSongInfo songInfo)
         {
-            
-            if (reqDialog == null)
-                InitRequirementsMenu();
             //   suggestionsList.text = "";
 
             reqViewController.Data.Clear();
@@ -990,8 +988,6 @@ namespace SongLoaderPlugin
 
             var orderedList = CustomLevels.OrderBy(x => x.songName);
             CustomLevels = orderedList.ToList();
-
-            _standardLevelSceneSetupData.Init(data.difficultyBeatmap, data.gameplayModifiers, data.playerSpecificSettings, data.practiceSettings);
 
             var restartController = Resources.FindObjectsOfTypeAll<StandardLevelRestartController>().FirstOrDefault();
             if (restartController == null)
