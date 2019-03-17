@@ -43,7 +43,7 @@ namespace SongLoaderPlugin.OverrideClasses
 
         public void SetDifficultyBeatmaps(DifficultyBeatmap[] newDifficultyBeatmaps, BeatmapCharacteristicSO[] characteristicsSO, bool singleSaber = false)
         {
-            if(singleSaber)
+            if (singleSaber)
             {
                 DifficultyBeatmapSet difficultyBeatmapSet = new DifficultyBeatmapSet(characteristicsSO[1], newDifficultyBeatmaps);
                 _difficultyBeatmapSets = new DifficultyBeatmapSet[] { difficultyBeatmapSet };
@@ -51,18 +51,18 @@ namespace SongLoaderPlugin.OverrideClasses
             else
             {
                 List<DifficultyBeatmapSet> beatmapsets = new List<DifficultyBeatmapSet>();
-                for(int i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     List<DifficultyBeatmap> beatmaps = new List<DifficultyBeatmap>();
-                    foreach(DifficultyBeatmap beatmap in newDifficultyBeatmaps)
+                    foreach (DifficultyBeatmap beatmap in newDifficultyBeatmaps)
                     {
                         int characteristic = (beatmap as CustomDifficultyBeatmap).Characteristic;
                         if (characteristic == i || (characteristic == -1 && i == 0))
                             beatmaps.Add(beatmap);
 
                     }
-                    if(beatmaps.Count > 0)
-                    beatmapsets.Add(new DifficultyBeatmapSet(characteristicsSO[i], beatmaps.ToArray()));
+                    if (beatmaps.Count > 0)
+                        beatmapsets.Add(new DifficultyBeatmapSet(characteristicsSO[i], beatmaps.ToArray()));
 
 
                 }
@@ -88,8 +88,8 @@ namespace SongLoaderPlugin.OverrideClasses
                 Color? colorLeft, colorRight;
                 int? noteJumpStartBeatOffset;
 
-                var diffBeatmap = _difficultyBeatmapSets[0].difficultyBeatmaps.FirstOrDefault(x =>
-                    diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
+                var diffBeatmap = _difficultyBeatmapSets[diffLevel.characteristic == -1 || diffLevel.characteristic > 2 ? 0 : diffLevel.characteristic].difficultyBeatmaps.FirstOrDefault(x =>
+                     diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
                 var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
                 if (customBeatmap == null) continue;
 
@@ -135,13 +135,14 @@ namespace SongLoaderPlugin.OverrideClasses
             _beatsPerMinute = bpms.OrderByDescending(x => x.Value).First().Key;
             try
             {
-                foreach (var difficultyBeatmap in _difficultyBeatmapSets[0].difficultyBeatmaps)
-                {
-                    var customBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
-                    if (customBeatmap == null) continue;
-                    customBeatmap.BeatmapDataSO.SetRequiredDataForLoad(_beatsPerMinute, _shuffle, _shufflePeriod);
-                    customBeatmap.BeatmapDataSO.Load();
-                }
+                foreach (var beatmapset in _difficultyBeatmapSets)
+                    foreach (var difficultyBeatmap in beatmapset.difficultyBeatmaps)
+                    {
+                        var customBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
+                        if (customBeatmap == null) continue;
+                        customBeatmap.BeatmapDataSO.SetRequiredDataForLoad(_beatsPerMinute, _shuffle, _shufflePeriod);
+                        customBeatmap.BeatmapDataSO.Load();
+                    }
 
                 BPMAndNoteSpeedFixed = true;
             }

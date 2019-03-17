@@ -379,13 +379,13 @@ callback));
             if (customLevel == null) return;
 
             CustomLevelCollectionSO.RemoveLevel(customLevel);
-
-            foreach (var difficultyBeatmap in customLevel.difficultyBeatmapSets[0].difficultyBeatmaps)
-            {
-                var customDifficulty = difficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
-                if (customDifficulty == null) continue;
-                _beatmapDataPool.Return(customDifficulty.BeatmapDataSO);
-            }
+            foreach (IDifficultyBeatmapSet beatmapset in customLevel.difficultyBeatmapSets)
+                foreach (var difficultyBeatmap in beatmapset.difficultyBeatmaps)
+                {
+                    var customDifficulty = difficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
+                    if (customDifficulty == null) continue;
+                    _beatmapDataPool.Return(customDifficulty.BeatmapDataSO);
+                }
 
             _customLevelPool.Return(customLevel);
         }
@@ -901,7 +901,7 @@ callback));
             {
                 n = diffs[i];
                 var difficulty = Utils.ToEnum(n["difficulty"], BeatmapDifficulty.Normal);
-                var difficultyRank = (int)difficulty;
+                var difficultyRank = (int)difficulty;// * 100 + UnityEngine.Mathf.Clamp(n["difficultyRank"].AsInt, 0, 10);
                 int characteristic = -1;
 
                 if (n["characteristic"] != null)
