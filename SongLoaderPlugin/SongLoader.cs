@@ -57,7 +57,6 @@ namespace SongLoaderPlugin
 
         private LeaderboardScoreUploader _leaderboardScoreUploader;
         private StandardLevelDetailViewController _standardLevelDetailViewController;
-        private BeatmapCharacteristicSelectionViewController _characteristicViewController;
         private LevelPackLevelsViewController _LevelListViewController;
 
         private BeatmapCharacteristicSO[] beatmapCharacteristicSOCollection;
@@ -78,7 +77,6 @@ namespace SongLoaderPlugin
         public static readonly AudioClip TemporaryAudioClip = AudioClip.Create("temp", 1, 2, 1000, true);
 
         private LogSeverity _minLogSeverity;
-        internal static bool _noArrowsSelected;
         internal static bool firstLoad = false;
         private bool customSongColors;
         private bool customSongPlatforms;
@@ -183,16 +181,6 @@ namespace SongLoaderPlugin
                     _LevelListViewController.didSelectLevelEvent += StandardLevelListViewControllerOnDidSelectLevelEvent;
                 }
 
-
-
-                if (_characteristicViewController == null)
-                {
-                    _characteristicViewController = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicSelectionViewController>().FirstOrDefault();
-                    if (_characteristicViewController == null) return;
-
-                    _characteristicViewController.didSelectBeatmapCharacteristicEvent += OnDidSelectBeatmapCharacteristicEvent;
-                }
-
                 //if (CustomPlatformsPresent)
                 //   CheckForPreviousPlatform();
 
@@ -251,14 +239,17 @@ namespace SongLoaderPlugin
             }
 
             //Also change beatmap to no arrow if no arrow was selected, since Beat Saber no longer does runtime conversion for that.
-
-            if (!_noArrowsSelected) return;
+                //As of 0.13.0 No Arrows is no longer a selectable mode, and is instead a separate set of difficultybeatmaps contained in the song
+                //So for now this is obsolete
+            /*
+             *             if (!_noArrowsSelected) return;
             var gameplayCore = Resources.FindObjectsOfTypeAll<GameplayCoreSceneSetup>().FirstOrDefault();
             if (gameplayCore == null) return;
             Console.WriteLine("Applying no arrow transformation");
             var transformedBeatmap = BeatmapDataNoArrowsTransform.CreateTransformedData(CurrentLevelPlaying.beatmapData, true);
             var beatmapDataModel = gameplayCore.GetPrivateField<BeatmapDataModel>("_beatmapDataModel");
             beatmapDataModel.SetPrivateField("_beatmapData", transformedBeatmap);
+            */
         }
 
         //private void CheckForPreviousPlatform()
@@ -298,13 +289,9 @@ namespace SongLoaderPlugin
 
             customLevel.FixBPMAndGetNoteJumpMovementSpeed();
             StartCoroutine(LoadAudio(
-                "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel,
-                callback));
-        }
+    "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel,
+    callback));
 
-        private void OnDidSelectBeatmapCharacteristicEvent(BeatmapCharacteristicSelectionViewController viewController, BeatmapCharacteristicSO characteristic)
-        {
-            _noArrowsSelected = characteristic.characteristicName == "No Arrows";
         }
 
         public void LoadAudioClipForLevel(CustomLevel customLevel, Action<CustomLevel> clipReadyCallback)
@@ -313,8 +300,9 @@ namespace SongLoaderPlugin
 
             customLevel.FixBPMAndGetNoteJumpMovementSpeed();
             StartCoroutine(LoadAudio(
-                "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel,
-                callback));
+"file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel,
+callback));
+
         }
 
         private IEnumerator WaitRemoveScores()
@@ -488,6 +476,77 @@ namespace SongLoaderPlugin
             customLevel.AudioClipLoading = false;
         }
 
+        public void RetrieveNewSong(string songFolderName)
+        {
+            Log("Retrieving Single Song");
+            Log("Folder: " + songFolderName);
+            if(string.IsNullOrEmpty(songFolderName))
+            {
+                Log("Error Retrieving Song: No Folder Provided");
+                return;
+            }
+            string newSongPath = Environment.CurrentDirectory + "/CustomSongs/" + songFolderName;
+            Log("Path: " + newSongPath);
+            var results = Directory.GetFiles(newSongPath, "info.json", SearchOption.AllDirectories);
+            if (results.Length == 0)
+            {
+                Log("Custom song folder '" + newSongPath + "' is missing info.json files!", LogSeverity.Warn);
+            }
+            foreach (var result in results)
+            {
+                try
+                {
+                    var songPath = Path.GetDirectoryName(result).Replace('\\', '/');
+
+                    var customSongInfo = GetCustomSongInfo(songPath);
+
+                    if (customSongInfo == null) continue;
+
+                    //if (CustomPlatformsPresent && customSongPlatforms)
+                    //{
+                    //	if (customSongInfo.customEnvironment != null)
+                    //	{
+                    //		if (findCustomEnvironment(customSongInfo.customEnvironment) == -1)
+                    //		{
+                    //			Console.WriteLine("CustomPlatform not found: " + customSongInfo.customEnvironment);
+                    //			if (customSongInfo.customEnvironmentHash != null)
+                    //			{
+                    //				Console.WriteLine("Downloading with hash: " + customSongInfo.customEnvironmentHash);
+                    //				StartCoroutine(downloadCustomPlatform(customSongInfo.customEnvironmentHash, customSongInfo.customEnvironment));
+                    //			}
+                    //		}
+                    //	}
+                    //}
+
+                Log("Loaded new song.");
+                var level = LoadSong(customSongInfo);
+                    CustomLevels.Add(level);
+                var orderedList = CustomLevels.OrderBy(x => x.songName);
+                CustomLevels = orderedList.ToList();
+
+
+                CustomLevelCollectionSO.AddCustomLevel(level);
+                
+
+                ReloadHashes();
+
+                AreSongsLoaded = true;
+                AreSongsLoading = false;
+                LoadingProgress = 1;
+
+                _loadingTask = null;
+
+                SongsLoadedEvent?.Invoke(this, CustomLevels);
+
+
+                }
+                catch (Exception e)
+                {
+                    Log("Failed to load song folder: " + result, LogSeverity.Warn);
+                    Log(e.ToString(), LogSeverity.Warn);
+                }
+            }
+        }
         private void RetrieveAllSongs(bool fullRefresh)
         {
             var stopwatch = new Stopwatch();

@@ -12,31 +12,30 @@ namespace SongLoaderPlugin.OverrideClasses
 		private static BeatmapCharacteristicSO _standardCharacteristic;
 		private static BeatmapCharacteristicSO _oneSaberCharacteristic;
 		private static BeatmapCharacteristicSO _noArrowsCharacteristic;
-
+        private static BeatmapCharacteristicSO[] beatmapCharacteristicCollection = null;
 		public static CustomLevelCollectionSO ReplaceOriginal(BeatmapLevelCollectionSO original)
 		{
 			var newCollection = CreateInstance<CustomLevelCollectionSO>();
 			newCollection.UpdateArray();
 
-			foreach (var originalLevel in original.beatmapLevels)
-			{
-				if (_standardCharacteristic == null)
-				{
-					_standardCharacteristic = originalLevel.beatmapCharacteristics.FirstOrDefault(x => x.characteristicName == "Standard");
-				}
-				
-				if (_oneSaberCharacteristic == null)
-				{
-					_oneSaberCharacteristic = originalLevel.beatmapCharacteristics.FirstOrDefault(x => x.characteristicName == "One Saber");
-				}
-				
-				if (_noArrowsCharacteristic == null)
-				{
-					_noArrowsCharacteristic = originalLevel.beatmapCharacteristics.FirstOrDefault(x => x.characteristicName == "No Arrows");
-				}
-			}
+            if (beatmapCharacteristicCollection == null) beatmapCharacteristicCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
 
-			return newCollection;
+            if (_standardCharacteristic == null)
+            {
+                _standardCharacteristic = beatmapCharacteristicCollection[0];
+            }
+
+            if (_oneSaberCharacteristic == null)
+            {
+                _oneSaberCharacteristic = beatmapCharacteristicCollection[1];
+            }
+
+            if (_noArrowsCharacteristic == null)
+            {
+                _noArrowsCharacteristic = beatmapCharacteristicCollection[2];
+            }
+
+            return newCollection;
 		}
         
 		public void AddCustomLevels(IEnumerable<CustomLevel> customLevels)

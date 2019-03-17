@@ -104,7 +104,6 @@
     <Compile Include="CustomSongInfo.cs" />
     <Compile Include="EnvironmentsLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData.cs" />
-    <Compile Include="HarmonyPatches\BeatmapCharacteristicSelectionViewControllerDidDeactivate.cs" />
     <Compile Include="HarmonyPatches\StandardLevelDetailViewRefreshContent.cs" />
     <Compile Include="Internals\Unzip.cs" />
     <Compile Include="IScriptableObjectResetable.cs" />
