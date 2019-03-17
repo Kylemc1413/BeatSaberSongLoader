@@ -846,7 +846,7 @@ callback));
                         newBeatmapData.SetJsonData(diffBeatmap.json);
 
                         var newDiffBeatmap = new CustomLevel.CustomDifficultyBeatmap(newLevel, difficulty,
-                            diffBeatmap.difficultyRank, diffBeatmap.noteJumpMovementSpeed, diffBeatmap.noteJumpStartBeatOffset, newBeatmapData);
+                            diffBeatmap.difficultyRank, diffBeatmap.noteJumpMovementSpeed, diffBeatmap.noteJumpStartBeatOffset, newBeatmapData, diffBeatmap.characteristic);
                         difficultyBeatmaps.Add(newDiffBeatmap);
                     }
                     catch (Exception e)
@@ -858,7 +858,7 @@ callback));
 
                 if (difficultyBeatmaps.Count == 0) return null;
 
-                newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), newLevel.customSongInfo.oneSaber ? beatmapCharacteristicSOCollection[1] : beatmapCharacteristicSOCollection[0]);
+                newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), beatmapCharacteristicSOCollection, newLevel.customSongInfo.oneSaber);
                 //    newLevel.InitData();
 
                 LoadSprite(song.path + "/" + song.coverImagePath, newLevel);

@@ -41,10 +41,34 @@ namespace SongLoaderPlugin.OverrideClasses
             _coverImage = newCoverImage;
         }
 
-        public void SetDifficultyBeatmaps(DifficultyBeatmap[] newDifficultyBeatmaps, BeatmapCharacteristicSO characteristicSO)
+        public void SetDifficultyBeatmaps(DifficultyBeatmap[] newDifficultyBeatmaps, BeatmapCharacteristicSO[] characteristicsSO, bool singleSaber = false)
         {
-            DifficultyBeatmapSet difficultyBeatmapSet = new DifficultyBeatmapSet(characteristicSO, newDifficultyBeatmaps);
-            _difficultyBeatmapSets = new DifficultyBeatmapSet[] { difficultyBeatmapSet };
+            if(singleSaber)
+            {
+                DifficultyBeatmapSet difficultyBeatmapSet = new DifficultyBeatmapSet(characteristicsSO[1], newDifficultyBeatmaps);
+                _difficultyBeatmapSets = new DifficultyBeatmapSet[] { difficultyBeatmapSet };
+            }
+            else
+            {
+                List<DifficultyBeatmapSet> beatmapsets = new List<DifficultyBeatmapSet>();
+                for(int i = 0; i < 3; i++)
+                {
+                    List<DifficultyBeatmap> beatmaps = new List<DifficultyBeatmap>();
+                    foreach(DifficultyBeatmap beatmap in newDifficultyBeatmaps)
+                    {
+                        int characteristic = (beatmap as CustomDifficultyBeatmap).Characteristic;
+                        if (characteristic == i || (characteristic == -1 && i == 0))
+                            beatmaps.Add(beatmap);
+
+                    }
+                    if(beatmaps.Count > 0)
+                    beatmapsets.Add(new DifficultyBeatmapSet(characteristicsSO[i], beatmaps.ToArray()));
+
+
+                }
+                _difficultyBeatmapSets = beatmapsets.ToArray();
+            }
+
         }
 
         public void SetBeatmapCharacteristics(BeatmapCharacteristicSO[] newBeatmapCharacteristics)
@@ -133,7 +157,7 @@ namespace SongLoaderPlugin.OverrideClasses
             public Color colorLeft { get; private set; }
             public Color colorRight { get; private set; }
             internal bool hasCustomColors { get; set; } = false;
-
+            public int Characteristic { get; private set; }
             private List<string> Requirements = new List<string>();
             public System.Collections.ObjectModel.ReadOnlyCollection<string> requirements
             {
@@ -156,9 +180,9 @@ namespace SongLoaderPlugin.OverrideClasses
             }
 
 
-            public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData) : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
+            public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData, int characteristic = -1) : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
             {
-
+                Characteristic = characteristic;
             }
 
             public CustomLevel customLevel

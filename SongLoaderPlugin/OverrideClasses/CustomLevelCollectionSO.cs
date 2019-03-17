@@ -43,14 +43,43 @@ namespace SongLoaderPlugin.OverrideClasses
             foreach (var customLevel in customLevels)
             {
                 var characteristics = new List<BeatmapCharacteristicSO>();
-
-                if (!customLevel.customSongInfo.oneSaber)
+                if (customLevel.customSongInfo.oneSaber)
                 {
-                    characteristics.Add(_standardCharacteristic);
+                    characteristics.Add(_oneSaberCharacteristic);
                 }
                 else
-                    characteristics.Add(_oneSaberCharacteristic);
+                {
+                    foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+                    {
+                        switch (diffLevel.characteristic)
+                        {
+                            case -1:
+                                if (!characteristics.Contains(_standardCharacteristic))
+                                    characteristics.Add(_standardCharacteristic);
+                                break;
 
+                            case 0:
+                                if (!characteristics.Contains(_standardCharacteristic))
+                                    characteristics.Add(_standardCharacteristic);
+                                break;
+
+                            case 1:
+                                if (!characteristics.Contains(_oneSaberCharacteristic))
+                                    characteristics.Add(_oneSaberCharacteristic);
+                                break;
+                            case 2:
+                                if (!characteristics.Contains(_noArrowsCharacteristic))
+                                    characteristics.Add(_noArrowsCharacteristic);
+                                break;
+
+                            default:
+                                if (!characteristics.Contains(_standardCharacteristic))
+                                    characteristics.Add(_standardCharacteristic);
+                                break;
+                        }
+
+                    }
+                }
                 customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
 
                 _levelList.Add(customLevel);
@@ -62,15 +91,43 @@ namespace SongLoaderPlugin.OverrideClasses
         public void AddCustomLevel(CustomLevel customLevel)
         {
             var characteristics = new List<BeatmapCharacteristicSO>();
-
-            if (!customLevel.customSongInfo.oneSaber)
+            if (customLevel.customSongInfo.oneSaber)
             {
-                characteristics.Add(_standardCharacteristic);
+                characteristics.Add(_oneSaberCharacteristic);
             }
             else
-                characteristics.Add(_oneSaberCharacteristic);
+            {
+                foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+                {
+                    switch (diffLevel.characteristic)
+                    {
+                        case -1:
+                            if (!characteristics.Contains(_standardCharacteristic))
+                                characteristics.Add(_standardCharacteristic);
+                            break;
 
-            customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
+                        case 0:
+                            if (!characteristics.Contains(_standardCharacteristic))
+                                characteristics.Add(_standardCharacteristic);
+                            break;
+
+                        case 1:
+                            if (!characteristics.Contains(_oneSaberCharacteristic))
+                                characteristics.Add(_oneSaberCharacteristic);
+                            break;
+                        case 2:
+                            if (!characteristics.Contains(_noArrowsCharacteristic))
+                                characteristics.Add(_noArrowsCharacteristic);
+                            break;
+
+                        default:
+                            if (!characteristics.Contains(_standardCharacteristic))
+                                characteristics.Add(_standardCharacteristic);
+                            break;
+                    }
+                }
+            }
+                    customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
             //     customLevel.SetDifficultyBeatmaps(_beatmapLevels, characteristics[0]);
             _levelList.Add(customLevel);
 
