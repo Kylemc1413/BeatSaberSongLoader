@@ -899,6 +899,12 @@ callback));
                 n = diffs[i];
                 var difficulty = Utils.ToEnum(n["difficulty"], BeatmapDifficulty.Normal);
                 var difficultyRank = (int)difficulty;
+                int characteristic = -1;
+
+                if (n["characteristic"] != null)
+                {
+                    characteristic = n["characteristic"].AsInt;
+                }
 
                 diffLevels.Add(new CustomSongInfo.DifficultyLevel
                 {
@@ -906,7 +912,8 @@ callback));
                     difficultyRank = difficultyRank,
                     audioPath = n["audioPath"],
                     jsonPath = n["jsonPath"],
-                    noteJumpMovementSpeed = n["noteJumpMovementSpeed"]
+                    noteJumpMovementSpeed = n["noteJumpMovementSpeed"],
+                    characteristic = characteristic
                 });
             }
 
