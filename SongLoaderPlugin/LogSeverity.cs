@@ -1,9 +1,9 @@
 ﻿namespace SongLoaderPlugin
 {
-	public enum LogSeverity
-	{
-		Info,
-		Warn,
-		Error
-	}
+    public enum LogSeverity
+    {
+        Info,
+        Warn,
+        Error
+    }
 }

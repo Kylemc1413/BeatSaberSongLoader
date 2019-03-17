@@ -28,7 +28,7 @@ namespace SongLoaderPlugin.OverrideClasses
             _environmentSceneInfo = EnvironmentsLoader.GetSceneInfo(customSongInfo.environmentName);
             string _customEnvironment = customSongInfo.customEnvironment;
             string _customEnvironmentHash = customSongInfo.customEnvironmentHash;
-           
+
         }
 
         public void SetAudioClip(AudioClip newAudioClip)
@@ -63,7 +63,7 @@ namespace SongLoaderPlugin.OverrideClasses
                 float? bpm, noteSpeed;
                 Color? colorLeft, colorRight;
                 int? noteJumpStartBeatOffset;
-              
+
                 var diffBeatmap = _difficultyBeatmapSets[0].difficultyBeatmaps.FirstOrDefault(x =>
                     diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
                 var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
@@ -132,7 +132,7 @@ namespace SongLoaderPlugin.OverrideClasses
         {
             public Color colorLeft { get; private set; }
             public Color colorRight { get; private set; }
-            internal bool hasCustomColors { get;  set; } = false;
+            internal bool hasCustomColors { get; set; } = false;
 
             private List<string> Requirements = new List<string>();
             public System.Collections.ObjectModel.ReadOnlyCollection<string> requirements
@@ -248,8 +248,8 @@ namespace SongLoaderPlugin.OverrideClasses
                             if (split[i + 3].Contains("b"))
                                 b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
 
-                            if(!(r.Value < 0 || g.Value < 0 || b.Value < 0))
-                            colorRight = new Color(r.Value, g.Value, b.Value);
+                            if (!(r.Value < 0 || g.Value < 0 || b.Value < 0))
+                                colorRight = new Color(r.Value, g.Value, b.Value);
                         }
 
                         //Requirements etc
@@ -258,7 +258,7 @@ namespace SongLoaderPlugin.OverrideClasses
                             string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
                             for (int j = 0; j < reqs.Length; j++)
                                 AddWarning(reqs[j]);
-                          
+
 
                         }
 
@@ -281,7 +281,7 @@ namespace SongLoaderPlugin.OverrideClasses
                             for (int j = 0; j < reqs.Length; j++)
                                 AddInformation(reqs[j]);
                         }
-                     
+
 
                         //Check for Mapping Extensions Requirements
                         if (split[i].Contains("_lineIndex"))
@@ -355,11 +355,11 @@ namespace SongLoaderPlugin.OverrideClasses
             if (customSongInfo.environmentName.Contains("KDA"))
             {
                 Console.WriteLine("KDA");
-                 colorSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
+                colorSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
             }
             else
             {
-            colorSetterObj = new GameObject("SongLoader Color Setter");
+                colorSetterObj = new GameObject("SongLoader Color Setter");
 
                 colorSetterObj.SetActive(false);
                 colorSetter = colorSetterObj.AddComponent<EnvironmentColorsSetter>();
@@ -399,8 +399,8 @@ namespace SongLoaderPlugin.OverrideClasses
             colorSetter.SetPrivateField("_overrideColorA", colorRight);
             colorSetter.SetPrivateField("_overrideColorB", colorLeft);
             Console.WriteLine("Turning on");
-            if(colorSetterObj != null)
-            colorSetterObj.SetActive(true);
+            if (colorSetterObj != null)
+                colorSetterObj.SetActive(true);
 
             colorSetter.Awake();
 

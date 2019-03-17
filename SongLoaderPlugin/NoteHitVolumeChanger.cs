@@ -3,18 +3,18 @@ using UnityEngine;
 
 namespace SongLoaderPlugin
 {
-	public static class NoteHitVolumeChanger
-	{
-		public static bool PrefabFound { get; private set; }
-		private static NoteCutSoundEffect _noteCutSoundEffect;
-		private static float _normalVolume;
-		private static float _normalMissVolume;
+    public static class NoteHitVolumeChanger
+    {
+        public static bool PrefabFound { get; private set; }
+        private static NoteCutSoundEffect _noteCutSoundEffect;
+        private static float _normalVolume;
+        private static float _normalMissVolume;
 
-		// Code snippet comes from Taz's NoteHitVolume plugin:
-		// https://github.com/taz030485/NoteHitVolume/blob/master/NoteHitVolume/NoteHitVolume.cs
-		public static void SetVolume(float hitVolume, float missVolume)
-		{
-			/* NoteHitVolumeChanger is disabled until it's updated to support Beat Saber 0.11.2
+        // Code snippet comes from Taz's NoteHitVolume plugin:
+        // https://github.com/taz030485/NoteHitVolume/blob/master/NoteHitVolume/NoteHitVolume.cs
+        public static void SetVolume(float hitVolume, float missVolume)
+        {
+            /* NoteHitVolumeChanger is disabled until it's updated to support Beat Saber 0.11.2
 			
 			hitVolume = Mathf.Clamp01(hitVolume);
 			missVolume = Mathf.Clamp01(missVolume);
@@ -54,6 +54,6 @@ namespace SongLoaderPlugin
 			}
 			
 			*/
-		}
-	}
+        }
+    }
 }

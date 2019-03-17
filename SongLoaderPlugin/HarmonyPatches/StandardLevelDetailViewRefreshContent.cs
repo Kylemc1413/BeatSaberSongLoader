@@ -20,21 +20,21 @@ namespace SongLoaderPlugin.Harmony_Patches
             ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton)
         {
             IBeatmapLevel level = ____selectedDifficultyBeatmap?.level;
-           
+
             ____playButton.interactable = true;
             ____practiceButton.interactable = true;
             ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
             ____songNameText.text = "<size=78%>" + ____songNameText.text;
-        //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
-       //     ____songNameText.enableWordWrapping = false;
+            //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
+            //     ____songNameText.enableWordWrapping = false;
             ____songNameText.richText = true;
             if (level != null)
             {
-                
+
                 var customLevel = level as CustomLevel;
 
                 CustomLevel.CustomDifficultyBeatmap beatmap = ____selectedDifficultyBeatmap as CustomLevel.CustomDifficultyBeatmap;
-                
+
                 if (SongLoader.infoButton == null)
                 {
                     Console.WriteLine("Creating Info Button");
@@ -50,7 +50,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                     SongLoader.infoButton.transform.localScale *= 0.5f;
 
                 }
-                
+
 
 
                 if (beatmap != null)
@@ -62,7 +62,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                         if (beatmap != null)
                             SongLoader.showSongRequirements(beatmap, customLevel.customSongInfo);
                     });
-                    if (beatmap.requirements.Count == 0 && beatmap.suggestions.Count == 0 && beatmap.warnings.Count == 0 && 
+                    if (beatmap.requirements.Count == 0 && beatmap.suggestions.Count == 0 && beatmap.warnings.Count == 0 &&
                         customLevel?.customSongInfo?.mappers?.Length == 0 && customLevel?.customSongInfo?.lighters?.Length == 0 && beatmap.information.Count == 0)
                     {
                         SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
@@ -73,7 +73,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                         SongLoader.infoButton.interactable = true;
                         SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
                     }
-                    else if(beatmap.warnings.Count > 0)
+                    else if (beatmap.warnings.Count > 0)
                     {
                         SongLoader.infoButton.interactable = true;
                         SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
@@ -87,7 +87,7 @@ namespace SongLoaderPlugin.Harmony_Patches
 
                     SongLoader.currentRequirements = beatmap.requirements;
                     SongLoader.currentSuggestions = beatmap.suggestions;
-                    
+
                     for (int i = 0; i < beatmap.requirements.Count; i++)
                     {
                         if (!SongLoader.capabilities.Contains(beatmap.requirements[i]))
@@ -108,7 +108,7 @@ namespace SongLoaderPlugin.Harmony_Patches
                     SongLoader.infoButton.interactable = false;
                 }
 
-    
+
             }
 
 

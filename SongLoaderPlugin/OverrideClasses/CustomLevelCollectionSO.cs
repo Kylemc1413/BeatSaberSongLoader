@@ -5,18 +5,18 @@ using UnityEngine;
 
 namespace SongLoaderPlugin.OverrideClasses
 {
-	public class CustomLevelCollectionSO : BeatmapLevelCollectionSO
-        {
-		public readonly List<BeatmapLevelSO> _levelList = new List<BeatmapLevelSO>();
+    public class CustomLevelCollectionSO : BeatmapLevelCollectionSO
+    {
+        public readonly List<BeatmapLevelSO> _levelList = new List<BeatmapLevelSO>();
 
-		private static BeatmapCharacteristicSO _standardCharacteristic;
-		private static BeatmapCharacteristicSO _oneSaberCharacteristic;
-		private static BeatmapCharacteristicSO _noArrowsCharacteristic;
+        private static BeatmapCharacteristicSO _standardCharacteristic;
+        private static BeatmapCharacteristicSO _oneSaberCharacteristic;
+        private static BeatmapCharacteristicSO _noArrowsCharacteristic;
         private static BeatmapCharacteristicSO[] beatmapCharacteristicCollection = null;
-		public static CustomLevelCollectionSO ReplaceOriginal(BeatmapLevelCollectionSO original)
-		{
-			var newCollection = CreateInstance<CustomLevelCollectionSO>();
-			newCollection.UpdateArray();
+        public static CustomLevelCollectionSO ReplaceOriginal(BeatmapLevelCollectionSO original)
+        {
+            var newCollection = CreateInstance<CustomLevelCollectionSO>();
+            newCollection.UpdateArray();
 
             if (beatmapCharacteristicCollection == null) beatmapCharacteristicCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
 
@@ -36,12 +36,12 @@ namespace SongLoaderPlugin.OverrideClasses
             }
 
             return newCollection;
-		}
-        
-		public void AddCustomLevels(IEnumerable<CustomLevel> customLevels)
-		{
-			foreach (var customLevel in customLevels)
-			{
+        }
+
+        public void AddCustomLevels(IEnumerable<CustomLevel> customLevels)
+        {
+            foreach (var customLevel in customLevels)
+            {
                 var characteristics = new List<BeatmapCharacteristicSO>();
 
                 if (!customLevel.customSongInfo.oneSaber)
@@ -55,13 +55,13 @@ namespace SongLoaderPlugin.OverrideClasses
 
                 _levelList.Add(customLevel);
             }
-			
-			UpdateArray();
-		}
-		
-		public void AddCustomLevel(CustomLevel customLevel)
-		{
-			var characteristics = new List<BeatmapCharacteristicSO>();
+
+            UpdateArray();
+        }
+
+        public void AddCustomLevel(CustomLevel customLevel)
+        {
+            var characteristics = new List<BeatmapCharacteristicSO>();
 
             if (!customLevel.customSongInfo.oneSaber)
             {
@@ -71,27 +71,27 @@ namespace SongLoaderPlugin.OverrideClasses
                 characteristics.Add(_oneSaberCharacteristic);
 
             customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
-       //     customLevel.SetDifficultyBeatmaps(_beatmapLevels, characteristics[0]);
-			_levelList.Add(customLevel);
-			
-			UpdateArray();
-		}
+            //     customLevel.SetDifficultyBeatmaps(_beatmapLevels, characteristics[0]);
+            _levelList.Add(customLevel);
 
-		public bool RemoveLevel(BeatmapLevelSO level)
-		{
-			var removed = _levelList.Remove(level);
+            UpdateArray();
+        }
 
-			if (removed)
-			{
-				UpdateArray();
-			}
+        public bool RemoveLevel(BeatmapLevelSO level)
+        {
+            var removed = _levelList.Remove(level);
 
-			return removed;
-		}
+            if (removed)
+            {
+                UpdateArray();
+            }
 
-		private void UpdateArray()
-		{
-			_beatmapLevels = _levelList.ToArray();
-		}
-	}
+            return removed;
+        }
+
+        private void UpdateArray()
+        {
+            _beatmapLevels = _levelList.ToArray();
+        }
+    }
 }

@@ -25,8 +25,8 @@ namespace SongLoaderPlugin
 
 
         public static UnityEngine.UI.Button infoButton;
-           internal static CustomUI.BeatSaber.CustomMenu reqDialog;
-           internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
+        internal static CustomUI.BeatSaber.CustomMenu reqDialog;
+        internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
         internal static Sprite HaveReqIcon;
         internal static Sprite MissingReqIcon;
         internal static Sprite HaveSuggestionIcon;
@@ -135,31 +135,34 @@ namespace SongLoaderPlugin
                     var levelCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelCollectionSO>().FirstOrDefault();
                     CustomLevelCollectionSO = CustomLevelCollectionSO.ReplaceOriginal(levelCollectionSO);
                 }
-                
-                if (CustomBeatmapLevelPackCollectionSO == null) {
+
+                if (CustomBeatmapLevelPackCollectionSO == null)
+                {
                     var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
                     CustomBeatmapLevelPackCollectionSO = CustomBeatmapLevelPackCollectionSO.ReplaceOriginal(beatmapLevelPackCollectionSO);
-                 //   CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
-                   // CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
+                    //   CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
+                    // CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
                     CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
-                } else {
+                }
+                else
+                {
                     CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
                 }
                 var Extras = CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Where(x => x.packName.Contains("Extras")).First();
-                if(Extras != null)
+                if (Extras != null)
                 {
                     BeatmapLevelSO[] ExtrasLevels = Extras.GetField<BeatmapLevelCollectionSO>("_beatmapLevelCollection").GetField<BeatmapLevelSO[]>("_beatmapLevels");
-                    if(!firstLoad)
-                    foreach(BeatmapLevelSO level in ExtrasLevels)
-                    {
-                        CustomLevelCollectionSO._levelList.Add(level);
+                    if (!firstLoad)
+                        foreach (BeatmapLevelSO level in ExtrasLevels)
+                        {
+                            CustomLevelCollectionSO._levelList.Add(level);
                             firstLoad = true;
-                    }
+                        }
 
-                    ReflectionUtil.SetPrivateField(Extras,"_beatmapLevelCollection", CustomLevelCollectionSO);
+                    ReflectionUtil.SetPrivateField(Extras, "_beatmapLevelCollection", CustomLevelCollectionSO);
                     ReloadHashes();
                 }
-                
+
                 beatmapCharacteristicSOCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
 
                 var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
@@ -211,8 +214,8 @@ namespace SongLoaderPlugin
                 //Set enviroment colors for the song if it has song specific colors
 
 
-            //    if (customSongColors)
-           //         song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
+                //    if (customSongColors)
+                //         song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
 
             }
         }
@@ -239,8 +242,8 @@ namespace SongLoaderPlugin
             }
 
             //Also change beatmap to no arrow if no arrow was selected, since Beat Saber no longer does runtime conversion for that.
-                //As of 0.13.0 No Arrows is no longer a selectable mode, and is instead a separate set of difficultybeatmaps contained in the song
-                //So for now this is obsolete
+            //As of 0.13.0 No Arrows is no longer a selectable mode, and is instead a separate set of difficultybeatmaps contained in the song
+            //So for now this is obsolete
             /*
              *             if (!_noArrowsSelected) return;
             var gameplayCore = Resources.FindObjectsOfTypeAll<GameplayCoreSceneSetup>().FirstOrDefault();
@@ -480,7 +483,7 @@ callback));
         {
             Log("Retrieving Single Song");
             Log("Folder: " + songFolderName);
-            if(string.IsNullOrEmpty(songFolderName))
+            if (string.IsNullOrEmpty(songFolderName))
             {
                 Log("Error Retrieving Song: No Folder Provided");
                 return;
@@ -518,25 +521,25 @@ callback));
                     //	}
                     //}
 
-                Log("Loaded new song.");
-                var level = LoadSong(customSongInfo);
+                    Log("Loaded new song.");
+                    var level = LoadSong(customSongInfo);
                     CustomLevels.Add(level);
-                var orderedList = CustomLevels.OrderBy(x => x.songName);
-                CustomLevels = orderedList.ToList();
+                    var orderedList = CustomLevels.OrderBy(x => x.songName);
+                    CustomLevels = orderedList.ToList();
 
 
-                CustomLevelCollectionSO.AddCustomLevel(level);
-                
+                    CustomLevelCollectionSO.AddCustomLevel(level);
 
-                ReloadHashes();
 
-                AreSongsLoaded = true;
-                AreSongsLoading = false;
-                LoadingProgress = 1;
+                    ReloadHashes();
 
-                _loadingTask = null;
+                    AreSongsLoaded = true;
+                    AreSongsLoading = false;
+                    LoadingProgress = 1;
 
-                SongsLoadedEvent?.Invoke(this, CustomLevels);
+                    _loadingTask = null;
+
+                    SongsLoadedEvent?.Invoke(this, CustomLevels);
 
 
                 }
@@ -779,28 +782,28 @@ callback));
 
             foreach (BeatmapLevelSO level in CustomLevelCollectionSO._levelList)
             {
-                if(level as CustomLevel != null)
-                _alwaysOwnedBeatmapLevelIds.Add(level.levelID);
+                if (level as CustomLevel != null)
+                    _alwaysOwnedBeatmapLevelIds.Add(level.levelID);
             }
 
             additionalContentModelSO.SetPrivateField("_alwaysOwnedBeatmapLevelIds", _alwaysOwnedBeatmapLevelIds);
-          //  Console.WriteLine("1");
+            //  Console.WriteLine("1");
             BeatmapLevelsModelSO beatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
             Dictionary<string, IBeatmapLevel> _loadedBeatmapLevels = (Dictionary<string, IBeatmapLevel>)beatmapLevelsModelSO.GetField("_loadedBeatmapLevels");
             Dictionary<string, IPreviewBeatmapLevel> _loadedPreviewBeatmapLevels = (Dictionary<string, IPreviewBeatmapLevel>)beatmapLevelsModelSO.GetField("_loadedPreviewBeatmapLevels");
-         //   Console.WriteLine("2");
+            //   Console.WriteLine("2");
             foreach (var packs in CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks)
             {
-         //       Console.WriteLine("3.1  " + packs?.packName);
-                if(packs == null)
+                //       Console.WriteLine("3.1  " + packs?.packName);
+                if (packs == null)
                 {
                     Console.WriteLine("Null Pack, Removing");
                     CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(packs as BeatmapLevelPackSO);
                 }
                 foreach (var level in packs?.beatmapLevelCollection?.beatmapLevels)
                 {
-           //             Console.WriteLine("3.2");
-                    if(level != null)
+                    //             Console.WriteLine("3.2");
+                    if (level != null)
                         if (!_loadedPreviewBeatmapLevels.ContainsKey(level.levelID)) { _loadedPreviewBeatmapLevels.Add(level.levelID, level); }
                     if ((level as IBeatmapLevel) != null)
                     {
@@ -811,7 +814,7 @@ callback));
                     }
                 }
             }
-       //     Console.WriteLine("4");
+            //     Console.WriteLine("4");
             beatmapLevelsModelSO.SetField("_loadedBeatmapLevels", _loadedBeatmapLevels);
             beatmapLevelsModelSO.SetField("_loadedPreviewBeatmapLevels", _loadedPreviewBeatmapLevels);
 
@@ -855,8 +858,8 @@ callback));
 
                 if (difficultyBeatmaps.Count == 0) return null;
 
-                newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), newLevel.customSongInfo.oneSaber? beatmapCharacteristicSOCollection[1] : beatmapCharacteristicSOCollection[0]);
-            //    newLevel.InitData();
+                newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), newLevel.customSongInfo.oneSaber ? beatmapCharacteristicSOCollection[1] : beatmapCharacteristicSOCollection[0]);
+                //    newLevel.InitData();
 
                 LoadSprite(song.path + "/" + song.coverImagePath, newLevel);
                 return newLevel;
@@ -925,28 +928,28 @@ callback));
         {
             Console.WriteLine("Song Loader [" + severity.ToString().ToUpper() + "]: " + message);
         }
-        
-                internal static void InitRequirementsMenu()
-                {
-                    reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
-                    reqViewController = BeatSaberUI.CreateViewController<CustomListViewController>();
 
-                    RectTransform confirmContainer = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
-                    confirmContainer.SetParent(reqViewController.rectTransform, false);
-                    confirmContainer.sizeDelta = new Vector2(60f, 0f);
-                    GetIcons();
-                    reqDialog.SetMainViewController(reqViewController, true);
+        internal static void InitRequirementsMenu()
+        {
+            reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
+            reqViewController = BeatSaberUI.CreateViewController<CustomListViewController>();
+
+            RectTransform confirmContainer = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
+            confirmContainer.SetParent(reqViewController.rectTransform, false);
+            confirmContainer.sizeDelta = new Vector2(60f, 0f);
+            GetIcons();
+            reqDialog.SetMainViewController(reqViewController, true);
 
 
-                }
-                
+        }
+
 
         internal static void showSongRequirements(CustomLevel.CustomDifficultyBeatmap beatmap, CustomSongInfo songInfo)
         {
             //   suggestionsList.text = "";
 
             reqViewController.Data.Clear();
-            if(songInfo?.mappers?.Length > 0)
+            if (songInfo?.mappers?.Length > 0)
             {
                 foreach (string mapper in songInfo.mappers)
                 {
@@ -996,7 +999,7 @@ callback));
                 foreach (string req in beatmap.suggestions)
                 {
 
-                //    Console.WriteLine(req);
+                    //    Console.WriteLine(req);
                     if (!capabilities.Contains(req))
                         reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));
                     else
@@ -1006,18 +1009,18 @@ callback));
 
             reqDialog.Present();
             reqViewController._customListTableView.ReloadData();
-            
+
         }
 
         internal static void GetIcons()
         {
-                MissingReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
-                HaveReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
-                HaveSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
-                MissingSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
-                WarningIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
-                InfoIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
-                
+            MissingReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
+            HaveReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
+            HaveSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
+            MissingSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
+            WarningIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
+            InfoIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
+
         }
         private void Update()
         {
