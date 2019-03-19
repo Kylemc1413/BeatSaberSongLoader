@@ -51,6 +51,10 @@
     <Reference Include="BS_Utils">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
     </Reference>
+    <Reference Include="CustomPlatforms, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomPlatforms.dll</HintPath>
+    </Reference>
     <Reference Include="IllusionPlugin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Refs\IllusionPlugin.dll</HintPath>
     </Reference>
@@ -151,7 +155,7 @@
     <EmbeddedResource Include="Icons\Info.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Icons\CustomSongs.png" />
+    <EmbeddedResource Include="Icons\CustomSongs.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />

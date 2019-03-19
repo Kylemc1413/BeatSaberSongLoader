@@ -25,9 +25,9 @@ namespace SongLoaderPlugin.OverrideClasses
         private void Init(CustomLevelCollectionSO beatmapLevelCollectionSO)
         {
             _isPackAlwaysOwned = true;
-            _packID = "Custom";
-            _packName = "Custom Songs";
-            //_coverImage = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png"); ;
+            _packID = "CustomMaps";
+            _packName = "Custom Maps";
+            _coverImage = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png"); ;
             _beatmapLevelCollection = beatmapLevelCollectionSO;
         }
         public void AddToPack(CustomLevelCollectionSO beatmapLevelCollectionSO)

@@ -2,13 +2,13 @@
 using IllusionPlugin;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using CustomUI.Settings;
+using CustomUI.GameplaySettings;
 using Harmony;
 namespace SongLoaderPlugin
 {
     public class Plugin : IPlugin
     {
-        public const string VersionNumber = "6.7.1";
+        public const string VersionNumber = "6.7.2";
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
 
@@ -39,15 +39,18 @@ namespace SongLoaderPlugin
                 if (SongLoader.reqDialog == null)
                     SongLoader.InitRequirementsMenu();
 
-                var subMenuCC = SettingsUI.CreateSubMenu("Songloader");
+                var subMenuCC = GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.PlayerSettingsLeft, "Song Loader", "MainMenu",
+                    "songloader", "Songloader Options");
 
-                //           var colorOverrideOption = subMenuCC.AddBool("Allow Custom Song Colors");
-                //           colorOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongColors", true, true); };
-                //           colorOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
+                var colorOverrideOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsLeft, "Allow Custom Song Colors",
+                    "songloader", "Allow Custom Songs to override note/light colors if Custom Colors or Chroma is installed");
+                colorOverrideOption.GetValue = ModPrefs.GetBool("Songloader", "customSongColors", true, true);
+                colorOverrideOption.OnToggle += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
 
-                var platformOverrideOption = subMenuCC.AddBool("Allow Custom Song Platforms");
-                platformOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true); };
-                platformOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
+                var platformOverrideOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsLeft, "Allow Custom Song Platforms",
+                    "songloader", "Allow Custom Songs to override your Custom Platform if Custom Platforms is installed");
+                platformOverrideOption.GetValue = ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
+                platformOverrideOption.OnToggle += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
 
             }
 

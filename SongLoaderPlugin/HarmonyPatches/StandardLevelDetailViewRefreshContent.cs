@@ -38,15 +38,16 @@ namespace SongLoaderPlugin.Harmony_Patches
                 if (SongLoader.infoButton == null)
                 {
                     Console.WriteLine("Creating Info Button");
-                    SongLoader.infoButton = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PlayButton")), (RectTransform)____levelParamsPanel.transform.parent, false);
+
+                    SongLoader.infoButton = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PlayButton")), (RectTransform)____levelParamsPanel.transform.parent, false);
                     SongLoader.infoButton.SetButtonText("?");
                     (SongLoader.infoButton.transform as RectTransform).anchorMax = new Vector2(1, 1);
                     (SongLoader.infoButton.transform as RectTransform).anchorMin = new Vector2(1, 1);
                     (SongLoader.infoButton.transform as RectTransform).pivot = new Vector2(1, 1);
                     (SongLoader.infoButton.transform as RectTransform).anchoredPosition = new Vector2(-1f, -1f);
 
-                    SongLoader.infoButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
-                    (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.11f, 0.1f);
+                    //   SongLoader.infoButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
+                    //          (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.11f, 0.1f);
                     SongLoader.infoButton.transform.localScale *= 0.5f;
 
                 }

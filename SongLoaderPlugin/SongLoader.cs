@@ -13,6 +13,7 @@ using UnityEngine.Networking;
 using CustomUI.BeatSaber;
 using UnityEngine.UI;
 using TMPro;
+using CustomFloorPlugin;
 namespace SongLoaderPlugin
 {
     public class SongLoader : MonoBehaviour
@@ -33,6 +34,7 @@ namespace SongLoaderPlugin
         internal static Sprite MissingSuggestionIcon;
         internal static Sprite WarningIcon;
         internal static Sprite InfoIcon;
+        internal static Sprite CustomSongsIcon;
 
 
 
@@ -46,7 +48,8 @@ namespace SongLoaderPlugin
         public static CustomLevelCollectionSO CustomLevelCollectionSO { get; private set; }
         public static CustomBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
         public static CustomBeatmapLevelPackSO CustomBeatmapLevelPackSO { get; private set; }
-        private bool CustomPlatformsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms" && x.Version != "2.5.0");
+        private bool CustomPlatformsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
+        private bool CustomColorsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "CustomColorsEdit" || x.Name == "Chroma");
         private int _currentPlatform = -1;
 
         public const string MenuSceneName = "MenuCore";
@@ -140,14 +143,16 @@ namespace SongLoaderPlugin
                 {
                     var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
                     CustomBeatmapLevelPackCollectionSO = CustomBeatmapLevelPackCollectionSO.ReplaceOriginal(beatmapLevelPackCollectionSO);
-                    //   CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
-                    // CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
+                    CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
+                    CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
                     CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
                 }
                 else
                 {
                     CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
                 }
+                ReloadHashes();
+                /*
                 var Extras = CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Where(x => x.packName.Contains("Extras")).First();
                 if (Extras != null)
                 {
@@ -158,10 +163,12 @@ namespace SongLoaderPlugin
                             CustomLevelCollectionSO._levelList.Add(level);
                             firstLoad = true;
                         }
-
-                    ReflectionUtil.SetPrivateField(Extras, "_beatmapLevelCollection", CustomLevelCollectionSO);
-                    ReloadHashes();
-                }
+                    */
+                //         var extraPack = Extras as BeatmapLevelPackSO;
+                //       extraPack.SetPrivateField("_coverImage", CustomSongsIcon);
+                // ReflectionUtil.SetPrivateField(Extras, "_beatmapLevelCollection", CustomLevelCollectionSO);
+                //    ReloadHashes();
+                //  }
 
                 beatmapCharacteristicSOCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
 
@@ -184,8 +191,8 @@ namespace SongLoaderPlugin
                     _LevelListViewController.didSelectLevelEvent += StandardLevelListViewControllerOnDidSelectLevelEvent;
                 }
 
-                //if (CustomPlatformsPresent)
-                //   CheckForPreviousPlatform();
+                if (CustomPlatformsPresent)
+                    CheckForPreviousPlatform();
 
             }
             else if (activeScene.name == GameSceneName)
@@ -209,13 +216,13 @@ namespace SongLoaderPlugin
                 NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
 
                 //Set environment if the song has customEnvironment
-                //    if (CustomPlatformsPresent)
-                //CheckCustomSongEnvironment(song);
+                if (CustomPlatformsPresent)
+                    CheckCustomSongEnvironment(song);
                 //Set enviroment colors for the song if it has song specific colors
 
 
-                //    if (customSongColors)
-                //         song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
+                if (customSongColors && CustomColorsPresent)
+                    song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
 
             }
         }
@@ -255,28 +262,28 @@ namespace SongLoaderPlugin
             */
         }
 
-        //private void CheckForPreviousPlatform()
-        //{
-        //    if (_currentPlatform != -1)
-        //    {
-        //        CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
-        //    }
-        //}
-        //private void CheckCustomSongEnvironment(CustomLevel song)
-        //{
-        //    if (song.customSongInfo.customEnvironment != null)
-        //    {
-        //        int _customPlatform = customEnvironment(song);
-        //        if (_customPlatform != -1)
-        //        {
-        //            _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
-        //            if (customSongPlatforms && _customPlatform != _currentPlatform)
-        //            {
-        //                CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
-        //            }
-        //        }
-        //    }
-        //}
+        private void CheckForPreviousPlatform()
+        {
+            if (_currentPlatform != -1)
+            {
+                CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
+            }
+        }
+        private void CheckCustomSongEnvironment(CustomLevel song)
+        {
+            if (song.customSongInfo.customEnvironment != null)
+            {
+                int _customPlatform = customEnvironment(song);
+                if (_customPlatform != -1)
+                {
+                    _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
+                    if (customSongPlatforms && _customPlatform != _currentPlatform)
+                    {
+                        CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
+                    }
+                }
+            }
+        }
 
         private void StandardLevelListViewControllerOnDidSelectLevelEvent(LevelPackLevelsViewController levelListViewController, IPreviewBeatmapLevel level)
         {
@@ -294,6 +301,23 @@ namespace SongLoaderPlugin
             StartCoroutine(LoadAudio(
     "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel,
     callback));
+
+            if (CustomPlatformsPresent && customSongPlatforms)
+            {
+                if (customLevel.customSongInfo.customEnvironment != null)
+                {
+                    if (findCustomEnvironment(customLevel.customSongInfo.customEnvironment) == -1)
+                    {
+                        Console.WriteLine("CustomPlatform not found: " + customLevel.customSongInfo.customEnvironment);
+                        if (customLevel.customSongInfo.customEnvironmentHash != null)
+                        {
+                            Console.WriteLine("Downloading with hash: " + customLevel.customSongInfo.customEnvironmentHash);
+                            StartCoroutine(downloadCustomPlatform(customLevel.customSongInfo.customEnvironmentHash, customLevel.customSongInfo.customEnvironment));
+                        }
+                    }
+                }
+            }
+
 
         }
 
@@ -505,21 +529,7 @@ callback));
 
                     if (customSongInfo == null) continue;
 
-                    //if (CustomPlatformsPresent && customSongPlatforms)
-                    //{
-                    //	if (customSongInfo.customEnvironment != null)
-                    //	{
-                    //		if (findCustomEnvironment(customSongInfo.customEnvironment) == -1)
-                    //		{
-                    //			Console.WriteLine("CustomPlatform not found: " + customSongInfo.customEnvironment);
-                    //			if (customSongInfo.customEnvironmentHash != null)
-                    //			{
-                    //				Console.WriteLine("Downloading with hash: " + customSongInfo.customEnvironmentHash);
-                    //				StartCoroutine(downloadCustomPlatform(customSongInfo.customEnvironmentHash, customSongInfo.customEnvironment));
-                    //			}
-                    //		}
-                    //	}
-                    //}
+
 
                     Log("Loaded new song.");
                     var level = LoadSong(customSongInfo);
@@ -699,21 +709,7 @@ callback));
 
                                 loadedIDs.Add(id);
 
-                                //if (CustomPlatformsPresent && customSongPlatforms)
-                                //{
-                                //	if (customSongInfo.customEnvironment != null)
-                                //	{
-                                //		if (findCustomEnvironment(customSongInfo.customEnvironment) == -1)
-                                //		{
-                                //			Console.WriteLine("CustomPlatform not found: " + customSongInfo.customEnvironment);
-                                //			if (customSongInfo.customEnvironmentHash != null)
-                                //			{
-                                //				Console.WriteLine("Downloading with hash: " + customSongInfo.customEnvironmentHash);
-                                //				StartCoroutine(downloadCustomPlatform(customSongInfo.customEnvironmentHash, customSongInfo.customEnvironment));
-                                //			}
-                                //		}
-                                //	}
-                                //}
+
 
                                 var i1 = i;
                                 HMMainThreadDispatcher.instance.Enqueue(delegate
@@ -779,6 +775,9 @@ callback));
         {
             var additionalContentModelSO = Resources.FindObjectsOfTypeAll<AdditionalContentModelSO>().FirstOrDefault();
             HashSet<string> _alwaysOwnedBeatmapLevelIds = (HashSet<string>)additionalContentModelSO.GetField("_alwaysOwnedBeatmapLevelIds");
+            HashSet<string> _alwaysOwnedBeatmapLevelPackIds = (HashSet<string>)additionalContentModelSO.GetField("_alwaysOwnedPacksIds");
+            if (!_alwaysOwnedBeatmapLevelPackIds.Contains("CustomMaps"))
+                _alwaysOwnedBeatmapLevelPackIds.Add("CustomMaps");
 
             foreach (BeatmapLevelSO level in CustomLevelCollectionSO._levelList)
             {
@@ -787,6 +786,7 @@ callback));
             }
 
             additionalContentModelSO.SetPrivateField("_alwaysOwnedBeatmapLevelIds", _alwaysOwnedBeatmapLevelIds);
+            additionalContentModelSO.SetPrivateField("_alwaysOwnedPacksIds", _alwaysOwnedBeatmapLevelPackIds);
             //  Console.WriteLine("1");
             BeatmapLevelsModelSO beatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
             Dictionary<string, IBeatmapLevel> _loadedBeatmapLevels = (Dictionary<string, IBeatmapLevel>)beatmapLevelsModelSO.GetField("_loadedBeatmapLevels");
@@ -1014,6 +1014,7 @@ callback));
 
         internal static void GetIcons()
         {
+            CustomSongsIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
             MissingReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
             HaveReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
             HaveSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
@@ -1078,26 +1079,28 @@ callback));
 
         private int customEnvironment(CustomLevel song)
         {
-            return -1;
-            //if(!CustomPlatformsPresent)
-            //	return -1;
-            //return findCustomEnvironment(song.customSongInfo.customEnvironment);
+            if (!CustomPlatformsPresent)
+                return -1;
+            return findCustomEnvironment(song.customSongInfo.customEnvironment);
         }
 
-        //private int findCustomEnvironment(string name) {
 
-        //	CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
-        //	int platIndex = 0;
-        //	foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
-        //	{
-        //		if (plat.platName == name)
-        //			return platIndex;
-        //		platIndex++;
-        //	}
-        //	Console.WriteLine(name + " not found!");
 
-        //	return -1;
-        //}
+        private int findCustomEnvironment(string name)
+        {
+
+            CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
+            int platIndex = 0;
+            foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
+            {
+                if (plat?.platName == name)
+                    return platIndex;
+                platIndex++;
+            }
+            Console.WriteLine(name + " not found!");
+
+            return -1;
+        }
 
         [Serializable]
         public class platformDownloadData
@@ -1145,7 +1148,7 @@ callback));
                 {
                     string customPlatformsFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomPlatforms", downloadData.name);
                     System.IO.File.WriteAllBytes(@customPlatformsFolderPath + ".plat", www.downloadHandler.data);
-                    //refreshPlatforms();
+                    CustomFloorPlugin.PlatformManager.Instance.AddPlatform(customPlatformsFolderPath + ".plat");
                 }
             }
         }

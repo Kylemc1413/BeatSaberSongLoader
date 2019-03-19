@@ -127,7 +127,7 @@ namespace SongLoaderPlugin.OverrideClasses
                     }
                 }
             }
-                    customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
+            customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
             //     customLevel.SetDifficultyBeatmaps(_beatmapLevels, characteristics[0]);
             _levelList.Add(customLevel);
 

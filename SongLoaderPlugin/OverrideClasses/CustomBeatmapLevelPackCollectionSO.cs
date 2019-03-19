@@ -53,8 +53,11 @@ namespace SongLoaderPlugin.OverrideClasses
 
         private void UpdateArray()
         {
-
-            _beatmapLevelPacks = _customBeatmapLevelPacks.ToArray();
+            var packs = _allBeatmapLevelPacks.ToList();
+            foreach (var c in _customBeatmapLevelPacks)
+                if (!packs.Contains(c))
+                    packs.Add(c);
+            _allBeatmapLevelPacks = packs.ToArray();
         }
     }
 }
