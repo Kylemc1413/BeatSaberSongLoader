@@ -148,6 +148,9 @@ Right, 0, 0.706, 1
 | "Mapping Extensions-Precision Placement"| Mapping Extensions |
 | "Mapping Extensions-Extra Note Angles"| Mapping Extensions |
 | "Mapping Extensions-More Lanes"| Mapping Extensions |
+| "Chroma"| Chroma |
+| "Chroma Lighting Events"| Chroma |
+| "Chroma Special Events"| Chroma |
 # Keyboard Shortcuts
 *(Make sure Beat Saber's window is in focus when using these shortcuts)*
 ---
