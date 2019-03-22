@@ -6,11 +6,12 @@ using UnityEngine;
 
 namespace SongLoaderPlugin.OverrideClasses
 {
-    public class CustomLevel : LevelSO, IScriptableObjectResetable
+    public class CustomLevel : BeatmapLevelSO, IScriptableObjectResetable
     {
         public CustomSongInfo customSongInfo { get; private set; }
         public bool AudioClipLoading { get; set; }
         public bool BPMAndNoteSpeedFixed { get; private set; }
+
         public void Init(CustomSongInfo newCustomSongInfo)
         {
             customSongInfo = newCustomSongInfo;
@@ -40,9 +41,34 @@ namespace SongLoaderPlugin.OverrideClasses
             _coverImage = newCoverImage;
         }
 
-        public void SetDifficultyBeatmaps(DifficultyBeatmap[] newDifficultyBeatmaps)
+        public void SetDifficultyBeatmaps(DifficultyBeatmap[] newDifficultyBeatmaps, BeatmapCharacteristicSO[] characteristicsSO, bool singleSaber = false)
         {
-            _difficultyBeatmaps = newDifficultyBeatmaps;
+            if (singleSaber)
+            {
+                DifficultyBeatmapSet difficultyBeatmapSet = new DifficultyBeatmapSet(characteristicsSO[1], newDifficultyBeatmaps);
+                _difficultyBeatmapSets = new DifficultyBeatmapSet[] { difficultyBeatmapSet };
+            }
+            else
+            {
+                List<DifficultyBeatmapSet> beatmapsets = new List<DifficultyBeatmapSet>();
+                for (int i = 0; i < 3; i++)
+                {
+                    List<DifficultyBeatmap> beatmaps = new List<DifficultyBeatmap>();
+                    foreach (DifficultyBeatmap beatmap in newDifficultyBeatmaps)
+                    {
+                        int characteristic = (beatmap as CustomDifficultyBeatmap).Characteristic;
+                        if (characteristic == i || (characteristic == -1 && i == 0))
+                            beatmaps.Add(beatmap);
+
+                    }
+                    if (beatmaps.Count > 0)
+                        beatmapsets.Add(new DifficultyBeatmapSet(characteristicsSO[i], beatmaps.ToArray()));
+
+
+                }
+                _difficultyBeatmapSets = beatmapsets.ToArray();
+            }
+
         }
 
         public void SetBeatmapCharacteristics(BeatmapCharacteristicSO[] newBeatmapCharacteristics)
@@ -61,9 +87,9 @@ namespace SongLoaderPlugin.OverrideClasses
                 float? bpm, noteSpeed;
                 Color? colorLeft, colorRight;
                 int? noteJumpStartBeatOffset;
-              
-                var diffBeatmap = _difficultyBeatmaps.FirstOrDefault(x =>
-                    diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
+
+                var diffBeatmap = _difficultyBeatmapSets[diffLevel.characteristic == -1 || diffLevel.characteristic > 2 ? 0 : diffLevel.characteristic].difficultyBeatmaps.FirstOrDefault(x =>
+                     diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
                 var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
                 if (customBeatmap == null) continue;
 
@@ -109,13 +135,14 @@ namespace SongLoaderPlugin.OverrideClasses
             _beatsPerMinute = bpms.OrderByDescending(x => x.Value).First().Key;
             try
             {
-                foreach (var difficultyBeatmap in _difficultyBeatmaps)
-                {
-                    var customBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
-                    if (customBeatmap == null) continue;
-                    customBeatmap.BeatmapDataSO.SetRequiredDataForLoad(_beatsPerMinute, _shuffle, _shufflePeriod);
-                    customBeatmap.BeatmapDataSO.Load();
-                }
+                foreach (var beatmapset in _difficultyBeatmapSets)
+                    foreach (var difficultyBeatmap in beatmapset.difficultyBeatmaps)
+                    {
+                        var customBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
+                        if (customBeatmap == null) continue;
+                        customBeatmap.BeatmapDataSO.SetRequiredDataForLoad(_beatsPerMinute, _shuffle, _shufflePeriod);
+                        customBeatmap.BeatmapDataSO.Load();
+                    }
 
                 BPMAndNoteSpeedFixed = true;
             }
@@ -130,8 +157,8 @@ namespace SongLoaderPlugin.OverrideClasses
         {
             public Color colorLeft { get; private set; }
             public Color colorRight { get; private set; }
-            internal bool hasCustomColors { get;  set; } = false;
-
+            internal bool hasCustomColors { get; set; } = false;
+            public int Characteristic { get; private set; }
             private List<string> Requirements = new List<string>();
             public System.Collections.ObjectModel.ReadOnlyCollection<string> requirements
             {
@@ -154,9 +181,9 @@ namespace SongLoaderPlugin.OverrideClasses
             }
 
 
-            public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData) : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
+            public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData, int characteristic = -1) : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
             {
-
+                Characteristic = characteristic;
             }
 
             public CustomLevel customLevel
@@ -246,8 +273,8 @@ namespace SongLoaderPlugin.OverrideClasses
                             if (split[i + 3].Contains("b"))
                                 b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
 
-                            if(!(r.Value < 0 || g.Value < 0 || b.Value < 0))
-                            colorRight = new Color(r.Value, g.Value, b.Value);
+                            if (!(r.Value < 0 || g.Value < 0 || b.Value < 0))
+                                colorRight = new Color(r.Value, g.Value, b.Value);
                         }
 
                         //Requirements etc
@@ -256,7 +283,7 @@ namespace SongLoaderPlugin.OverrideClasses
                             string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
                             for (int j = 0; j < reqs.Length; j++)
                                 AddWarning(reqs[j]);
-                          
+
 
                         }
 
@@ -279,7 +306,7 @@ namespace SongLoaderPlugin.OverrideClasses
                             for (int j = 0; j < reqs.Length; j++)
                                 AddInformation(reqs[j]);
                         }
-                     
+
 
                         //Check for Mapping Extensions Requirements
                         if (split[i].Contains("_lineIndex"))
@@ -347,24 +374,40 @@ namespace SongLoaderPlugin.OverrideClasses
         public void SetSongColors(Color colorLeft, Color colorRight, bool hasColors)
         {
             if (!hasColors) return;
-            EnvironmentColorsSetter colorSetter = new GameObject("SongLoader Color Setter").AddComponent<EnvironmentColorsSetter>();
+            Console.WriteLine("Colors: " + colorLeft.ToString() + "    " + colorRight.ToString());
+            GameObject colorSetterObj = null;
+            EnvironmentColorsSetter colorSetter;
+            if (customSongInfo.environmentName.Contains("KDA"))
+            {
+                Console.WriteLine("KDA");
+                colorSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
+            }
+            else
+            {
+                colorSetterObj = new GameObject("SongLoader Color Setter");
+
+                colorSetterObj.SetActive(false);
+                colorSetter = colorSetterObj.AddComponent<EnvironmentColorsSetter>();
+            }
+
             var scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
             SimpleColorSO[] A = new SimpleColorSO[2];
             SimpleColorSO[] B = new SimpleColorSO[2];
             foreach (var color in scriptableColors)
             {
+                Console.WriteLine("Color: " + color.name);
                 int i = 0;
-                if (color.name == "Color0")
+                if (color.name == "BaseNoteColor1")
                 {
                     B[0] = color;
                     i++;
                 }
-                else if (color.name == "BaseColor0")
+                else if (color.name == "BaseNoteColor0")
                 {
                     A[0] = color;
                     i++;
                 }
-                else if (color.name == "Color1")
+                else if (color.name == "BaseColor0")
                 {
                     A[1] = color;
                     i++;
@@ -380,7 +423,12 @@ namespace SongLoaderPlugin.OverrideClasses
             colorSetter.SetPrivateField("_colorManager", Resources.FindObjectsOfTypeAll<ColorManager>().First());
             colorSetter.SetPrivateField("_overrideColorA", colorRight);
             colorSetter.SetPrivateField("_overrideColorB", colorLeft);
+            Console.WriteLine("Turning on");
+            if (colorSetterObj != null)
+                colorSetterObj.SetActive(true);
+
             colorSetter.Awake();
+
         }
     }
 }

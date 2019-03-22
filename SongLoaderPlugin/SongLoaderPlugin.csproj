@@ -36,18 +36,24 @@
     <Reference Include="0Harmony">
       <HintPath>..\Refs\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Refs\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Refs\Assembly-CSharp-firstpass.dll</HintPath>
+    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="BeatSaberCustomUI">
-      <HintPath>..\Refs\BeatSaberCustomUI.dll</HintPath>
+    <Reference Include="BeatSaberCustomUI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BeatSaberCustomUI.dll</HintPath>
+    </Reference>
+    <Reference Include="BS_Utils">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
     </Reference>
     <Reference Include="CustomPlatforms, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Refs\CustomPlatforms.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\CustomPlatforms.dll</HintPath>
     </Reference>
     <Reference Include="IllusionPlugin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Refs\IllusionPlugin.dll</HintPath>
@@ -59,8 +65,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
     <Reference Include="System.Xml" />
-    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Refs\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
+    <Reference Include="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Refs\UnityEngine.dll</HintPath>
@@ -101,11 +108,12 @@
     <Compile Include="CustomSongInfo.cs" />
     <Compile Include="EnvironmentsLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData.cs" />
-    <Compile Include="HarmonyPatches\BeatmapCharacteristicSelectionViewControllerDidDeactivate.cs" />
     <Compile Include="HarmonyPatches\StandardLevelDetailViewRefreshContent.cs" />
     <Compile Include="Internals\Unzip.cs" />
     <Compile Include="IScriptableObjectResetable.cs" />
     <Compile Include="LogSeverity.cs" />
+    <Compile Include="OverrideClasses\CustomBeatmapLevelPackSO.cs" />
+    <Compile Include="OverrideClasses\CustomBeatmapLevelPackCollectionSO.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -145,6 +153,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icons\Info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\CustomSongs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

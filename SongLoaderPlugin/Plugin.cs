@@ -2,81 +2,84 @@
 using IllusionPlugin;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using CustomUI.Settings;
+using CustomUI.GameplaySettings;
 using Harmony;
 namespace SongLoaderPlugin
 {
-	public class Plugin : IPlugin
-	{
-		public const string VersionNumber = "6.3.0";
+    public class Plugin : IPlugin
+    {
+        public const string VersionNumber = "6.7.2";
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
-		
-		public string Name
-		{
-			get { return "Song Loader Plugin"; }
-		}
 
-		public string Version
-		{
-			get { return VersionNumber; }
-		}
-		
-		public void OnApplicationStart()
-		{
-			_sceneEvents = new GameObject("menu-signal").AddComponent<SceneEvents>();
-			_sceneEvents.MenuSceneEnabled += OnMenuSceneEnabled;
-			SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+        public string Name
+        {
+            get { return "Song Loader Plugin"; }
+        }
 
+        public string Version
+        {
+            get { return VersionNumber; }
+        }
+
+        public void OnApplicationStart()
+        {
+            _sceneEvents = new GameObject("menu-signal").AddComponent<SceneEvents>();
+            _sceneEvents.MenuSceneEnabled += OnMenuSceneEnabled;
+            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
             harmony = HarmonyInstance.Create("com.xyoncio.BeatSaber.SongLoaderPlugin");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
+            SongLoader.GetIcons();
+        }
+
+        private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
+        {
+            if (scene.name == "MenuViewControllers")
+            {
+                if (SongLoader.reqDialog == null)
+                    SongLoader.InitRequirementsMenu();
+
+                var subMenuCC = GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.PlayerSettingsLeft, "Song Loader", "MainMenu",
+                    "songloader", "Songloader Options");
+
+                var colorOverrideOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsLeft, "Allow Custom Song Colors",
+                    "songloader", "Allow Custom Songs to override note/light colors if Custom Colors or Chroma is installed");
+                colorOverrideOption.GetValue = ModPrefs.GetBool("Songloader", "customSongColors", true, true);
+                colorOverrideOption.OnToggle += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
+
+                var platformOverrideOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsLeft, "Allow Custom Song Platforms",
+                    "songloader", "Allow Custom Songs to override your Custom Platform if Custom Platforms is installed");
+                platformOverrideOption.GetValue = ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
+                platformOverrideOption.OnToggle += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
+
+            }
 
         }
 
-		private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)
-		{
-			if(scene.name == "Menu")
-			{
-				var subMenuCC = SettingsUI.CreateSubMenu("Songloader");
+        private void OnMenuSceneEnabled()
+        {
+            SongLoader.OnLoad();
+        }
 
-				var colorOverrideOption= subMenuCC.AddBool("Allow Custom Song Colors");
-				colorOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongColors", true, true); };
-				colorOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
+        public void OnApplicationQuit()
+        {
+            PlayerPrefs.DeleteKey("lbPatched");
+        }
 
-				var platformOverrideOption = subMenuCC.AddBool("Allow Custom Song Platforms");
-				platformOverrideOption.GetValue += delegate { return ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true); };
-				platformOverrideOption.SetValue += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
-			}
+        public void OnLevelWasInitialized(int level)
+        {
+        }
 
+        public void OnUpdate()
+        {
+        }
 
+        public void OnFixedUpdate()
+        {
+        }
 
-
-		}
-
-		private void OnMenuSceneEnabled()
-		{
-			SongLoader.OnLoad();
-		}
-
-		public void OnApplicationQuit()
-		{
-			PlayerPrefs.DeleteKey("lbPatched");
-		}
-
-		public void OnLevelWasInitialized(int level)
-		{
-		}
-
-		public void OnUpdate()
-		{
-		}
-
-		public void OnFixedUpdate()
-		{	
-		}
-
-		public void OnLevelWasLoaded(int level)
-		{	
-		}
-	}
+        public void OnLevelWasLoaded(int level)
+        {
+        }
+    }
 }

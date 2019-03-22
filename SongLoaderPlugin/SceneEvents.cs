@@ -5,89 +5,92 @@ using UnityEngine.SceneManagement;
 
 namespace SongLoaderPlugin
 {
-	public class SceneEvents : MonoBehaviour
-	{
-		public static SceneEvents Instance { get; private set; }
-		
-		private bool _wasEnabled;
-		
-		private GameScenesManager _gameScenesManager;
-		private MenuSceneSetup _menuSceneSetup;
+    public class SceneEvents : MonoBehaviour
+    {
+        public static SceneEvents Instance { get; private set; }
 
-		public event Action<Scene> SceneTransitioned;
-		public event Action MenuSceneEnabled;
-		public event Action MenuSceneDisabled;
+        private bool _wasEnabled;
 
-		private void Awake()
-		{
-			Instance = this;
-			SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
-			DontDestroyOnLoad(gameObject);
-		}
+        private GameScenesManager _gameScenesManager;
+        private MenuSceneSetup _menuSceneSetup;
 
-		private void OnDestroy()
-		{
-			SceneManager.activeSceneChanged -= SceneManagerOnActiveSceneChanged;
-		}
+        public event Action<Scene> SceneTransitioned;
+        public event Action MenuSceneEnabled;
+        public event Action MenuSceneDisabled;
 
-		private void SceneManagerOnActiveSceneChanged(Scene oldScene, Scene newScene)
-		{
-			if (_gameScenesManager == null)
-			{
-				_gameScenesManager = Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault();
+        private void Awake()
+        {
+            Instance = this;
+            SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
+            DontDestroyOnLoad(gameObject);
+        }
 
-				if (_gameScenesManager == null) return;
+        private void OnDestroy()
+        {
+            SceneManager.activeSceneChanged -= SceneManagerOnActiveSceneChanged;
+        }
 
-				_gameScenesManager.transitionDidFinishEvent += GameScenesManagerOnTransitionDidFinishEvent;
+        private void SceneManagerOnActiveSceneChanged(Scene oldScene, Scene newScene)
+        {
+            //    Console.WriteLine(oldScene.name);
+            //    Console.WriteLine("Destroying Color Setter");
+            GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
+            if (_gameScenesManager == null)
+            {
+                _gameScenesManager = Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault();
 
-			}
-		}
+                if (_gameScenesManager == null) return;
 
-		private void GameScenesManagerOnTransitionDidFinishEvent()
-		{
-			if (SceneTransitioned != null)
-			{
-				SceneTransitioned(SceneManager.GetActiveScene());
-			}
-			
-			if (_menuSceneSetup == null)
-			{
-				_menuSceneSetup = Resources.FindObjectsOfTypeAll<MenuSceneSetup>().FirstOrDefault();
-				if (_menuSceneSetup == null)
-				{
-					MenuDisabled();
-					return;
-				}
-			}
-			
-			if (!_menuSceneSetup.gameObject.activeInHierarchy)
-			{
-				MenuDisabled();
-			}
-			else
-			{
-				MenuEnabled();
-			}
-		}
+                _gameScenesManager.transitionDidFinishEvent += GameScenesManagerOnTransitionDidFinishEvent;
 
-		private void MenuEnabled()
-		{
-			if (_wasEnabled) return;
-			_wasEnabled = true;
-			if (MenuSceneEnabled != null)
-			{
-				MenuSceneEnabled();
-			}
-		}
+            }
+        }
 
-		private void MenuDisabled()
-		{
-			if (!_wasEnabled) return;
-			_wasEnabled = false;
-			if (MenuSceneDisabled != null)
-			{
-				MenuSceneDisabled();
-			}
-		}
-	}
+        private void GameScenesManagerOnTransitionDidFinishEvent()
+        {
+            if (SceneTransitioned != null)
+            {
+                SceneTransitioned(SceneManager.GetActiveScene());
+            }
+
+            if (_menuSceneSetup == null)
+            {
+                _menuSceneSetup = Resources.FindObjectsOfTypeAll<MenuSceneSetup>().FirstOrDefault();
+                if (_menuSceneSetup == null)
+                {
+                    MenuDisabled();
+                    return;
+                }
+            }
+
+            if (!_menuSceneSetup.gameObject.activeInHierarchy)
+            {
+                MenuDisabled();
+            }
+            else
+            {
+                MenuEnabled();
+            }
+        }
+
+        private void MenuEnabled()
+        {
+            if (_wasEnabled) return;
+            _wasEnabled = true;
+            if (MenuSceneEnabled != null)
+            {
+                MenuSceneEnabled();
+            }
+        }
+
+        private void MenuDisabled()
+        {
+            if (!_wasEnabled) return;
+            _wasEnabled = false;
+            if (MenuSceneDisabled != null)
+            {
+                MenuSceneDisabled();
+            }
+        }
+    }
 }

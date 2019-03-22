@@ -1,7 +1,7 @@
 ﻿namespace SongLoaderPlugin
 {
-	public interface IScriptableObjectResetable
-	{
-		void Reset();
-	}
+    public interface IScriptableObjectResetable
+    {
+        void Reset();
+    }
 }

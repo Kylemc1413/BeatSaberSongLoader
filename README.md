@@ -65,7 +65,7 @@ The following is a template for you to use:
   "oneSaber":true,
   "difficultyLevels": [
 	{ "difficulty":"Expert", "difficultyRank":4, "jsonPath":"expert.json" },
-	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json" }
+	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json", "characteristic":0 }
   ]
 }
 ```
@@ -87,7 +87,8 @@ ___
 "songTimeOffset" - Time in seconds of how early a song should start. Negative numbers for starting the song later
 "shuffle" - Time in number of beats how much a note should shift
 "shufflePeriod" - Time in number of beats how often a note should shift. Don't ask me why this is a feature, I don't know
-"oneSaber" - true or false if it should appear in the one saber list
+"oneSaber" - true or false if it should appear in the one saber list 
+(If the WHOLE map is only one saber! For one saber difficulties use the characteristic in the difficultylevels)
 
 All possible environmentNames:
 -DefaultEnvironment
@@ -100,7 +101,9 @@ All possible environmentNames:
 	{
 		"difficulty": This can only be set to Easy, Normal, Hard, Expert or ExpertPlus,
 		"difficultyRank": Currently unused whole number for ranking difficulty,
-		"jsonPath": The name of the json file for this specific difficulty
+		"jsonPath": The name of the json file for this specific difficulty,
+		"characteristic": The mode that you want the specific difficulty to be under
+		 0 for standard, 1 for one saber, 2 for no arrows
 	}
   ]
 ```

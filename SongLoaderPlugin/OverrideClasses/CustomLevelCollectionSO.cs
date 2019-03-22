@@ -5,107 +5,150 @@ using UnityEngine;
 
 namespace SongLoaderPlugin.OverrideClasses
 {
-	public class CustomLevelCollectionSO : LevelCollectionSO
-	{
-		private readonly List<LevelSO> _levelList = new List<LevelSO>();
+    public class CustomLevelCollectionSO : BeatmapLevelCollectionSO
+    {
+        public readonly List<BeatmapLevelSO> _levelList = new List<BeatmapLevelSO>();
 
-		private static BeatmapCharacteristicSO _standardCharacteristic;
-		private static BeatmapCharacteristicSO _oneSaberCharacteristic;
-		private static BeatmapCharacteristicSO _noArrowsCharacteristic;
+        private static BeatmapCharacteristicSO _standardCharacteristic;
+        private static BeatmapCharacteristicSO _oneSaberCharacteristic;
+        private static BeatmapCharacteristicSO _noArrowsCharacteristic;
+        private static BeatmapCharacteristicSO[] beatmapCharacteristicCollection = null;
+        public static CustomLevelCollectionSO ReplaceOriginal(BeatmapLevelCollectionSO original)
+        {
+            var newCollection = CreateInstance<CustomLevelCollectionSO>();
+            newCollection.UpdateArray();
 
-		public static CustomLevelCollectionSO ReplaceOriginal(LevelCollectionSO original)
-		{
-			var newCollection = CreateInstance<CustomLevelCollectionSO>();
-			newCollection._levelList.AddRange(original.levels);
-			newCollection.UpdateArray();
+            if (beatmapCharacteristicCollection == null) beatmapCharacteristicCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
 
-			newCollection.ReplaceReferences();
+            if (_standardCharacteristic == null)
+            {
+                _standardCharacteristic = beatmapCharacteristicCollection[0];
+            }
 
-			foreach (var originalLevel in original.levels)
-			{
-				if (_standardCharacteristic == null)
-				{
-					_standardCharacteristic = originalLevel.beatmapCharacteristics.FirstOrDefault(x => x.characteristicName == "Standard");
-				}
-				
-				if (_oneSaberCharacteristic == null)
-				{
-					_oneSaberCharacteristic = originalLevel.beatmapCharacteristics.FirstOrDefault(x => x.characteristicName == "One Saber");
-				}
-				
-				if (_noArrowsCharacteristic == null)
-				{
-					_noArrowsCharacteristic = originalLevel.beatmapCharacteristics.FirstOrDefault(x => x.characteristicName == "No Arrows");
-				}
-			}
+            if (_oneSaberCharacteristic == null)
+            {
+                _oneSaberCharacteristic = beatmapCharacteristicCollection[1];
+            }
 
-			return newCollection;
-		}
+            if (_noArrowsCharacteristic == null)
+            {
+                _noArrowsCharacteristic = beatmapCharacteristicCollection[2];
+            }
 
-		public void ReplaceReferences()
-		{
-			var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
-			if (soloFreePlay != null)
-			{
-				soloFreePlay.SetPrivateField("_levelCollection", this);
-			}
-			
-			var partyFreePlay = Resources.FindObjectsOfTypeAll<PartyFreePlayFlowCoordinator>().FirstOrDefault();
-			if (partyFreePlay != null)
-			{
-				partyFreePlay.SetPrivateField("_levelCollection", this);
-			}
-		}
+            return newCollection;
+        }
 
-		public void AddCustomLevels(IEnumerable<CustomLevel> customLevels)
-		{
-			foreach (var customLevel in customLevels)
-			{
-				var characteristics = new List<BeatmapCharacteristicSO> {_standardCharacteristic, _noArrowsCharacteristic};
+        public void AddCustomLevels(IEnumerable<CustomLevel> customLevels)
+        {
+            foreach (var customLevel in customLevels)
+            {
+                var characteristics = new List<BeatmapCharacteristicSO>();
+                if (customLevel.customSongInfo.oneSaber)
+                {
+                    characteristics.Add(_oneSaberCharacteristic);
+                }
+                else
+                {
+                    foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+                    {
+                        switch (diffLevel.characteristic)
+                        {
+                            case -1:
+                                if (!characteristics.Contains(_standardCharacteristic))
+                                    characteristics.Add(_standardCharacteristic);
+                                break;
 
-				if (customLevel.customSongInfo.oneSaber)
-				{
-					characteristics.Add(_oneSaberCharacteristic);
-				}
-				customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
-				
-				_levelList.Add(customLevel);
-			}
-			
-			UpdateArray();
-		}
-		
-		public void AddCustomLevel(CustomLevel customLevel)
-		{
-			var characteristics = new List<BeatmapCharacteristicSO> {_standardCharacteristic, _noArrowsCharacteristic};
+                            case 0:
+                                if (!characteristics.Contains(_standardCharacteristic))
+                                    characteristics.Add(_standardCharacteristic);
+                                break;
 
-			if (customLevel.customSongInfo.oneSaber)
-			{
-				characteristics.Add(_oneSaberCharacteristic);
-			}
-			
-			customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
-			
-			_levelList.Add(customLevel);
-			
-			UpdateArray();
-		}
+                            case 1:
+                                if (!characteristics.Contains(_oneSaberCharacteristic))
+                                    characteristics.Add(_oneSaberCharacteristic);
+                                break;
+                            case 2:
+                                if (!characteristics.Contains(_noArrowsCharacteristic))
+                                    characteristics.Add(_noArrowsCharacteristic);
+                                break;
 
-		public bool RemoveLevel(LevelSO level)
-		{
-			var removed = _levelList.Remove(level);
+                            default:
+                                if (!characteristics.Contains(_standardCharacteristic))
+                                    characteristics.Add(_standardCharacteristic);
+                                break;
+                        }
 
-			if (removed)
-			{
-				UpdateArray();
-			}
+                    }
+                }
+                customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
 
-			return removed;
-		}
+                _levelList.Add(customLevel);
+            }
 
-		private void UpdateArray()
-		{
-			_levels = _levelList.ToArray();
-		}
-	}
+            UpdateArray();
+        }
+
+        public void AddCustomLevel(CustomLevel customLevel)
+        {
+            var characteristics = new List<BeatmapCharacteristicSO>();
+            if (customLevel.customSongInfo.oneSaber)
+            {
+                characteristics.Add(_oneSaberCharacteristic);
+            }
+            else
+            {
+                foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+                {
+                    switch (diffLevel.characteristic)
+                    {
+                        case -1:
+                            if (!characteristics.Contains(_standardCharacteristic))
+                                characteristics.Add(_standardCharacteristic);
+                            break;
+
+                        case 0:
+                            if (!characteristics.Contains(_standardCharacteristic))
+                                characteristics.Add(_standardCharacteristic);
+                            break;
+
+                        case 1:
+                            if (!characteristics.Contains(_oneSaberCharacteristic))
+                                characteristics.Add(_oneSaberCharacteristic);
+                            break;
+                        case 2:
+                            if (!characteristics.Contains(_noArrowsCharacteristic))
+                                characteristics.Add(_noArrowsCharacteristic);
+                            break;
+
+                        default:
+                            if (!characteristics.Contains(_standardCharacteristic))
+                                characteristics.Add(_standardCharacteristic);
+                            break;
+                    }
+                }
+            }
+            customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
+            //     customLevel.SetDifficultyBeatmaps(_beatmapLevels, characteristics[0]);
+            _levelList.Add(customLevel);
+
+            UpdateArray();
+        }
+
+        public bool RemoveLevel(BeatmapLevelSO level)
+        {
+            var removed = _levelList.Remove(level);
+
+            if (removed)
+            {
+                UpdateArray();
+            }
+
+            return removed;
+        }
+
+        private void UpdateArray()
+        {
+            _beatmapLevels = _levelList.ToArray();
+        }
+    }
 }
