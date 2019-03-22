@@ -84,7 +84,7 @@ ___
 "environmentName" - Game environment to be used
 "customEnvironment" - Custom Platform override, will use "environmentName" if CustomPlatforms isn't installed or disabled
 "customEnvironmentHash" - The hash found on ModelSaber, used to download missing platforms
-"songTimeOffset" - Time in seconds of how early a song should start. Negative numbers for starting the song later
+"songTimeOffset" - Seems to be obsolete. Do not use.
 "shuffle" - Time in number of beats how much a note should shift
 "shufflePeriod" - Time in number of beats how often a note should shift. Don't ask me why this is a feature, I don't know
 "oneSaber" - true or false if it should appear in the one saber list 
