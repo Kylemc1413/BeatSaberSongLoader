@@ -109,6 +109,7 @@ All possible environmentNames:
 ```
 
 ### Difficulty json additional fields, (i.e. expert.json,  etc.)
+- Refer to Modders section for a list of common capabilites that mods register
 ```json
 "_warnings":["Warning1","Warning2","WarningX"],   - Any warnings you would like the player to be aware of before playing the song
 
@@ -138,6 +139,15 @@ Right, 0, 0.706, 1
  // To remove
  SongLoaderPlugin.SongLoader.DeregisterizeCapability("Capability name");
  ```
+#### Capabilities
+- Note: Songloader currently auto detects Precision Placement, Extra Note Angles, and More Lanes. Other features of mapping extensions require you to add the "Mapping Extensions" Capability as a requirement for your song, and it is advised if you 
+
+| Capability | Mod |
+| - | - |
+| "Mapping Extensions"| Mapping Extensions |
+| "Mapping Extensions-Precision Placement"| Mapping Extensions |
+| "Mapping Extensions-Extra Note Angles"| Mapping Extensions |
+| "Mapping Extensions-More Lanes"| Mapping Extensions |
 # Keyboard Shortcuts
 *(Make sure Beat Saber's window is in focus when using these shortcuts)*
 ---
