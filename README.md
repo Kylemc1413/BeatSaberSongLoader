@@ -140,7 +140,7 @@ Right, 0, 0.706, 1
  SongLoaderPlugin.SongLoader.DeregisterizeCapability("Capability name");
  ```
 #### Capabilities
-- Note: Songloader currently auto detects Precision Placement, Extra Note Angles, and More Lanes. Other features of mapping extensions require you to add the "Mapping Extensions" Capability as a requirement for your song, and it is advised if you 
+- Note: Songloader currently auto detects Precision Placement, Extra Note Angles, and More Lanes. Other features of mapping extensions require you to add the "Mapping Extensions" Capability as a requirement for your song, and it is advised if you use any of the capabilities of a mpod, you assume it will not be auto added and add the capability to the JSON.
 
 | Capability | Mod |
 | - | - |
