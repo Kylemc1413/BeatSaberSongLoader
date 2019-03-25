@@ -8,7 +8,7 @@ namespace SongLoaderPlugin
 {
     public class Plugin : IPlugin
     {
-        public const string VersionNumber = "6.7.2";
+        public const string VersionNumber = "6.8.0";
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
 
@@ -30,6 +30,8 @@ namespace SongLoaderPlugin
             harmony = HarmonyInstance.Create("com.xyoncio.BeatSaber.SongLoaderPlugin");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
             SongLoader.GetIcons();
+            SongLoader.RegisterCustomCharacteristic(SongLoader.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic");
+
         }
 
         private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)

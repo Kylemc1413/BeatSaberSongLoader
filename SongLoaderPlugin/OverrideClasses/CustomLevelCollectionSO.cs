@@ -53,28 +53,29 @@ namespace SongLoaderPlugin.OverrideClasses
                     {
                         switch (diffLevel.characteristic)
                         {
-                            case -1:
+                            case "":
                                 if (!characteristics.Contains(_standardCharacteristic))
                                     characteristics.Add(_standardCharacteristic);
                                 break;
 
-                            case 0:
+                            case "Standard":
                                 if (!characteristics.Contains(_standardCharacteristic))
                                     characteristics.Add(_standardCharacteristic);
                                 break;
 
-                            case 1:
+                            case "One Saber":
                                 if (!characteristics.Contains(_oneSaberCharacteristic))
                                     characteristics.Add(_oneSaberCharacteristic);
                                 break;
-                            case 2:
+                            case "No Arrows":
                                 if (!characteristics.Contains(_noArrowsCharacteristic))
                                     characteristics.Add(_noArrowsCharacteristic);
                                 break;
 
                             default:
-                                if (!characteristics.Contains(_standardCharacteristic))
-                                    characteristics.Add(_standardCharacteristic);
+                                BeatmapCharacteristicSO characteristic = SongLoader.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
+                                if (characteristic != null)
+                                    characteristics.Add(characteristic);
                                 break;
                         }
 
@@ -101,30 +102,36 @@ namespace SongLoaderPlugin.OverrideClasses
                 {
                     switch (diffLevel.characteristic)
                     {
-                        case -1:
+                        case "":
                             if (!characteristics.Contains(_standardCharacteristic))
                                 characteristics.Add(_standardCharacteristic);
                             break;
 
-                        case 0:
+                        case "Standard":
                             if (!characteristics.Contains(_standardCharacteristic))
                                 characteristics.Add(_standardCharacteristic);
                             break;
 
-                        case 1:
+                        case "One Saber":
                             if (!characteristics.Contains(_oneSaberCharacteristic))
                                 characteristics.Add(_oneSaberCharacteristic);
                             break;
-                        case 2:
+                        case "No Arrows":
                             if (!characteristics.Contains(_noArrowsCharacteristic))
                                 characteristics.Add(_noArrowsCharacteristic);
                             break;
 
                         default:
-                            if (!characteristics.Contains(_standardCharacteristic))
-                                characteristics.Add(_standardCharacteristic);
+                            BeatmapCharacteristicSO characteristic = SongLoader.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
+                            if (characteristic != null)
+                                characteristics.Add(characteristic);
+                            else
+                                if (!characteristics.Contains(SongLoader.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic")))
+                                characteristics.Add(SongLoader.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic"));
                             break;
                     }
+
+
                 }
             }
             customLevel.SetBeatmapCharacteristics(characteristics.ToArray());

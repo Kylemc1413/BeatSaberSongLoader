@@ -24,6 +24,12 @@ namespace SongLoaderPlugin
             get { return _capabilities.AsReadOnly(); }
         }
 
+        private static List<BeatmapCharacteristicSO> _customCharacteristics = new List<BeatmapCharacteristicSO>();
+        public static System.Collections.ObjectModel.ReadOnlyCollection<BeatmapCharacteristicSO> customCharacteristics
+        {
+            get { return _customCharacteristics.AsReadOnly(); }
+        }
+
 
         public static UnityEngine.UI.Button infoButton;
         internal static CustomUI.BeatSaber.CustomMenu reqDialog;
@@ -35,6 +41,7 @@ namespace SongLoaderPlugin
         internal static Sprite WarningIcon;
         internal static Sprite InfoIcon;
         internal static Sprite CustomSongsIcon;
+        internal static Sprite MissingCharIcon;
 
 
 
@@ -902,11 +909,11 @@ callback));
                 n = diffs[i];
                 var difficulty = Utils.ToEnum(n["difficulty"], BeatmapDifficulty.Normal);
                 var difficultyRank = (int)difficulty;// * 100 + UnityEngine.Mathf.Clamp(n["difficultyRank"].AsInt, 0, 10);
-                int characteristic = -1;
+                string characteristic = "";
 
                 if (n["characteristic"] != null)
                 {
-                    characteristic = n["characteristic"].AsInt;
+                    characteristic = n["characteristic"];
                 }
 
                 diffLevels.Add(new CustomSongInfo.DifficultyLevel
@@ -1021,6 +1028,8 @@ callback));
             MissingSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
             WarningIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
             InfoIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
+            MissingCharIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
+
 
         }
         private void Update()
@@ -1158,6 +1167,27 @@ callback));
             if (!_capabilities.Contains(capability))
                 _capabilities.Add(capability);
         }
+
+        public static BeatmapCharacteristicSO RegisterCustomCharacteristic(Sprite Icon, string CharacteristicName, string HintText, string SerializedName, string CompoundIdPartName)
+        {
+            BeatmapCharacteristicSO newChar = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
+
+            newChar.SetField("_icon", Icon);
+            newChar.SetField("_hintText", HintText);
+            newChar.SetField("_serializedName", SerializedName);
+            newChar.SetField("_characteristicName", CharacteristicName);
+            newChar.SetField("_compoundIdPartName", CompoundIdPartName);
+
+            if (!_customCharacteristics.Any(x => x.serializedName == newChar.serializedName))
+            {
+                _customCharacteristics.Add(newChar);
+                return newChar;
+            }
+
+            return null;
+        }
+
+
 
         public static void DeregisterizeCapability(string capability)
         {

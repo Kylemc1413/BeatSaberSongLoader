@@ -51,21 +51,45 @@ namespace SongLoaderPlugin.OverrideClasses
             else
             {
                 List<DifficultyBeatmapSet> beatmapsets = new List<DifficultyBeatmapSet>();
-                for (int i = 0; i < 3; i++)
+                List<DifficultyBeatmap> missingCharacteristicBeatmaps = new List<DifficultyBeatmap>();
+                //Check Standard Characteristics
+                for (int i = 0; i < characteristicsSO.Length; i++)
                 {
                     List<DifficultyBeatmap> beatmaps = new List<DifficultyBeatmap>();
                     foreach (DifficultyBeatmap beatmap in newDifficultyBeatmaps)
                     {
-                        int characteristic = (beatmap as CustomDifficultyBeatmap).Characteristic;
-                        if (characteristic == i || (characteristic == -1 && i == 0))
+                        string characteristic = (beatmap as CustomDifficultyBeatmap).Characteristic;
+                        if (characteristic == characteristicsSO[i].characteristicName || (string.IsNullOrWhiteSpace(characteristic) && i == 0))
                             beatmaps.Add(beatmap);
 
                     }
                     if (beatmaps.Count > 0)
                         beatmapsets.Add(new DifficultyBeatmapSet(characteristicsSO[i], beatmaps.ToArray()));
-
-
                 }
+                //Check Custom Charactersistics
+                for (int i = 0; i < SongLoader.customCharacteristics.Count; i++)
+                {
+                    List<DifficultyBeatmap> beatmaps = new List<DifficultyBeatmap>();
+                    foreach (DifficultyBeatmap beatmap in newDifficultyBeatmaps)
+                    {
+                        string characteristic = (beatmap as CustomDifficultyBeatmap).Characteristic;
+                        if (characteristic == SongLoader.customCharacteristics[i].characteristicName)
+                            beatmaps.Add(beatmap);
+                        else if (!SongLoader.customCharacteristics.Any(x => x.characteristicName == characteristic)
+                            && (characteristic != "Standard" && characteristic != "One Saber" && characteristic != "No Arrows" && !string.IsNullOrWhiteSpace(characteristic)) )
+                            missingCharacteristicBeatmaps.Add(beatmap);
+
+                    }
+                    if (beatmaps.Count > 0)
+                        beatmapsets.Add(new DifficultyBeatmapSet(SongLoader.customCharacteristics[i], beatmaps.ToArray()));
+                }
+                if (missingCharacteristicBeatmaps.Count > 0)
+                    beatmapsets.Add(new DifficultyBeatmapSet
+                        (SongLoader.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic"), missingCharacteristicBeatmaps.ToArray()));
+
+
+
+
                 _difficultyBeatmapSets = beatmapsets.ToArray();
             }
 
@@ -78,6 +102,7 @@ namespace SongLoaderPlugin.OverrideClasses
 
         public void FixBPMAndGetNoteJumpMovementSpeed()
         {
+            //      Console.WriteLine("FixBPMOr NoteJump");
             if (BPMAndNoteSpeedFixed) return;
             var bpms = new Dictionary<float, int> { { _beatsPerMinute, 0 } };
             foreach (var diffLevel in customSongInfo.difficultyLevels)
@@ -87,11 +112,36 @@ namespace SongLoaderPlugin.OverrideClasses
                 float? bpm, noteSpeed;
                 Color? colorLeft, colorRight;
                 int? noteJumpStartBeatOffset;
+                IDifficultyBeatmap diffBeatmap = null;
+                bool missingChar = false;
+                foreach (DifficultyBeatmapSet set in _difficultyBeatmapSets)
+                {
+                    string characteristic = diffLevel.characteristic;
+                    if (string.IsNullOrEmpty(characteristic))
+                        characteristic = "Standard";
+                    else if (characteristic != "One Saber" && characteristic != "No Arrows") 
+                        missingChar = !(SongLoader.customCharacteristics.Any(x => x.characteristicName == characteristic));
 
-                var diffBeatmap = _difficultyBeatmapSets[diffLevel.characteristic == -1 || diffLevel.characteristic > 2 ? 0 : diffLevel.characteristic].difficultyBeatmaps.FirstOrDefault(x =>
-                     diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
+                    if (missingChar)
+                        characteristic = "Missing Characteristic";
+
+                    if (set.beatmapCharacteristic.characteristicName == characteristic)
+                    {
+                        diffBeatmap = set.difficultyBeatmaps.FirstOrDefault(x =>
+                               diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal) == x.difficulty);
+                    }
+
+                }
+
                 var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
                 if (customBeatmap == null) continue;
+                if (missingChar)
+                {
+
+                    customBeatmap.AddWarning($"Missing Characteristic.");
+                    customBeatmap.AddRequirement("Must have Beatmap Characteristic");
+                }
+
 
                 customBeatmap.ParseDiffJson(diffLevel.json, out bpm, out noteSpeed, out noteJumpStartBeatOffset, out colorLeft, out colorRight);
                 if (bpm.HasValue)
@@ -158,7 +208,7 @@ namespace SongLoaderPlugin.OverrideClasses
             public Color colorLeft { get; private set; }
             public Color colorRight { get; private set; }
             internal bool hasCustomColors { get; set; } = false;
-            public int Characteristic { get; private set; }
+            public string Characteristic { get; private set; }
             private List<string> Requirements = new List<string>();
             public System.Collections.ObjectModel.ReadOnlyCollection<string> requirements
             {
@@ -181,7 +231,7 @@ namespace SongLoaderPlugin.OverrideClasses
             }
 
 
-            public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData, int characteristic = -1) : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
+            public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData, string characteristic = "") : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
             {
                 Characteristic = characteristic;
             }
