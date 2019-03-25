@@ -65,7 +65,7 @@ The following is a template for you to use:
   "oneSaber":true,
   "difficultyLevels": [
 	{ "difficulty":"Expert", "difficultyRank":4, "jsonPath":"expert.json" },
-	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json", "characteristic":0 }
+	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json", "characteristic":"Standard" }
   ]
 }
 ```
@@ -102,8 +102,7 @@ All possible environmentNames:
 		"difficulty": This can only be set to Easy, Normal, Hard, Expert or ExpertPlus,
 		"difficultyRank": Currently unused whole number for ranking difficulty,
 		"jsonPath": The name of the json file for this specific difficulty,
-		"characteristic": The mode that you want the specific difficulty to be under
-		 0 for standard, 1 for one saber, 2 for no arrows
+		"characteristic": What section you want the difficulty to be listed under, refer to bottom of readme for usage
 	}
   ]
 ```
@@ -133,11 +132,22 @@ Right, 0, 0.706, 1
 ```
 ### For modders
  * You can add/remove capabilities to your mods for maps to be able to use by doing the following
+ * You can register a beatmap characteristic OnApplicationStart by doing the following **Make sure to do this before songloader loads songs**
  ```csharp
  // To register
  SongLoaderPlugin.SongLoader.RegisterCapability("Capability name");
  // To remove
  SongLoaderPlugin.SongLoader.DeregisterizeCapability("Capability name");
+ 
+ //If you make a mod that registers a capability feel free to message me on Discord ( Kyle1413#1413 ) and I will add it to the list below
+ ```
+ 
+ ```csharp
+SongLoader.RegisterCustomCharacteristic(Sprite Icon, "Characteristic Name", "Hint Text", "SerializedName", "CompoundIdPartName");
+//For the SerializedName and CompoundIdPartName, as a basic rule can just put the characteristic name without spaces or special characters
+//The Characteristic Name will be what mappers put as the characteristic when labelling their difficulties
+//If you make a mod that registers a characteristic feel free to message me on Discord ( Kyle1413#1413 ) and I will add it to the list below
+
  ```
 #### Capabilities
 - Note: Songloader currently auto detects Precision Placement, Extra Note Angles, and More Lanes. Other features of mapping extensions require you to add the "Mapping Extensions" Capability as a requirement for your song, and it is advised if you use any of the capabilities of a mpod, you assume it will not be auto added and add the capability to the JSON.
@@ -151,6 +161,16 @@ Right, 0, 0.706, 1
 | "Chroma"| Chroma |
 | "Chroma Lighting Events"| Chroma |
 | "Chroma Special Events"| Chroma |
+
+#### Beatmap Characteristics
+- These control what difficulty set the difficulty is placed under, so if you wanted to include a set of 5 difficulties that were all one saber in addition to a normal set of 5 difficulties, similar to what the OST does, you would give all of the one saber difficultyLevels a characteristic of one saber
+
+| Characteristic | Source |
+| - | - |
+| "Standard"| Base Game |
+| "No Arrows"| Base Game |
+| "One Saber"| Base Game |
+
 # Keyboard Shortcuts
 *(Make sure Beat Saber's window is in focus when using these shortcuts)*
 ---
