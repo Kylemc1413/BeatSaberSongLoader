@@ -45,7 +45,6 @@ namespace SongLoaderPlugin
 
 
 
-
         public static event Action<SongLoader> LoadingStartedEvent;
         public static event Action<SongLoader, List<CustomLevel>> SongsLoadedEvent;
         public static List<CustomLevel> CustomLevels = new List<CustomLevel>();
@@ -53,8 +52,10 @@ namespace SongLoaderPlugin
         public static bool AreSongsLoading { get; private set; }
         public static float LoadingProgress { get; private set; }
         public static CustomLevelCollectionSO CustomLevelCollectionSO { get; private set; }
+        public static CustomLevelCollectionSO WIPCustomLevelCollectionSO { get; private set; }
         public static CustomBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
         public static CustomBeatmapLevelPackSO CustomBeatmapLevelPackSO { get; private set; }
+        public static CustomBeatmapLevelPackSO WIPCustomBeatmapLevelPackSO { get; private set; }
         private bool CustomPlatformsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
         private bool CustomColorsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "CustomColorsEdit" || x.Name == "Chroma");
         private int _currentPlatform = -1;
@@ -144,6 +145,7 @@ namespace SongLoaderPlugin
                 {
                     var levelCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelCollectionSO>().FirstOrDefault();
                     CustomLevelCollectionSO = CustomLevelCollectionSO.ReplaceOriginal(levelCollectionSO);
+                    WIPCustomLevelCollectionSO = CustomLevelCollectionSO.ReplaceOriginal(levelCollectionSO);
                 }
 
                 if (CustomBeatmapLevelPackCollectionSO == null)
@@ -152,6 +154,8 @@ namespace SongLoaderPlugin
                     CustomBeatmapLevelPackCollectionSO = CustomBeatmapLevelPackCollectionSO.ReplaceOriginal(beatmapLevelPackCollectionSO);
                     CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
                     CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
+                    WIPCustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(WIPCustomLevelCollectionSO, true);
+                    CustomBeatmapLevelPackCollectionSO.AddLevelPack(WIPCustomBeatmapLevelPackSO);
                     CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
                 }
                 else
@@ -380,8 +384,10 @@ callback));
 
             foreach (var customLevel in CustomLevels)
             {
-
-                CustomLevelCollectionSO.RemoveLevel(customLevel);
+                if (CustomLevelCollectionSO._levelList.Contains(customLevel))
+                    CustomLevelCollectionSO.RemoveLevel(customLevel);
+                if (WIPCustomLevelCollectionSO._levelList.Contains(customLevel))
+                    WIPCustomLevelCollectionSO.RemoveLevel(customLevel);
             }
 
             RetrieveAllSongs(fullRefresh);
@@ -408,8 +414,10 @@ callback));
         public void RemoveSong(CustomLevel customLevel)
         {
             if (customLevel == null) return;
-
+            if(CustomLevelCollectionSO._levelList.Contains(customLevel))
             CustomLevelCollectionSO.RemoveLevel(customLevel);
+            if (WIPCustomLevelCollectionSO._levelList.Contains(customLevel))
+                WIPCustomLevelCollectionSO.RemoveLevel(customLevel);
             foreach (IDifficultyBeatmapSet beatmapset in customLevel.difficultyBeatmapSets)
                 foreach (var difficultyBeatmap in beatmapset.difficultyBeatmaps)
                 {
@@ -600,6 +608,11 @@ callback));
                         Directory.CreateDirectory(path + "/CustomSongs/.cache");
                     }
 
+                    if (!Directory.Exists(path + "/WIP Songs"))
+                    {
+                        Directory.CreateDirectory(path + "/WIP Songs");
+                    }
+
 
                     var songZips = Directory.GetFiles(path + "/CustomSongs")
                         .Where(x => x.ToLower().EndsWith(".zip") || x.ToLower().EndsWith(".beat") || x.ToLower().EndsWith(".bmap")).ToArray();
@@ -648,6 +661,7 @@ callback));
 
 
                     var songFolders = Directory.GetDirectories(path + "/CustomSongs").ToList();
+                    var WIPFolders = Directory.GetDirectories(path + "/WIP Songs").ToList();
                     var songCaches = Directory.GetDirectories(path + "/CustomSongs/.cache");
 
                     foreach (var songZip in songZips)
@@ -738,6 +752,65 @@ callback));
                             }
                         }
                     }
+                    foreach (var song in WIPFolders)
+                    {
+                        i++;
+                        var results = Directory.GetFiles(song, "info.json", SearchOption.AllDirectories);
+                        if (results.Length == 0)
+                        {
+                            Log("Custom song folder '" + song + "' is missing info.json files!", LogSeverity.Warn);
+                            continue;
+                        }
+
+
+                        foreach (var result in results)
+                        {
+                            try
+                            {
+                                var songPath = Path.GetDirectoryName(result).Replace('\\', '/');
+                                if (!fullRefresh)
+                                {
+                                    if (CustomLevels.Any(x => x.customSongInfo.path == songPath))
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                var customSongInfo = GetCustomSongInfo(songPath);
+
+                                if (customSongInfo == null) continue;
+                                var id = customSongInfo.GetIdentifier();
+                                if (loadedIDs.Any(x => x == id))
+                                {
+                                    Log("Duplicate song found at " + customSongInfo.path, LogSeverity.Warn);
+                                    continue;
+                                }
+
+                                loadedIDs.Add(id);
+
+
+
+                                var i1 = i;
+                                HMMainThreadDispatcher.instance.Enqueue(delegate
+                                {
+                                    if (_loadingCancelled) return;
+                                    var level = LoadSong(customSongInfo);
+                                    level.inWipFolder = true;
+                                    if (level != null)
+                                    {
+                                        levelList.Add(level);
+                                    }
+
+                                    LoadingProgress = i1 / songFolders.Count;
+                                });
+                            }
+                            catch (Exception e)
+                            {
+                                Log("Failed to load song folder: " + result, LogSeverity.Warn);
+                                Log(e.ToString(), LogSeverity.Warn);
+                            }
+                        }
+                    }
 
                 }
                 catch (Exception e)
@@ -759,7 +832,10 @@ callback));
 
                 foreach (var customLevel in CustomLevels)
                 {
-                    CustomLevelCollectionSO.AddCustomLevel(customLevel);
+                    if (!customLevel.inWipFolder)
+                        CustomLevelCollectionSO.AddCustomLevel(customLevel);
+                    else
+                        WIPCustomLevelCollectionSO.AddCustomLevel(customLevel);
                 }
 
                 ReloadHashes();
@@ -785,8 +861,15 @@ callback));
             HashSet<string> _alwaysOwnedBeatmapLevelPackIds = (HashSet<string>)additionalContentModelSO.GetField("_alwaysOwnedPacksIds");
             if (!_alwaysOwnedBeatmapLevelPackIds.Contains("CustomMaps"))
                 _alwaysOwnedBeatmapLevelPackIds.Add("CustomMaps");
+            if (!_alwaysOwnedBeatmapLevelPackIds.Contains("WIPMaps"))
+                _alwaysOwnedBeatmapLevelPackIds.Add("WIPMaps");
 
             foreach (BeatmapLevelSO level in CustomLevelCollectionSO._levelList)
+            {
+                if (level as CustomLevel != null)
+                    _alwaysOwnedBeatmapLevelIds.Add(level.levelID);
+            }
+            foreach (BeatmapLevelSO level in WIPCustomLevelCollectionSO._levelList)
             {
                 if (level as CustomLevel != null)
                     _alwaysOwnedBeatmapLevelIds.Add(level.levelID);
@@ -1029,7 +1112,6 @@ callback));
             WarningIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
             InfoIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
             MissingCharIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
-
 
         }
         private void Update()

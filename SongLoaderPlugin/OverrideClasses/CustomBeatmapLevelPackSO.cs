@@ -9,11 +9,11 @@ namespace SongLoaderPlugin.OverrideClasses
     public class CustomBeatmapLevelPackSO : BeatmapLevelPackSO
     {
 
-        public static CustomBeatmapLevelPackSO GetPack(CustomLevelCollectionSO beatmapLevelCollectionSO)
+        public static CustomBeatmapLevelPackSO GetPack(CustomLevelCollectionSO beatmapLevelCollectionSO, bool WipPack = false)
         {
 
             var newPack = CreateInstance<CustomBeatmapLevelPackSO>();
-            newPack.Init(beatmapLevelCollectionSO);
+            newPack.Init(beatmapLevelCollectionSO, WipPack);
             return newPack;
             //       var packs = Resources.FindObjectsOfTypeAll<BeatmapLevelPackSO>();
 
@@ -22,12 +22,22 @@ namespace SongLoaderPlugin.OverrideClasses
 
         }
 
-        private void Init(CustomLevelCollectionSO beatmapLevelCollectionSO)
+        private void Init(CustomLevelCollectionSO beatmapLevelCollectionSO, bool WipPack = false)
         {
             _isPackAlwaysOwned = true;
+            if(!WipPack)
+            {
             _packID = "CustomMaps";
             _packName = "Custom Maps";
-            _coverImage = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png"); ;
+            _coverImage = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+            }
+            else
+            {
+                _packID = "WIPMaps";
+                _packName = "WIP Maps";
+                _coverImage = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.squek.png");
+            }
+
             _beatmapLevelCollection = beatmapLevelCollectionSO;
         }
         public void AddToPack(CustomLevelCollectionSO beatmapLevelCollectionSO)

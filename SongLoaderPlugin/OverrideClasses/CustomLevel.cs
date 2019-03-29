@@ -11,7 +11,7 @@ namespace SongLoaderPlugin.OverrideClasses
         public CustomSongInfo customSongInfo { get; private set; }
         public bool AudioClipLoading { get; set; }
         public bool BPMAndNoteSpeedFixed { get; private set; }
-
+        public bool inWipFolder = false;
         public void Init(CustomSongInfo newCustomSongInfo)
         {
             customSongInfo = newCustomSongInfo;
@@ -142,6 +142,7 @@ namespace SongLoaderPlugin.OverrideClasses
                     customBeatmap.AddRequirement("Must have Beatmap Characteristic");
                 }
 
+                if (inWipFolder) customBeatmap.AddWarning("WIP");
 
                 customBeatmap.ParseDiffJson(diffLevel.json, out bpm, out noteSpeed, out noteJumpStartBeatOffset, out colorLeft, out colorRight);
                 if (bpm.HasValue)

@@ -163,6 +163,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Icons\MissingChar.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\squek.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
   </Target>
