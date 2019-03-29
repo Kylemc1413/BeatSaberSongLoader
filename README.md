@@ -12,6 +12,7 @@ A plugin for adding custom songs into Beat Saber.
     * `CustomSongs`
     * `IPA`
     * `Plugins`
+    * `WIP Songs`
     * `Beat Saber (Patch & Launch)`
     * `Beat Saber.exe`
     * `IPA.exe`
@@ -21,13 +22,15 @@ A plugin for adding custom songs into Beat Saber.
 
 ## Usage
  1. Launch Beat Saber through the platform you purchased it on.	
- 2. Go to 'Solo' -> 'Standard' and your custom song will be available to play at the bottom of the list.	
+ 2. Go to 'Solo' and scroll to the right on the song pack selection view to the `Custom Maps` Pack and select it to view your songs	
 
 
 ## Installing Custom Songs
-The following files must be placed within their own folder inside the "CustomSongs" folder.
-
-    Required files:
+- The following files must be placed within their own folder inside the "CustomSongs" folder.
+- You Can place songs in the `WIP Songs` Folder instead to place them in the WIP Maps songpack and have them only be playable in practice mode, this is recommended if you are either making the map yourself or testing someone else's map
+- If a duplicate song is in both the `CustomSongs` and `WIP Songs` folder it will only show in the Custom Maps pack
+``` 
+   Required files:
 		1. cover.jpg (Size 256x256)
 			-This is the picture shown next to song in the selection screen.
 			-The name can be whatever you want, make sure its the same as the one found in info.json
@@ -42,7 +45,7 @@ The following files must be placed within their own folder inside the "CustomSon
 			-Use a Beat Saber editor to make your own note chart for the song
 		4. info.json
 			-Contains the info for the song
-
+```
 The following is a template for you to use:
 ```json
 {
