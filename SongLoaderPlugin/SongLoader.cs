@@ -949,7 +949,7 @@ callback));
                 if (difficultyBeatmaps.Count == 0) return null;
 
                 newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), beatmapCharacteristicSOCollection, newLevel.customSongInfo.oneSaber);
-                //    newLevel.InitData();
+                    newLevel.InitData();
 
                 LoadSprite(song.path + "/" + song.coverImagePath, newLevel);
                 return newLevel;
@@ -993,6 +993,9 @@ callback));
                 var difficulty = Utils.ToEnum(n["difficulty"], BeatmapDifficulty.Normal);
                 var difficultyRank = (int)difficulty;// * 100 + UnityEngine.Mathf.Clamp(n["difficultyRank"].AsInt, 0, 10);
                 string characteristic = "";
+
+                if (songInfo.oneSaber)
+                    characteristic = "One Saber";
 
                 if (n["characteristic"] != null)
                 {

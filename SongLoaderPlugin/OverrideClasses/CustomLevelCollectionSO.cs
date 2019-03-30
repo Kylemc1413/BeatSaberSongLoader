@@ -43,12 +43,6 @@ namespace SongLoaderPlugin.OverrideClasses
             foreach (var customLevel in customLevels)
             {
                 var characteristics = new List<BeatmapCharacteristicSO>();
-                if (customLevel.customSongInfo.oneSaber)
-                {
-                    characteristics.Add(_oneSaberCharacteristic);
-                }
-                else
-                {
                     foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
                     {
                         switch (diffLevel.characteristic)
@@ -80,7 +74,7 @@ namespace SongLoaderPlugin.OverrideClasses
                         }
 
                     }
-                }
+                
                 customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
 
                 _levelList.Add(customLevel);
@@ -92,12 +86,6 @@ namespace SongLoaderPlugin.OverrideClasses
         public void AddCustomLevel(CustomLevel customLevel)
         {
             var characteristics = new List<BeatmapCharacteristicSO>();
-            if (customLevel.customSongInfo.oneSaber)
-            {
-                characteristics.Add(_oneSaberCharacteristic);
-            }
-            else
-            {
                 foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
                 {
                     switch (diffLevel.characteristic)
@@ -129,7 +117,7 @@ namespace SongLoaderPlugin.OverrideClasses
                                 if (!characteristics.Contains(SongLoader.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic")))
                                 characteristics.Add(SongLoader.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic"));
                             break;
-                    }
+                    
 
 
                 }

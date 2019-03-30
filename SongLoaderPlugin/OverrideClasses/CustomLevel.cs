@@ -42,14 +42,7 @@ namespace SongLoaderPlugin.OverrideClasses
         }
 
         public void SetDifficultyBeatmaps(DifficultyBeatmap[] newDifficultyBeatmaps, BeatmapCharacteristicSO[] characteristicsSO, bool singleSaber = false)
-        {
-            if (singleSaber)
-            {
-                DifficultyBeatmapSet difficultyBeatmapSet = new DifficultyBeatmapSet(characteristicsSO[1], newDifficultyBeatmaps);
-                _difficultyBeatmapSets = new DifficultyBeatmapSet[] { difficultyBeatmapSet };
-            }
-            else
-            {
+        { 
                 List<DifficultyBeatmapSet> beatmapsets = new List<DifficultyBeatmapSet>();
                 List<DifficultyBeatmap> missingCharacteristicBeatmaps = new List<DifficultyBeatmap>();
                 //Check Standard Characteristics
@@ -91,7 +84,7 @@ namespace SongLoaderPlugin.OverrideClasses
 
 
                 _difficultyBeatmapSets = beatmapsets.ToArray();
-            }
+            
 
         }
 
