@@ -152,10 +152,10 @@ namespace SongLoaderPlugin
                 {
                     var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
                     CustomBeatmapLevelPackCollectionSO = CustomBeatmapLevelPackCollectionSO.ReplaceOriginal(beatmapLevelPackCollectionSO);
-                    CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
-                    CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
-                    WIPCustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(WIPCustomLevelCollectionSO, true);
-                    CustomBeatmapLevelPackCollectionSO.AddLevelPack(WIPCustomBeatmapLevelPackSO);
+           //         CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
+           //         CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
+           //         WIPCustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(WIPCustomLevelCollectionSO, true);
+           //         CustomBeatmapLevelPackCollectionSO.AddLevelPack(WIPCustomBeatmapLevelPackSO);
                     CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
                 }
                 else
@@ -163,23 +163,23 @@ namespace SongLoaderPlugin
                     CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
                 }
                 ReloadHashes();
-                /*
-                var Extras = CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Where(x => x.packName.Contains("Extras")).First();
+                
+                var Extras = CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Where(x => x.packName.Contains("1")).First();
                 if (Extras != null)
                 {
-                    BeatmapLevelSO[] ExtrasLevels = Extras.GetField<BeatmapLevelCollectionSO>("_beatmapLevelCollection").GetField<BeatmapLevelSO[]>("_beatmapLevels");
-                    if (!firstLoad)
-                        foreach (BeatmapLevelSO level in ExtrasLevels)
-                        {
-                            CustomLevelCollectionSO._levelList.Add(level);
-                            firstLoad = true;
-                        }
-                    */
-                //         var extraPack = Extras as BeatmapLevelPackSO;
-                //       extraPack.SetPrivateField("_coverImage", CustomSongsIcon);
-                // ReflectionUtil.SetPrivateField(Extras, "_beatmapLevelCollection", CustomLevelCollectionSO);
-                //    ReloadHashes();
-                //  }
+              //      BeatmapLevelSO[] ExtrasLevels = Extras.GetField<BeatmapLevelCollectionSO>("_beatmapLevelCollection").GetField<BeatmapLevelSO[]>("_beatmapLevels");
+              //      if (!firstLoad)
+              //          foreach (BeatmapLevelSO level in ExtrasLevels)
+              //          {
+              //              CustomLevelCollectionSO._levelList.Add(level);
+              //              firstLoad = true;
+              //          }
+                    
+                      //   var extraPack = Extras as BeatmapLevelPackSO;
+                      // extraPack.SetPrivateField("_coverImage", CustomSongsIcon);
+                 ReflectionUtil.SetPrivateField(Extras, "_beatmapLevelCollection", CustomLevelCollectionSO);
+                    ReloadHashes();
+                  }
 
                 beatmapCharacteristicSOCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
 
@@ -452,6 +452,7 @@ callback));
 
         private void LoadSprite(string spritePath, CustomLevel customLevel)
         {
+            return;
             Sprite sprite;
             if (!LoadedSprites.ContainsKey(spritePath))
             {
@@ -987,13 +988,13 @@ callback));
             var diffLevels = new List<CustomSongInfo.DifficultyLevel>();
             var n = JSON.Parse(infoText);
             var diffs = n["difficultyLevels"];
+
             for (int i = 0; i < diffs.AsArray.Count; i++)
             {
                 n = diffs[i];
                 var difficulty = Utils.ToEnum(n["difficulty"], BeatmapDifficulty.Normal);
                 var difficultyRank = (int)difficulty;// * 100 + UnityEngine.Mathf.Clamp(n["difficultyRank"].AsInt, 0, 10);
                 string characteristic = "";
-
                 if (songInfo.oneSaber)
                     characteristic = "One Saber";
 
@@ -1014,6 +1015,8 @@ callback));
             }
 
             songInfo.difficultyLevels = diffLevels.ToArray();
+            songInfo.previewDuration = 0.1f;
+            songInfo.previewStartTime = 0;
             return songInfo;
         }
 
