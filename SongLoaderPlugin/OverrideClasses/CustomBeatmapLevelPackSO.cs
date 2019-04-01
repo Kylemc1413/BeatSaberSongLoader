@@ -8,6 +8,18 @@ namespace SongLoaderPlugin.OverrideClasses
 {
     public class CustomBeatmapLevelPackSO : BeatmapLevelPackSO
     {
+        public static CustomBeatmapLevelPackSO GetPack(CustomLevelCollectionSO beatmapLevelCollectionSO)
+        {
+
+            var newPack = CreateInstance<CustomBeatmapLevelPackSO>();
+            newPack.Init(beatmapLevelCollectionSO);
+            return newPack;
+            //       var packs = Resources.FindObjectsOfTypeAll<BeatmapLevelPackSO>();
+
+            //   return pack;
+
+
+        }
 
         public static CustomBeatmapLevelPackSO GetPack(CustomLevelCollectionSO beatmapLevelCollectionSO, bool WipPack = false)
         {
@@ -40,6 +52,18 @@ namespace SongLoaderPlugin.OverrideClasses
 
             _beatmapLevelCollection = beatmapLevelCollectionSO;
         }
+
+        private void Init(CustomLevelCollectionSO beatmapLevelCollectionSO)
+        {
+            _isPackAlwaysOwned = true;
+                _packID = "CustomMaps";
+                _packName = "Custom Maps";
+                _coverImage = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+
+
+            _beatmapLevelCollection = beatmapLevelCollectionSO;
+        }
+
         public void AddToPack(CustomLevelCollectionSO beatmapLevelCollectionSO)
         {
             var levelcollection = this.beatmapLevelCollection as CustomLevelCollectionSO;
