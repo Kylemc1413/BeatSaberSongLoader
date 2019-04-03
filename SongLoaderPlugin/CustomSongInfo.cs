@@ -44,6 +44,7 @@ namespace SongLoaderPlugin
             public int noteJumpStartBeatOffset;
             public float noteJumpMovementSpeed;
             public string characteristic;
+            public string difficultyLabel;
         }
 
         public string GetIdentifier()

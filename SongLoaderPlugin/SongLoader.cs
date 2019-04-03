@@ -1002,6 +1002,11 @@ callback));
                     characteristic = n["characteristic"];
                 }
 
+                string difficultyLabel = "";
+                if (n["difficultyLabel"] != null)
+                {
+                    difficultyLabel = n["difficultyLabel"];
+                }
                 diffLevels.Add(new CustomSongInfo.DifficultyLevel
                 {
                     difficulty = n["difficulty"],
@@ -1009,7 +1014,8 @@ callback));
                     audioPath = n["audioPath"],
                     jsonPath = n["jsonPath"],
                     noteJumpMovementSpeed = n["noteJumpMovementSpeed"],
-                    characteristic = characteristic
+                    characteristic = characteristic,
+                    difficultyLabel = difficultyLabel
                 });
             }
 
@@ -1021,7 +1027,7 @@ callback));
         {
             Console.WriteLine("Song Loader [" + severity.ToString().ToUpper() + "]: " + message);
         }
-
+        
         internal static void InitRequirementsMenu()
         {
             reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
@@ -1104,19 +1110,21 @@ callback));
             reqViewController._customListTableView.ReloadData();
 
         }
-
+        
+        
         internal static void GetIcons()
         {
-            CustomSongsIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
-            MissingReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
-            HaveReqIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
-            HaveSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
-            MissingSuggestionIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
-            WarningIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
-            InfoIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
-            MissingCharIcon = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
+            CustomSongsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+            MissingReqIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
+            HaveReqIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
+            HaveSuggestionIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
+            MissingSuggestionIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
+            WarningIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
+            InfoIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
+            MissingCharIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
 
         }
+        
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.R))

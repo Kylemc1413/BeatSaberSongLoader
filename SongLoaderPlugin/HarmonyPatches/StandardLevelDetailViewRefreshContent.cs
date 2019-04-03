@@ -9,15 +9,31 @@ using TMPro;
 using SongLoaderPlugin.OverrideClasses;
 using UnityEngine.UI;
 using CustomUI.BeatSaber;
-namespace SongLoaderPlugin.Harmony_Patches
+namespace SongLoaderPlugin.HarmonyPatches
 {
     [HarmonyPatch(typeof(StandardLevelDetailView))]
     [HarmonyPatch("RefreshContent", MethodType.Normal)]
 
-    class StandardLevelDetailViewRefreshContent
+    public class StandardLevelDetailViewRefreshContent
     {
+        internal static string EasyOverride = "";
+        internal static string NormalOverride = "";
+        internal static string HardOverride = "";
+        internal static string ExpertOverride = "";
+        internal static string ExpertPlusOverride = "";
+
+
+        internal static void clearOverrideLabels()
+        {
+            EasyOverride = "";
+            NormalOverride = "";
+            HardOverride = "";
+            ExpertOverride = "";
+            ExpertPlusOverride = "";
+        }
+
         static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
-            ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton)
+            ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController)
         {
             IBeatmapLevel level = ____selectedDifficultyBeatmap?.level;
 
@@ -109,11 +125,48 @@ namespace SongLoaderPlugin.Harmony_Patches
                     SongLoader.infoButton.interactable = false;
                 }
 
+                //Difficulty Label Handling
+                bool overrideLabels = false;
+                foreach( CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+                {
+                    var difficulty = diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal);
+                    if(!string.IsNullOrWhiteSpace(diffLevel.difficultyLabel))
+                    {
+                        Console.WriteLine("Diff: " + difficulty + "   Label: " + diffLevel.difficultyLabel);
+                        overrideLabels = true;
+                        switch(difficulty)
+                        {
+                            case BeatmapDifficulty.Easy:
+                                EasyOverride = diffLevel.difficultyLabel;
+                                break;
+                            case BeatmapDifficulty.Normal:
+                                NormalOverride = diffLevel.difficultyLabel;
+                                break;
+                            case BeatmapDifficulty.Hard:
+                                HardOverride = diffLevel.difficultyLabel;
+                                break;
+                            case BeatmapDifficulty.Expert:
+                                ExpertOverride = diffLevel.difficultyLabel;
+                                break;
+                            case BeatmapDifficulty.ExpertPlus:
+                                ExpertPlusOverride = diffLevel.difficultyLabel;
+                                break;
+                        }
+                    }
+                }
+                if(overrideLabels)
+                {
+                    Console.WriteLine("Overriding");
+                    ____beatmapDifficultySegmentedControlController.SetData( ____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps, ____beatmapDifficultySegmentedControlController.selectedDifficulty);
+                    clearOverrideLabels();
+                }
+
 
             }
 
 
         }
+        
     }
 }
 

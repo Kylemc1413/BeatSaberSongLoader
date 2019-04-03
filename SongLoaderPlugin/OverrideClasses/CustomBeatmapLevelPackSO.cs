@@ -41,13 +41,13 @@ namespace SongLoaderPlugin.OverrideClasses
             {
             _packID = "CustomMaps";
             _packName = "Custom Maps";
-            _coverImage = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+            _coverImage = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
             }
             else
             {
                 _packID = "WIPMaps";
                 _packName = "WIP Maps";
-                _coverImage = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.squek.png");
+                _coverImage = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.squek.png");
             }
 
             _beatmapLevelCollection = beatmapLevelCollectionSO;
@@ -58,7 +58,7 @@ namespace SongLoaderPlugin.OverrideClasses
             _isPackAlwaysOwned = true;
                 _packID = "CustomMaps";
                 _packName = "Custom Maps";
-                _coverImage = CustomUI.Utilities.UIUtilities.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+                _coverImage = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
 
 
             _beatmapLevelCollection = beatmapLevelCollectionSO;

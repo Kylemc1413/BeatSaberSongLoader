@@ -8,7 +8,7 @@ namespace SongLoaderPlugin
 {
     public class Plugin : IPlugin
     {
-        public const string VersionNumber = "6.9.4";
+        public const string VersionNumber = "6.10.0";
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
 
@@ -38,6 +38,7 @@ namespace SongLoaderPlugin
         {
             if (scene.name == "MenuViewControllers")
             {
+                
                 if (SongLoader.reqDialog == null)
                     SongLoader.InitRequirementsMenu();
 
@@ -53,7 +54,7 @@ namespace SongLoaderPlugin
                     "songloader", "Allow Custom Songs to override your Custom Platform if Custom Platforms is installed");
                 platformOverrideOption.GetValue = ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
                 platformOverrideOption.OnToggle += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
-
+                
             }
 
         }

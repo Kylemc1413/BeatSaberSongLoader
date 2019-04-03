@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Harmony;
 using UnityEngine;
-namespace SongLoaderPlugin.Harmony_Patches
+namespace SongLoaderPlugin.HarmonyPatches
 {
 
     [HarmonyPatch(typeof(BeatmapDataLoader),

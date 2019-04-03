@@ -134,7 +134,7 @@ namespace SongLoaderPlugin
             var rectTransform = _canvas.transform as RectTransform;
             rectTransform.sizeDelta = CanvasSize;
 
-            _authorNameText = CustomUI.BeatSaber.BeatSaberUI.CreateText(_canvas.transform as RectTransform, AuthorNameText, AuthorNamePosition);
+            _authorNameText = Utils.CreateText(_canvas.transform as RectTransform, AuthorNameText, AuthorNamePosition);
             rectTransform = _authorNameText.transform as RectTransform;
             rectTransform.SetParent(_canvas.transform, false);
             rectTransform.anchoredPosition = AuthorNamePosition;
@@ -142,7 +142,7 @@ namespace SongLoaderPlugin
             _authorNameText.text = AuthorNameText;
             _authorNameText.fontSize = AuthorNameFontSize;
 
-            _pluginNameText = CustomUI.BeatSaber.BeatSaberUI.CreateText(_canvas.transform as RectTransform, PluginNameText, PluginNamePosition);
+            _pluginNameText = Utils.CreateText(_canvas.transform as RectTransform, PluginNameText, PluginNamePosition);
             rectTransform = _pluginNameText.transform as RectTransform;
             rectTransform.SetParent(_canvas.transform, false);
             rectTransform.sizeDelta = HeaderSize;
@@ -150,7 +150,7 @@ namespace SongLoaderPlugin
             _pluginNameText.text = PluginNameText;
             _pluginNameText.fontSize = PluginNameFontSize;
 
-            _headerText = CustomUI.BeatSaber.BeatSaberUI.CreateText(_canvas.transform as RectTransform, HeaderText, HeaderPosition);
+            _headerText = Utils.CreateText(_canvas.transform as RectTransform, HeaderText, HeaderPosition);
             rectTransform = _headerText.transform as RectTransform;
             rectTransform.SetParent(_canvas.transform, false);
             rectTransform.anchoredPosition = HeaderPosition;
