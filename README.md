@@ -75,7 +75,7 @@ The following is a template for you to use:
 ___
 
 ### info.json Explanation
-```
+```json
 "songName" - Name of your song
 "songSubName" - Text rendered in smaller letters next to song name. (ft. Artist)
 "mappers" - People who contributed to mapping for the various difficulties of the map to be listed in the additional information display
