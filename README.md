@@ -68,7 +68,7 @@ The following is a template for you to use:
   "oneSaber":true,
   "difficultyLevels": [
 	{ "difficulty":"Expert", "difficultyRank":4, "jsonPath":"expert.json" },
-	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json", "characteristic":"Standard" }
+	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json", "characteristic":"Standard", "difficultyLabel:"EX" }
   ]
 }
 ```
@@ -106,6 +106,10 @@ All possible environmentNames:
 		"difficultyRank": Currently unused whole number for ranking difficulty,
 		"jsonPath": The name of the json file for this specific difficulty,
 		"characteristic": What section you want the difficulty to be listed under, refer to bottom of readme for usage
+		"difficultyLabel": The name to display for the difficulty in game
+		// Note: Difficulty labels affect Every difficulty of the same type for that song, if you have two difficulty labels
+		// For a single type, only one will take effect
+		// This will also not affect how the difficulty displays on scoresaber or elsewhere
 	}
   ]
 ```
