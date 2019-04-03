@@ -4,7 +4,7 @@ A plugin for adding custom songs into Beat Saber.
 *This mod works on both the Steam and Oculus Store versions.*
 
 ## Installation Instructions
- 1. Download the latest release from the modsaber page [Here](https://www.modsaber.org/mod/song-loader/)
+ 1. Download the latest release
  2. Extract the .zip file into the `Oculus Apps\Software\hyperbolic-magnetism-beat-saber` for Oculus Home OR `steamapps\common\Beat Saber` for Steam. (The one with Beat Saber.exe)
   
     The Beat Saber folder should look something like this:
@@ -34,7 +34,7 @@ A plugin for adding custom songs into Beat Saber.
 		1. cover.jpg (Size 256x256)
 			-This is the picture shown next to song in the selection screen.
 			-The name can be whatever you want, make sure its the same as the one found in info.json
-			-Only supported image types are jpg and png
+			-Only supported image s are jpg and png
 		2. song.wav / song.ogg
 			-This is your song you would like to load
 			-Name must be the same as in info.json
@@ -100,17 +100,19 @@ All possible environmentNames:
 -NiceEnvironment
 -KDAEnvironment
 -MonstercatEnvironment
-"difficultyLevels": [
-	{
-		"difficulty": This can only be set to Easy, Normal, Hard, Expert or ExpertPlus,
-		"difficultyRank": Currently unused whole number for ranking difficulty,
-		"jsonPath": The name of the json file for this specific difficulty,
-		"characteristic": What section you want the difficulty to be listed under, refer to bottom of readme for usage
-		"difficultyLabel": The name to display for the difficulty in game
-		// Note: Difficulty labels affect Every difficulty of the same type for that song, if you have two difficulty labels
-		// For a single type, only one will take effect
-		// This will also not affect how the difficulty displays on scoresaber or elsewhere
-	}
+```
+```json
+"difficultyLevels"
+		"difficulty" - This can only be set to Easy, Normal, Hard, Expert or ExpertPlus,
+		"difficultyRank" - Currently unused whole number for ranking difficulty,
+		"jsonPath" - The name of the json file for this specific difficulty,
+		"characteristic" - What section you want the difficulty to be listed under, refer to bottom of readme for usage
+		"difficultyLabel" - The name to display for the difficulty in game
+		 Note: Difficulty labels affect Every difficulty of the same type(Easy, Normal, etc) 
+		 for that song, if you have two difficulty labels
+		 for a single type, only one will take effect
+		 This will also not affect how the difficulty displays on scoresaber or elsewhere
+	
   ]
 ```
 
