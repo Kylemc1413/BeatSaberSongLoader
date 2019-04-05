@@ -68,7 +68,7 @@ The following is a template for you to use:
   "oneSaber":true,
   "difficultyLevels": [
 	{ "difficulty":"Expert", "difficultyRank":4, "jsonPath":"expert.json" },
-	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json", "characteristic":"Standard", "difficultyLabel:"EX" }
+	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json", "characteristic":"Standard", "difficultyLabel":"EX" }
   ]
 }
 ```
