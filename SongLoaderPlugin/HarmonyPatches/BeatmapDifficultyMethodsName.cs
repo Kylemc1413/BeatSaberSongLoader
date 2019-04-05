@@ -39,7 +39,7 @@ namespace SongLoaderPlugin.HarmonyPatches
                 if (HarmonyPatches.StandardLevelDetailViewRefreshContent.ExpertPlusOverride != "")
                     __result = HarmonyPatches.StandardLevelDetailViewRefreshContent.ExpertPlusOverride;
             }
-            Console.WriteLine(__result);
+        //    Console.WriteLine(__result);
         }
 
 

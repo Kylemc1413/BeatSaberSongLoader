@@ -116,8 +116,41 @@ namespace SongLoaderPlugin.HarmonyPatches
                         }
                     }
 
-
-
+                    //Difficulty Label Handling
+                    bool overrideLabels = false;
+                    foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+                    {
+                        var difficulty = diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal);
+                        if (!string.IsNullOrWhiteSpace(diffLevel.difficultyLabel))
+                        {
+                         //   Console.WriteLine("Diff: " + difficulty + "   Label: " + diffLevel.difficultyLabel);
+                            overrideLabels = true;
+                            switch (difficulty)
+                            {
+                                case BeatmapDifficulty.Easy:
+                                    EasyOverride = diffLevel.difficultyLabel;
+                                    break;
+                                case BeatmapDifficulty.Normal:
+                                    NormalOverride = diffLevel.difficultyLabel;
+                                    break;
+                                case BeatmapDifficulty.Hard:
+                                    HardOverride = diffLevel.difficultyLabel;
+                                    break;
+                                case BeatmapDifficulty.Expert:
+                                    ExpertOverride = diffLevel.difficultyLabel;
+                                    break;
+                                case BeatmapDifficulty.ExpertPlus:
+                                    ExpertPlusOverride = diffLevel.difficultyLabel;
+                                    break;
+                            }
+                        }
+                    }
+                        if (overrideLabels)
+                    {
+                      //  Console.WriteLine("Overriding");
+                        ____beatmapDifficultySegmentedControlController.SetData(____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps, ____beatmapDifficultySegmentedControlController.selectedDifficulty);
+                        clearOverrideLabels();
+                    }
                 }
                 else
                 {
@@ -125,41 +158,9 @@ namespace SongLoaderPlugin.HarmonyPatches
                     SongLoader.infoButton.interactable = false;
                 }
 
-                //Difficulty Label Handling
-                bool overrideLabels = false;
-                foreach( CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
-                {
-                    var difficulty = diffLevel.difficulty.ToEnum(BeatmapDifficulty.Normal);
-                    if(!string.IsNullOrWhiteSpace(diffLevel.difficultyLabel))
-                    {
-                        Console.WriteLine("Diff: " + difficulty + "   Label: " + diffLevel.difficultyLabel);
-                        overrideLabels = true;
-                        switch(difficulty)
-                        {
-                            case BeatmapDifficulty.Easy:
-                                EasyOverride = diffLevel.difficultyLabel;
-                                break;
-                            case BeatmapDifficulty.Normal:
-                                NormalOverride = diffLevel.difficultyLabel;
-                                break;
-                            case BeatmapDifficulty.Hard:
-                                HardOverride = diffLevel.difficultyLabel;
-                                break;
-                            case BeatmapDifficulty.Expert:
-                                ExpertOverride = diffLevel.difficultyLabel;
-                                break;
-                            case BeatmapDifficulty.ExpertPlus:
-                                ExpertPlusOverride = diffLevel.difficultyLabel;
-                                break;
-                        }
-                    }
-                }
-                if(overrideLabels)
-                {
-                    Console.WriteLine("Overriding");
-                    ____beatmapDifficultySegmentedControlController.SetData( ____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps, ____beatmapDifficultySegmentedControlController.selectedDifficulty);
-                    clearOverrideLabels();
-                }
+              
+                
+
 
 
             }

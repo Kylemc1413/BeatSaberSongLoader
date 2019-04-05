@@ -56,8 +56,8 @@ namespace SongLoaderPlugin
         public static CustomBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
         public static CustomBeatmapLevelPackSO CustomBeatmapLevelPackSO { get; private set; }
         public static CustomBeatmapLevelPackSO WIPCustomBeatmapLevelPackSO { get; private set; }
-        private bool CustomPlatformsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
-        private bool CustomColorsPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "CustomColorsEdit" || x.Name == "Chroma");
+        private bool CustomPlatformsPresent = IPA.Loader.PluginManager.GetPlugin("CustomFloorPlugin") != null;
+        private bool CustomColorsPresent = IPA.Loader.PluginManager.GetPlugin("CustomColorsEdit") != null || IPA.Loader.PluginManager.GetPlugin("Chroma") != null;
         private int _currentPlatform = -1;
 
         public const string MenuSceneName = "MenuCore";
@@ -118,8 +118,8 @@ namespace SongLoaderPlugin
         {
             Console.WriteLine(activeScene.name);
             GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
-            customSongColors = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongColors", true, true);
-            customSongPlatforms = IllusionPlugin.ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
+            customSongColors = Plugin.ModPrefs.GetBool("Songloader", "customSongColors", true, true);
+            customSongPlatforms = Plugin.ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
             if (AreSongsLoading)
             {
                 //Scene changing while songs are loading. Since we are using a separate thread while loading, this is bad and could cause a crash.

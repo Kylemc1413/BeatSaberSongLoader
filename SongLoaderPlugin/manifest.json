@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/nike4613/ModSaber-MetadataFileSchema/master/Schema.json",
+  "author": "Kyle1413",
+  "description": "A plugin for adding custom songs into Beat Saber.",
+  "gameVersion": "0.13.2",
+  "id": "SongLoader",
+  "name": "SongLoaderPlugin",
+  "version": "6.10.3",
+  "features": [
+    "no-update"
+  ]
+} 
