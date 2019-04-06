@@ -16,7 +16,7 @@ namespace SongLoaderPlugin
         public string Name
         {
             get { return "Song Loader Plugin"; }
-        }
+        } 
 
         public string Version
         {

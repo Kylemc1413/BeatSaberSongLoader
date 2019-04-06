@@ -56,8 +56,9 @@ namespace SongLoaderPlugin
         public static CustomBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
         public static CustomBeatmapLevelPackSO CustomBeatmapLevelPackSO { get; private set; }
         public static CustomBeatmapLevelPackSO WIPCustomBeatmapLevelPackSO { get; private set; }
-        private bool CustomPlatformsPresent = IPA.Loader.PluginManager.GetPlugin("CustomFloorPlugin") != null;
-        private bool CustomColorsPresent = IPA.Loader.PluginManager.GetPlugin("CustomColorsEdit") != null || IPA.Loader.PluginManager.GetPlugin("Chroma") != null;
+        private bool CustomPlatformsPresent = IPA.Loader.PluginManager.GetPlugin("CustomFloorPlugin") != null || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
+        private bool CustomColorsPresent = IPA.Loader.PluginManager.GetPlugin("CustomColorsEdit") != null || IPA.Loader.PluginManager.GetPlugin("Chroma") != null 
+            || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "CustomColorsEdit" || x.Name == "Chroma");
         private int _currentPlatform = -1;
 
         public const string MenuSceneName = "MenuCore";
