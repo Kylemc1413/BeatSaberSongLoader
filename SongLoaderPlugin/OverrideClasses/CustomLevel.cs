@@ -107,16 +107,18 @@ namespace SongLoaderPlugin.OverrideClasses
                 int? noteJumpStartBeatOffset;
                 IDifficultyBeatmap diffBeatmap = null;
                 bool missingChar = false;
+
+                string characteristic = diffLevel.characteristic;
+                if (string.IsNullOrEmpty(characteristic))
+                    characteristic = "Standard";
+
+                else if (characteristic != "Standard" && characteristic != "One Saber" && characteristic != "No Arrows")
+                    missingChar = !(SongLoader.customCharacteristics.Any(x => x.characteristicName == characteristic));
+
+                if (missingChar)
+                    characteristic = "Missing Characteristic";
                 foreach (DifficultyBeatmapSet set in _difficultyBeatmapSets)
                 {
-                    string characteristic = diffLevel.characteristic;
-                    if (string.IsNullOrEmpty(characteristic))
-                        characteristic = "Standard";
-                    else if (characteristic != "One Saber" && characteristic != "No Arrows") 
-                        missingChar = !(SongLoader.customCharacteristics.Any(x => x.characteristicName == characteristic));
-
-                    if (missingChar)
-                        characteristic = "Missing Characteristic";
 
                     if (set.beatmapCharacteristic.characteristicName == characteristic)
                     {
