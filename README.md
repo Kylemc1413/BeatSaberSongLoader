@@ -179,6 +179,8 @@ SongLoader.RegisterCustomCharacteristic(Sprite Icon, "Characteristic Name", "Hin
 | "Standard"| Base Game |
 | "No Arrows"| Base Game |
 | "One Saber"| Base Game |
+| "Lawless"| SongLoader |
+| "Lightshow"| SongLoader |
 
 # Keyboard Shortcuts
 *(Make sure Beat Saber's window is in focus when using these shortcuts)*

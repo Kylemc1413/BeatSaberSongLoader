@@ -42,7 +42,8 @@ namespace SongLoaderPlugin
         internal static Sprite InfoIcon;
         internal static Sprite CustomSongsIcon;
         internal static Sprite MissingCharIcon;
-
+        internal static Sprite LightshowIcon;
+        internal static Sprite ExtraDiffsIcon;
 
 
         public static event Action<SongLoader> LoadingStartedEvent;
@@ -1033,7 +1034,6 @@ callback));
         {
             reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
             reqViewController = BeatSaberUI.CreateViewController<CustomListViewController>();
-
             RectTransform confirmContainer = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
             confirmContainer.SetParent(reqViewController.rectTransform, false);
             confirmContainer.sizeDelta = new Vector2(60f, 0f);
@@ -1123,6 +1123,8 @@ callback));
             WarningIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
             InfoIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
             MissingCharIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
+            LightshowIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Lightshow.png");
+            ExtraDiffsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.ExtraDiffsIcon.png");
 
         }
         

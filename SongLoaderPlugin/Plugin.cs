@@ -8,7 +8,7 @@ namespace SongLoaderPlugin
 {
     public class Plugin : IBeatSaberPlugin
     {
-        public const string VersionNumber = "6.10.3";
+        public const string VersionNumber = "6.11.0";
         public static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongLoader");
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
@@ -31,6 +31,8 @@ namespace SongLoaderPlugin
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
             SongLoader.GetIcons();
             SongLoader.RegisterCustomCharacteristic(SongLoader.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic");
+            SongLoader.RegisterCustomCharacteristic(SongLoader.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow");
+            SongLoader.RegisterCustomCharacteristic(SongLoader.ExtraDiffsIcon, "Lawless", "Lawless - These difficulties don't follow conventional standards, and should not necessarily be expected to reflect their given names.", "Lawless", "Lawless");
 
         }
 
