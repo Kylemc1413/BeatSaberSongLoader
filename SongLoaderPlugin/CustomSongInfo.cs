@@ -27,10 +27,20 @@ namespace SongLoaderPlugin
         public float noteHitVolume = 1;
         public float noteMissVolume = 1;
         public DifficultyLevel[] difficultyLevels;
+        public Contributor[] contributors;
         public string path;
         public string levelId;
         public string[] mappers;
         public string[] lighters;
+        [Serializable]
+        public class Contributor
+        {
+            public string role;
+            public string name;
+            public string iconPath;
+            public UnityEngine.Sprite icon = null;
+
+        }
         [Serializable]
         public class DifficultyLevel
         {

@@ -58,7 +58,7 @@ namespace SongLoaderPlugin
         public static CustomBeatmapLevelPackSO CustomBeatmapLevelPackSO { get; private set; }
         public static CustomBeatmapLevelPackSO WIPCustomBeatmapLevelPackSO { get; private set; }
         private bool CustomPlatformsPresent = IPA.Loader.PluginManager.GetPlugin("CustomFloorPlugin") != null || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
-        private bool CustomColorsPresent = IPA.Loader.PluginManager.GetPlugin("CustomColorsEdit") != null || IPA.Loader.PluginManager.GetPlugin("Chroma") != null 
+        private bool CustomColorsPresent = IPA.Loader.PluginManager.GetPlugin("CustomColorsEdit") != null || IPA.Loader.PluginManager.GetPlugin("Chroma") != null
             || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "CustomColorsEdit" || x.Name == "Chroma");
         private int _currentPlatform = -1;
 
@@ -416,8 +416,8 @@ callback));
         public void RemoveSong(CustomLevel customLevel)
         {
             if (customLevel == null) return;
-            if(CustomLevelCollectionSO._levelList.Contains(customLevel))
-            CustomLevelCollectionSO.RemoveLevel(customLevel);
+            if (CustomLevelCollectionSO._levelList.Contains(customLevel))
+                CustomLevelCollectionSO.RemoveLevel(customLevel);
             if (WIPCustomLevelCollectionSO._levelList.Contains(customLevel))
                 WIPCustomLevelCollectionSO.RemoveLevel(customLevel);
             foreach (IDifficultyBeatmapSet beatmapset in customLevel.difficultyBeatmapSets)
@@ -951,7 +951,7 @@ callback));
                 if (difficultyBeatmaps.Count == 0) return null;
 
                 newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), beatmapCharacteristicSOCollection, newLevel.customSongInfo.oneSaber);
-                    newLevel.InitData();
+                newLevel.InitData();
 
                 LoadSprite(song.path + "/" + song.coverImagePath, newLevel);
                 return newLevel;
@@ -1020,6 +1020,29 @@ callback));
                     difficultyLabel = difficultyLabel
                 });
             }
+            var o = JSON.Parse(infoText);
+            var contributors = new List<CustomSongInfo.Contributor>();
+                var authors = o["contributors"];
+            if (authors != null)
+            for (int i = 0; i < authors.AsArray.Count; i++)
+            {
+                o = authors[i];
+
+
+
+                contributors.Add(new CustomSongInfo.Contributor
+                {
+                    role = o["role"],
+                    name = o["name"],
+                    iconPath = o["iconPath"],
+                    //icon = Utils.LoadSpriteFromFile(songPath + o["iconPath"])
+
+
+
+                });
+            }
+                songInfo.contributors = contributors.ToArray();
+           
 
             songInfo.difficultyLevels = diffLevels.ToArray();
             return songInfo;
@@ -1029,7 +1052,7 @@ callback));
         {
             Console.WriteLine("Song Loader [" + severity.ToString().ToUpper() + "]: " + message);
         }
-        
+
         internal static void InitRequirementsMenu()
         {
             reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
@@ -1049,6 +1072,15 @@ callback));
             //   suggestionsList.text = "";
 
             reqViewController.Data.Clear();
+            if(songInfo?.contributors?.Length > 0)
+            {
+                foreach(CustomSongInfo.Contributor author in songInfo.contributors)
+                {
+                    if (author.icon == null)
+                        author.icon = Utils.LoadSpriteFromFile(songInfo.path + "/" + author.iconPath);
+                    reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, author.icon));
+                }
+            }
             if (songInfo?.mappers?.Length > 0)
             {
                 foreach (string mapper in songInfo.mappers)
@@ -1111,8 +1143,8 @@ callback));
             reqViewController._customListTableView.ReloadData();
 
         }
-        
-        
+
+
         internal static void GetIcons()
         {
             CustomSongsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
@@ -1127,7 +1159,7 @@ callback));
             ExtraDiffsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.ExtraDiffsIcon.png");
 
         }
-        
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.R))
