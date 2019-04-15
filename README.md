@@ -51,7 +51,7 @@ The following is a template for you to use:
 {
   "songName":"YourSongName",
   "songSubName":"ft. Name",
-  "songAuthorName":"AuthorName",
+  "authorName":"AuthorName",
   "beatsPerMinute":179.0, 
   "previewStartTime":12.0,
   "previewDuration":10.0,
