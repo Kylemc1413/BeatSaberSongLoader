@@ -328,7 +328,8 @@ namespace SongLoaderPlugin.OverrideClasses
                         {
                             string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
                             for (int j = 0; j < reqs.Length; j++)
-                                AddWarning(reqs[j]);
+                                if (!string.IsNullOrEmpty(reqs[j]))
+                                    AddWarning(reqs[j]);
 
 
                         }
@@ -337,6 +338,7 @@ namespace SongLoaderPlugin.OverrideClasses
                         {
                             string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
                             for (int j = 0; j < reqs.Length; j++)
+                                if(!string.IsNullOrEmpty(reqs[j]))
                                 AddRequirement(reqs[j]);
                         }
 
@@ -344,13 +346,15 @@ namespace SongLoaderPlugin.OverrideClasses
                         {
                             string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
                             for (int j = 0; j < reqs.Length; j++)
-                                AddSuggestion(reqs[j]);
+                                if (!string.IsNullOrEmpty(reqs[j]))
+                                    AddSuggestion(reqs[j]);
                         }
                         if (split[i].Contains("_information"))
                         {
                             string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
                             for (int j = 0; j < reqs.Length; j++)
-                                AddInformation(reqs[j]);
+                                if (!string.IsNullOrEmpty(reqs[j]))
+                                    AddInformation(reqs[j]);
                         }
 
 
