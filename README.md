@@ -60,7 +60,6 @@ The following is a template for you to use:
   "environmentName":"DefaultEnvironment",
   "customEnvironment": "Platform Name",
   "customEnvironmentHash": "<platform's ModelSaber md5sum hash>",
-  "songTimeOffset":-2,
   "shuffle":1,
   "shufflePeriod":0.2,
   "oneSaber":true,
@@ -89,7 +88,6 @@ ___
 "environmentName" - Game environment to be used
 "customEnvironment" - Custom Platform override, will use "environmentName" if CustomPlatforms isn't installed or disabled
 "customEnvironmentHash" - The hash found on ModelSaber, used to download missing platforms
-"songTimeOffset" - Seems to be obsolete. Do not use.
 "shuffle" - Time in number of beats how much a note should shift
 "shufflePeriod" - Time in number of beats how often a note should shift. Don't ask me why this is a feature, I don't know
 "oneSaber" - true or false if it should appear in the one saber list 
