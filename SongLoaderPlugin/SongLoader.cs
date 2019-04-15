@@ -1077,10 +1077,17 @@ callback));
                 foreach(CustomSongInfo.Contributor author in songInfo.contributors)
                 {
                     if (author.icon == null)
-                        author.icon = Utils.LoadSpriteFromFile(songInfo.path + "/" + author.iconPath);
-                    reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, author.icon));
+                        if(!string.IsNullOrWhiteSpace(author.iconPath))
+                        {
+                            author.icon = Utils.LoadSpriteFromFile(songInfo.path + "/" + author.iconPath);
+                            reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, author.icon));
+                        }
+                    else
+                            reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, InfoIcon));
+
                 }
             }
+
             if (songInfo?.mappers?.Length > 0)
             {
                 foreach (string mapper in songInfo.mappers)
