@@ -80,7 +80,7 @@ namespace SongLoaderPlugin.HarmonyPatches
                             SongLoader.showSongRequirements(beatmap, customLevel.customSongInfo);
                     });
                     if (beatmap.requirements.Count == 0 && beatmap.suggestions.Count == 0 && beatmap.warnings.Count == 0 &&
-                        customLevel?.customSongInfo?.mappers?.Length == 0 && customLevel?.customSongInfo?.lighters?.Length == 0 && beatmap.information.Count == 0)
+                        customLevel?.customSongInfo?.mappers?.Length == 0 && customLevel?.customSongInfo?.lighters?.Length == 0 && beatmap.information.Count == 0 && customLevel.customSongInfo.contributors.Length == 0)
                     {
                         SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
                         SongLoader.infoButton.interactable = false;
@@ -88,16 +88,16 @@ namespace SongLoaderPlugin.HarmonyPatches
                     else if (beatmap.warnings.Count == 0)
                     {
                         SongLoader.infoButton.interactable = true;
-                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.blue;
                     }
                     else if (beatmap.warnings.Count > 0)
                     {
                         SongLoader.infoButton.interactable = true;
-                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                        SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
                         if (beatmap.warnings.Contains("WIP"))
                         {
                             ____playButton.interactable = false;
-                            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
                         }
                     }
 
@@ -112,7 +112,7 @@ namespace SongLoaderPlugin.HarmonyPatches
                             ____playButton.interactable = false;
                             ____practiceButton.interactable = false;
                             ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
-                            SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
+                            SongLoader.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
                         }
                     }
 
