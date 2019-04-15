@@ -67,7 +67,12 @@ The following is a template for you to use:
   "difficultyLevels": [
 	{ "difficulty":"Expert", "difficultyRank":4, "jsonPath":"expert.json" },
 	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json", "characteristic":"Standard", "difficultyLabel":"EX" }
+  ],
+  "contributors": [
+	{	"role": "Kirb",	"name": "Kyle 1413", "iconPath": "test.png" },
+	{	"role": "Lighter","name": "Kyle 1413 The Second", "iconPath": "test.png"}
   ]
+  
 }
 ```
 ___
@@ -110,7 +115,10 @@ All possible environmentNames:
 		 for a single type, only one will take effect
 		 This will also not affect how the difficulty displays on scoresaber or elsewhere
 	
-  ]
+"contributors"
+		"role" - The role the person had, i.e. Mapper, Lighter, Inspiration
+		"name" - The name of the person
+		"iconPath" - path to the icon to use for the person within the song folder i.e. icon.png
 ```
 
 ### Difficulty json additional fields, (i.e. expert.json,  etc.)
