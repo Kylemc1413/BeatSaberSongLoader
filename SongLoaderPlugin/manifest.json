@@ -5,7 +5,7 @@
   "gameVersion": "0.13.2",
   "id": "SongLoader",
   "name": "SongLoaderPlugin",
-  "version": "6.12.0",
+  "version": "6.12.1",
   "features": [
     "no-update"
   ]

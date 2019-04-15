@@ -8,7 +8,7 @@ namespace SongLoaderPlugin
 {
     public class Plugin : IBeatSaberPlugin
     {
-        public const string VersionNumber = "6.12.0";
+        public const string VersionNumber = "6.12.1";
         public static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongLoader");
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
