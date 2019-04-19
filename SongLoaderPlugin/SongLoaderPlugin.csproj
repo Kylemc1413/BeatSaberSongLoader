@@ -107,6 +107,7 @@
     <Compile Include="CustomSongInfo.cs" />
     <Compile Include="EnvironmentsLoader.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData.cs" />
+    <Compile Include="HarmonyPatches\LevelListCellForIdx.cs" />
     <Compile Include="HarmonyPatches\BeatmapDifficultyMethodsName.cs" />
     <Compile Include="HarmonyPatches\StandardLevelDetailViewRefreshContent.cs" />
     <Compile Include="Internals\Unzip.cs" />

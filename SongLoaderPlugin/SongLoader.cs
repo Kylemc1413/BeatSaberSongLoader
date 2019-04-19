@@ -452,7 +452,7 @@ callback));
             scores.RemoveAll(x => scoresToRemove.Contains(x));
         }
 
-        private void LoadSprite(string spritePath, CustomLevel customLevel)
+        internal static void LoadSprite(string spritePath, CustomLevel customLevel)
         {
             Sprite sprite;
             if (!LoadedSprites.ContainsKey(spritePath))
@@ -467,7 +467,7 @@ callback));
                 var tex = new Texture2D(256, 256);
                 if (!tex.LoadImage(bytes, true))
                 {
-                    Log("Failed to load cover image: " + spritePath);
+                    Instance?.Log("Failed to load cover image: " + spritePath);
                     return;
                 }
 
@@ -616,10 +616,141 @@ callback));
                     }
 
 
-                    var songZips = Directory.GetFiles(path + "/CustomSongs")
-                        .Where(x => x.ToLower().EndsWith(".zip") || x.ToLower().EndsWith(".beat") || x.ToLower().EndsWith(".bmap")).ToArray();
-                    foreach (var songZip in songZips)
+                    var songFolders = Directory.GetDirectories(path + "/CustomSongs").ToList();
+                    var WIPFolders = Directory.GetDirectories(path + "/WIP Songs").ToList();
+                    var songCaches = Directory.GetDirectories(path + "/CustomSongs/.cache");
+
+
+                    var loadedIDs = new List<string>();
+
+                    float i = 0;
+                    for (int i1 = 0; i1 < songFolders.Count; i1++)
                     {
+                        i++;
+                        var results = Directory.GetFiles(songFolders[i1], "info.json", SearchOption.AllDirectories);
+                        if (results.Length == 0)
+                        {
+                            Log("Custom song folder '" + songFolders[i1] + "' is missing info.json files!", LogSeverity.Warn);
+                            continue;
+                        }
+
+
+                        foreach (var result in results)
+                        {
+                            try
+                            {
+                                var songPath = Path.GetDirectoryName(result).Replace('\\', '/');
+                                if (!fullRefresh)
+                                {
+                                    if (CustomLevels.Any(x => x.customSongInfo.path == songPath))
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                var customSongInfo = GetCustomSongInfo(songPath);
+
+                                if (customSongInfo == null) continue;
+                                var id = customSongInfo.GetIdentifier();
+                                if (loadedIDs.Any(x => x == id))
+                                {
+                                    Log("Duplicate song found at " + customSongInfo.path, LogSeverity.Warn);
+                                    continue;
+                                }
+
+                                loadedIDs.Add(id);
+
+                                var count = i;
+                                HMMainThreadDispatcher.instance.Enqueue(delegate
+                                {
+                                    if (_loadingCancelled) return;
+                                    var level = LoadSong(customSongInfo);
+                                    if (level != null)
+                                    {
+                                        levelList.Add(level);
+                                    }
+
+                                    LoadingProgress = count / songFolders.Count;
+                                });
+                            }
+                            catch (Exception e)
+                            {
+                                Log("Failed to load song folder: " + result, LogSeverity.Warn);
+                                Log(e.ToString(), LogSeverity.Warn);
+                            }
+                        }
+                    }
+                    for (int i2 = 0; i2 < WIPFolders.Count; i2++)
+                    {
+                        i++;
+                        var results = Directory.GetFiles(WIPFolders[i2], "info.json", SearchOption.AllDirectories);
+                        if (results.Length == 0)
+                        {
+                            Log("Custom song folder '" + WIPFolders[i2] + "' is missing info.json files!", LogSeverity.Warn);
+                            continue;
+                        }
+
+
+                        foreach (var result in results)
+                        {
+                            try
+                            {
+                                var songPath = Path.GetDirectoryName(result).Replace('\\', '/');
+                                if (!fullRefresh)
+                                {
+                                    if (CustomLevels.Any(x => x.customSongInfo.path == songPath))
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                var customSongInfo = GetCustomSongInfo(songPath);
+
+                                if (customSongInfo == null) continue;
+                                var id = customSongInfo.GetIdentifier();
+                                if (loadedIDs.Any(x => x == id))
+                                {
+                                    Log("Duplicate song found at " + customSongInfo.path, LogSeverity.Warn);
+                                    continue;
+                                }
+
+                                loadedIDs.Add(id);
+
+
+
+                                var count = i;
+                                HMMainThreadDispatcher.instance.Enqueue(delegate
+                                {
+                                    if (_loadingCancelled) return;
+                                    var level = LoadSong(customSongInfo);
+                                    level.inWipFolder = true;
+                                    if (level != null)
+                                    {
+                                        levelList.Add(level);
+                                    }
+
+                                    LoadingProgress = count / WIPFolders.Count;
+                                });
+                            }
+                            catch (Exception e)
+                            {
+                                Log("Failed to load song folder: " + result, LogSeverity.Warn);
+                                Log(e.ToString(), LogSeverity.Warn);
+                            }
+                        }
+                    }
+
+                    var songZips = Directory.GetFiles(path + "/CustomSongs")
+                .Where(x =>
+                x.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                    || x.EndsWith(".beat", StringComparison.OrdinalIgnoreCase)
+                   || x.EndsWith(".bmap", StringComparison.OrdinalIgnoreCase)).ToArray();
+
+
+
+                    for (int i3 = 0; i3 < songZips.Length; i3++)
+                    {
+                        string songZip = songZips[i3];
                         //Check cache if zip already is extracted
                         string hash;
                         string trimmedZip = songZip;
@@ -661,158 +792,31 @@ callback));
                         }
                     }
 
-
-                    var songFolders = Directory.GetDirectories(path + "/CustomSongs").ToList();
-                    var WIPFolders = Directory.GetDirectories(path + "/WIP Songs").ToList();
-                    var songCaches = Directory.GetDirectories(path + "/CustomSongs/.cache");
-
-                    foreach (var songZip in songZips)
+                    for (int i4 = 0; i4 < songZips.Length; i4++)
                     {
                         //Delete zip if successfully extracted
                         string hash;
-                        if (Utils.CreateMD5FromFile(songZip, out hash))
+                        if (Utils.CreateMD5FromFile(songZips[i4], out hash))
                         {
                             if (currentHashes.Contains(hash))
                             {
                                 Log("Zip Successfully Extracted, deleting zip.");
-                                File.SetAttributes(songZip, FileAttributes.Normal);
-                                File.Delete(songZip);
+                                File.SetAttributes(songZips[i4], FileAttributes.Normal);
+                                File.Delete(songZips[i4]);
                             }
                         }
                     }
 
-                    foreach (var song in songCaches)
+                    for (int i5 = 0; i5 < songCaches.Length; i5++)
                     {
-                        var hash = Path.GetFileName(song);
+                        var hash = Path.GetFileName(songCaches[i5]);
                         if (!cachedHashes.Contains(hash))
                         {
                             //Old cache
-                            Directory.Delete(song, true);
+                            Directory.Delete(songCaches[i5], true);
                         }
                     }
 
-
-
-                    var loadedIDs = new List<string>();
-
-                    float i = 0;
-                    foreach (var song in songFolders)
-                    {
-                        i++;
-                        var results = Directory.GetFiles(song, "info.json", SearchOption.AllDirectories);
-                        if (results.Length == 0)
-                        {
-                            Log("Custom song folder '" + song + "' is missing info.json files!", LogSeverity.Warn);
-                            continue;
-                        }
-
-
-                        foreach (var result in results)
-                        {
-                            try
-                            {
-                                var songPath = Path.GetDirectoryName(result).Replace('\\', '/');
-                                if (!fullRefresh)
-                                {
-                                    if (CustomLevels.Any(x => x.customSongInfo.path == songPath))
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                var customSongInfo = GetCustomSongInfo(songPath);
-
-                                if (customSongInfo == null) continue;
-                                var id = customSongInfo.GetIdentifier();
-                                if (loadedIDs.Any(x => x == id))
-                                {
-                                    Log("Duplicate song found at " + customSongInfo.path, LogSeverity.Warn);
-                                    continue;
-                                }
-
-                                loadedIDs.Add(id);
-
-
-
-                                var i1 = i;
-                                HMMainThreadDispatcher.instance.Enqueue(delegate
-                                {
-                                    if (_loadingCancelled) return;
-                                    var level = LoadSong(customSongInfo);
-                                    if (level != null)
-                                    {
-                                        levelList.Add(level);
-                                    }
-
-                                    LoadingProgress = i1 / songFolders.Count;
-                                });
-                            }
-                            catch (Exception e)
-                            {
-                                Log("Failed to load song folder: " + result, LogSeverity.Warn);
-                                Log(e.ToString(), LogSeverity.Warn);
-                            }
-                        }
-                    }
-                    foreach (var song in WIPFolders)
-                    {
-                        i++;
-                        var results = Directory.GetFiles(song, "info.json", SearchOption.AllDirectories);
-                        if (results.Length == 0)
-                        {
-                            Log("Custom song folder '" + song + "' is missing info.json files!", LogSeverity.Warn);
-                            continue;
-                        }
-
-
-                        foreach (var result in results)
-                        {
-                            try
-                            {
-                                var songPath = Path.GetDirectoryName(result).Replace('\\', '/');
-                                if (!fullRefresh)
-                                {
-                                    if (CustomLevels.Any(x => x.customSongInfo.path == songPath))
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                var customSongInfo = GetCustomSongInfo(songPath);
-
-                                if (customSongInfo == null) continue;
-                                var id = customSongInfo.GetIdentifier();
-                                if (loadedIDs.Any(x => x == id))
-                                {
-                                    Log("Duplicate song found at " + customSongInfo.path, LogSeverity.Warn);
-                                    continue;
-                                }
-
-                                loadedIDs.Add(id);
-
-
-
-                                var i1 = i;
-                                HMMainThreadDispatcher.instance.Enqueue(delegate
-                                {
-                                    if (_loadingCancelled) return;
-                                    var level = LoadSong(customSongInfo);
-                                    level.inWipFolder = true;
-                                    if (level != null)
-                                    {
-                                        levelList.Add(level);
-                                    }
-
-                                    LoadingProgress = i1 / songFolders.Count;
-                                });
-                            }
-                            catch (Exception e)
-                            {
-                                Log("Failed to load song folder: " + result, LogSeverity.Warn);
-                                Log(e.ToString(), LogSeverity.Warn);
-                            }
-                        }
-                    }
 
                 }
                 catch (Exception e)
@@ -952,8 +956,8 @@ callback));
 
                 newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), beatmapCharacteristicSOCollection, newLevel.customSongInfo.oneSaber);
                 newLevel.InitData();
+                //LoadSprite(song.path + "/" + song.coverImagePath, newLevel);
 
-                LoadSprite(song.path + "/" + song.coverImagePath, newLevel);
                 return newLevel;
             }
             catch (Exception e)
@@ -1154,16 +1158,26 @@ callback));
 
         internal static void GetIcons()
         {
+            if(!CustomSongsIcon)
             CustomSongsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
-            MissingReqIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
-            HaveReqIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
-            HaveSuggestionIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
-            MissingSuggestionIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
-            WarningIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
-            InfoIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
-            MissingCharIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
-            LightshowIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Lightshow.png");
-            ExtraDiffsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.ExtraDiffsIcon.png");
+            if (!MissingReqIcon)
+                MissingReqIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
+            if (!HaveReqIcon)
+                HaveReqIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
+            if (!HaveSuggestionIcon)
+                HaveSuggestionIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
+            if (!MissingSuggestionIcon)
+                MissingSuggestionIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
+            if (!WarningIcon)
+                WarningIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
+            if (!InfoIcon)
+                InfoIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
+            if (!MissingCharIcon)
+                MissingCharIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
+            if (!LightshowIcon)
+                LightshowIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Lightshow.png");
+            if (!ExtraDiffsIcon)
+                ExtraDiffsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.ExtraDiffsIcon.png");
 
         }
 

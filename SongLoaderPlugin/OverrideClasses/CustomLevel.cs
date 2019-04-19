@@ -26,6 +26,7 @@ namespace SongLoaderPlugin.OverrideClasses
             _previewStartTime = customSongInfo.previewStartTime;
             _previewDuration = customSongInfo.previewDuration;
             _environmentSceneInfo = EnvironmentsLoader.GetSceneInfo(customSongInfo.environmentName);
+            _coverImage = SongLoader.CustomSongsIcon;
             string _customEnvironment = customSongInfo.customEnvironment;
             string _customEnvironmentHash = customSongInfo.customEnvironmentHash;
 
