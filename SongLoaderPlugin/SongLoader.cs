@@ -57,9 +57,8 @@ namespace SongLoaderPlugin
         public static CustomBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
         public static CustomBeatmapLevelPackSO CustomBeatmapLevelPackSO { get; private set; }
         public static CustomBeatmapLevelPackSO WIPCustomBeatmapLevelPackSO { get; private set; }
-        private bool CustomPlatformsPresent = IPA.Loader.PluginManager.GetPlugin("CustomFloorPlugin") != null || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
-        private bool CustomColorsPresent = IPA.Loader.PluginManager.GetPlugin("CustomColorsEdit") != null || IPA.Loader.PluginManager.GetPlugin("Chroma") != null
-            || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "CustomColorsEdit" || x.Name == "Chroma");
+        private bool CustomPlatformsPresent = IPA.Loader.PluginManager.AllPlugins.Any(x => x.Metadata.Id == "Custom Platforms") || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
+        private bool CustomColorsPresent = IPA.Loader.PluginManager.AllPlugins.Any(x => x.Metadata.Id == "Custom Colors" || x.Metadata.Name == "Chroma")  || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "Custom Colors" || x.Name == "CustomColorsEdit" || x.Name == "Chroma");
         private int _currentPlatform = -1;
 
         public const string MenuSceneName = "MenuCore";
@@ -118,7 +117,6 @@ namespace SongLoaderPlugin
 
         private void OnSceneTransitioned(Scene activeScene)
         {
-            Console.WriteLine(activeScene.name);
             GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
             customSongColors = Plugin.ModPrefs.GetBool("Songloader", "customSongColors", true, true);
             customSongPlatforms = Plugin.ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
@@ -211,7 +209,6 @@ namespace SongLoaderPlugin
             else if (activeScene.name == GameSceneName)
             {
                 GameplayCoreSceneSetupData data = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData;
-                Console.WriteLine("Is Set? : " + BS_Utils.Plugin.LevelData.IsSet);
                 if (!BS_Utils.Plugin.LevelData.IsSet) return;
                 var level = data.difficultyBeatmap;
                 var beatmap = level as CustomLevel.CustomDifficultyBeatmap;

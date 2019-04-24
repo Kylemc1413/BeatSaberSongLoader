@@ -15,30 +15,28 @@ namespace SongLoaderPlugin.HarmonyPatches
     {
         static void Prefix(ref LevelPackLevelsTableView __instance, int row, ref HMUI.TableView ____tableView, ref bool ____showLevelPackHeader, ref IBeatmapLevelPack ____pack)
         {
+            if (!SongLoader.AreSongsLoaded)
+                return;
+
+            if (____pack.beatmapLevelCollection.beatmapLevels.Length == 0)
+                return;
+
             int num = ____showLevelPackHeader ? (row - 1) : row;
             num = Mathf.Clamp(num, 0, ____pack.beatmapLevelCollection.beatmapLevels.Length - 1);
+
             //     Console.WriteLine($"Num: {num}   Size: {____pack.beatmapLevelCollection.beatmapLevels.Length}");
-            if (SongLoader.AreSongsLoaded)
+
+            if (!(____pack.beatmapLevelCollection.beatmapLevels[num] is OverrideClasses.CustomLevel))
+                return;
+
+            OverrideClasses.CustomLevel customLevel = ____pack.beatmapLevelCollection.beatmapLevels[num] as OverrideClasses.CustomLevel;
+            if (!customLevel)
+                return;
+
+            if (customLevel.coverImage == SongLoader.CustomSongsIcon)
             {
-                OverrideClasses.CustomLevel customLevel = ____pack.beatmapLevelCollection.beatmapLevels[num] as OverrideClasses.CustomLevel;
-                if (customLevel)
-                {
-                    //      Console.WriteLine(customLevel.songName);
-                    if (customLevel.coverImage == SongLoader.CustomSongsIcon)
-                    {
-
-                        SongLoader.LoadSprite(customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.coverImagePath, customLevel);
-                        //  ____tableView.RefreshCells();
-
-                    }
-                }
+                SongLoader.LoadSprite(customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.coverImagePath, customLevel);
             }
-
-
         }
-
-
-
-
     }
 }
