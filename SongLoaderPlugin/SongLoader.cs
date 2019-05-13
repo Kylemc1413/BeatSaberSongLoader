@@ -668,11 +668,7 @@ callback));
                                     var level = LoadSong(customSongInfo);
                                     if (level != null)
                                     {
-                                        if(!fullRefresh)
                                             SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
-                                        else
-                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path, true);
-
                                         levelList.Add(level);
                                     }
 
@@ -732,10 +728,8 @@ callback));
                                     level.inWipFolder = true;
                                     if (level != null)
                                     {
-                                        if (!fullRefresh)
                                             SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
-                                        else
-                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path, true);
+
 
                                         levelList.Add(level);
                                     }
@@ -864,6 +858,8 @@ callback));
                 _loadingTask = null;
 
                 SongsLoadedEvent?.Invoke(this, CustomLevels);
+
+                SongCore.Collections.Save();
 
             };
 

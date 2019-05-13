@@ -12,7 +12,8 @@ using Harmony;
 using IPALogger = IPA.Logging.Logger;
 using SongCore.Utilities;
 using BSEvents = CustomUI.Utilities.BSEvents;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 namespace SongCore
 {
     public class Plugin : IBeatSaberPlugin
@@ -23,7 +24,9 @@ namespace SongCore
         {
             harmony = HarmonyInstance.Create("com.kyle1413.BeatSaber.SongCore");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
-            
+            if (!File.Exists(Collections.dataPath)) File.Create(Collections.dataPath);
+
+
 
         }
 

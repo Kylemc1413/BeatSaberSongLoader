@@ -6,8 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 namespace SongCore.Data
 {
+    [Serializable]
     public class ExtraSongData
     {
         public string levelID;
@@ -22,6 +24,7 @@ namespace SongCore.Data
         public ExtraSongData(string levelID, string songPath)
         {
             this.levelID = levelID;
+            if (!File.Exists(songPath + "/info.json")) return;
             var infoText = File.ReadAllText(songPath + "/info.json");
 
             JObject info = JObject.Parse(infoText);
@@ -42,11 +45,14 @@ namespace SongCore.Data
             if (info.ContainsKey("customEnvironmentHash")) customEnvironmentHash = (string)info["customEnvironmentHash"];
             List<DifficultyData> diffData = new List<DifficultyData>();
             JArray diffLevels = (JArray)info["difficultyLevels"];
-            foreach(JObject diff in diffLevels)
+            foreach (JObject diff in diffLevels)
             {
-                   Utilities.Logging.Log((string)diff["difficulty"]);
+                //       Utilities.Logging.Log((string)diff["difficulty"]);
+                if (!File.Exists(songPath + "/" + diff["jsonPath"])) continue;
+                JObject diffFile = JObject.Parse(File.ReadAllText(songPath + "/" + diff["jsonPath"]));
 
-                string diffCharacteristic = legacyOneSaber? "One Saber" : "Standard";
+
+                string diffCharacteristic = legacyOneSaber ? "One Saber" : "Standard";
                 if (diff.ContainsKey("characteristic")) diffCharacteristic = (string)diff["characteristic"];
 
                 BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diff["difficulty"], BeatmapDifficulty.Normal);
@@ -54,21 +60,21 @@ namespace SongCore.Data
                 string diffLabel = "";
                 if (diff.ContainsKey("difficultyLabel")) diffLabel = (string)diff["difficultyLabel"];
 
-                JObject diffFile = JObject.Parse(File.ReadAllText(songPath + "/" + diff["jsonPath"]));
+
                 //Get difficulty json fields
-                Color diffLeft = Color.clear;
-                if(diffFile.ContainsKey("_colorLeft"))
+                MapColor diffLeft = null;
+                if (diffFile.ContainsKey("_colorLeft"))
                 {
-                    diffLeft = new Color(
+                    diffLeft = new MapColor(
                         (float)diffFile["_colorLeft"]["r"],
                         (float)diffFile["_colorLeft"]["g"],
                         (float)diffFile["_colorLeft"]["b"]
                         );
                 }
-                Color diffRight = Color.clear;
+                MapColor diffRight = null;
                 if (diffFile.ContainsKey("_colorRight"))
                 {
-                    diffRight = new Color(
+                    diffRight = new MapColor(
                         (float)diffFile["_colorRight"]["r"],
                         (float)diffFile["_colorRight"]["g"],
                         (float)diffFile["_colorRight"]["b"]
@@ -97,7 +103,7 @@ namespace SongCore.Data
 
                 diffData.Add(new DifficultyData
                 {
-                    beatmapCharacteristic = diffCharacteristic,
+                    beatmapCharacteristicName = diffCharacteristic,
                     difficulty = diffDifficulty,
                     difficultyLabel = diffLabel,
                     additionalDifficultyData = diffReqData,
@@ -109,35 +115,52 @@ namespace SongCore.Data
 
             }
             difficultes = diffData.ToArray();
+        }
 
-
+        [Serializable]
+        public class Contributor
+        {
+            public string role;
+            public string name;
+            public string iconPath;
+            public Sprite icon = null;
 
         }
-    }
+        [Serializable]
+        public class DifficultyData
+        {
+            public string beatmapCharacteristicName;
+            public BeatmapDifficulty difficulty;
+            public string difficultyLabel;
+            public RequirementData additionalDifficultyData;
+            public MapColor colorLeft;
+            public MapColor colorRight;
+        }
+        [Serializable]
+        public class RequirementData
+        {
+            public string[] requirements;
+            public string[] suggestions;
+            public string[] warnings;
+            public string[] information;
+        }
+        [Serializable]
+        public class MapColor
+        {
+            public float r;
+            public float g;
+            public float b;
 
-    [Serializable]
-    public class Contributor
-    {
-        public string role;
-        public string name;
-        public string iconPath;
-        public Sprite icon = null;
 
-    }
-    public class DifficultyData
-    {
-        public string beatmapCharacteristic;
-        public BeatmapDifficulty difficulty;
-        public string difficultyLabel;
-        public RequirementData additionalDifficultyData;
-        public Color colorLeft = Color.clear;
-        public Color colorRight = Color.clear;
-    }
-    public class RequirementData
-    {
-        public string[] requirements;
-        public string[] suggestions;
-        public string[] warnings;
-        public string[] information;
+            public MapColor(float r, float g, float b)
+            {
+                this.r = r;
+                this.g = g;
+                this.b = b;
+            }
+        }
     }
 }
+
+ 
+ 
