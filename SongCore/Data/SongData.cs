@@ -23,6 +23,8 @@ namespace SongCore.Data
 
         public ExtraSongData(string levelID, string songPath)
         {
+            try
+            { 
             this.levelID = levelID;
             if (!File.Exists(songPath + "/info.json")) return;
             var infoText = File.ReadAllText(songPath + "/info.json");
@@ -113,14 +115,21 @@ namespace SongCore.Data
 
             }
             difficultes = diffData.ToArray();
+
+        }
+        catch(Exception ex)
+            {
+                Utilities.Logging.Log($"Error in Level {levelID}: \n {ex}", IPA.Logging.Logger.Level.Error);
+            }
         }
 
         public void UpdateData(string songPath)
         {
             if (!File.Exists(songPath + "/info.json")) return;
             var infoText = File.ReadAllText(songPath + "/info.json");
-
-            JObject info = JObject.Parse(infoText);
+            try
+            {
+                JObject info = JObject.Parse(infoText);
             //Check if song uses legacy value for full song One Saber mode
             bool legacyOneSaber = false;
             if (info.ContainsKey("oneSaber")) legacyOneSaber = (bool)info["oneSaber"];
@@ -136,7 +145,8 @@ namespace SongCore.Data
             }
             if (info.ContainsKey("customEnvironment")) customEnvironmentName = (string)info["customEnvironment"];
             if (info.ContainsKey("customEnvironmentHash")) customEnvironmentHash = (string)info["customEnvironmentHash"];
-            List<DifficultyData> diffData = difficultes.ToList();
+            List<DifficultyData> diffData = difficultes?.ToList();
+                if (diffData == null) return;
             JArray diffLevels = (JArray)info["difficultyLevels"];
             for(int i = 0; i < diffData.Count; ++i)
             {
@@ -150,6 +160,11 @@ namespace SongCore.Data
 
             difficultes = diffData.ToArray();
         }
+        catch(Exception ex)
+            {
+                Utilities.Logging.Log($"Error in Level {levelID}: \n {ex}", IPA.Logging.Logger.Level.Error);
+            }
+}
 
         
 
