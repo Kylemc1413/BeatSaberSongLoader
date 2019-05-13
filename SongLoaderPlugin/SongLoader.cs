@@ -547,6 +547,10 @@ callback));
 
                     Log("Loaded new song.");
                     var level = LoadSong(customSongInfo);
+
+                    SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
+
+
                     CustomLevels.Add(level);
                     var orderedList = CustomLevels.OrderBy(x => x.songName);
                     CustomLevels = orderedList.ToList();
@@ -664,6 +668,11 @@ callback));
                                     var level = LoadSong(customSongInfo);
                                     if (level != null)
                                     {
+                                        if(!fullRefresh)
+                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
+                                        else
+                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path, true);
+
                                         levelList.Add(level);
                                     }
 
@@ -723,6 +732,11 @@ callback));
                                     level.inWipFolder = true;
                                     if (level != null)
                                     {
+                                        if (!fullRefresh)
+                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
+                                        else
+                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path, true);
+
                                         levelList.Add(level);
                                     }
 
@@ -1205,6 +1219,9 @@ callback));
             reloadedLevel.SetAudioClip(CurrentLevelPlaying.customLevel.previewAudioClip);
 
             RemoveSong(CurrentLevelPlaying.customLevel);
+
+            SongCore.Collections.AddSong(reloadedLevel.levelID, reloadedLevel.customSongInfo.path);
+
             CustomLevels.Add(reloadedLevel);
 
             ReloadHashes();
