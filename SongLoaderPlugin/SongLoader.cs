@@ -668,6 +668,9 @@ callback));
                                     var level = LoadSong(customSongInfo);
                                     if (level != null)
                                     {
+                                        if(fullRefresh)
+                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path, true);
+                                        else
                                             SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
                                         levelList.Add(level);
                                     }
@@ -728,6 +731,9 @@ callback));
                                     level.inWipFolder = true;
                                     if (level != null)
                                     {
+                                        if (fullRefresh)
+                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path, true);
+                                        else
                                             SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
 
 
@@ -1216,7 +1222,7 @@ callback));
 
             RemoveSong(CurrentLevelPlaying.customLevel);
 
-            SongCore.Collections.AddSong(reloadedLevel.levelID, reloadedLevel.customSongInfo.path);
+            SongCore.Collections.AddSong(reloadedLevel.levelID, reloadedLevel.customSongInfo.path, true);
 
             CustomLevels.Add(reloadedLevel);
 

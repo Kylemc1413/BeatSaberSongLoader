@@ -65,20 +65,18 @@ namespace SongCore.Data
                 MapColor diffLeft = null;
                 if (diffFile.ContainsKey("_colorLeft"))
                 {
-                    diffLeft = new MapColor(
-                        (float)diffFile["_colorLeft"]["r"],
-                        (float)diffFile["_colorLeft"]["g"],
-                        (float)diffFile["_colorLeft"]["b"]
-                        );
+                    diffLeft = new MapColor(0, 0, 0);
+                    diffLeft.r = (float)diffFile["_colorLeft"]["r"];
+                    diffLeft.g = (float)diffFile["_colorLeft"]["g"];
+                    diffLeft.b = (float)diffFile["_colorLeft"]["b"];
                 }
                 MapColor diffRight = null;
                 if (diffFile.ContainsKey("_colorRight"))
                 {
-                    diffRight = new MapColor(
-                        (float)diffFile["_colorRight"]["r"],
-                        (float)diffFile["_colorRight"]["g"],
-                        (float)diffFile["_colorRight"]["b"]
-                        );
+                    diffRight = new MapColor(0, 0, 0);
+                    diffRight.r = (float)diffFile["_colorRight"]["r"];
+                    diffRight.g = (float)diffFile["_colorRight"]["g"];
+                    diffRight.b = (float)diffFile["_colorRight"]["b"];
                 }
 
                 string[] diffRequirements = new string[0];
@@ -95,7 +93,7 @@ namespace SongCore.Data
                     diffInfo = ((JArray)diffFile["_information"]).Select(c => (string)c).ToArray();
                 RequirementData diffReqData = new RequirementData
                 {
-                    requirements = diffInfo,
+                    requirements = diffRequirements,
                     suggestions = diffSuggestions,
                     information = diffInfo,
                     warnings = diffWarnings
@@ -116,6 +114,45 @@ namespace SongCore.Data
             }
             difficultes = diffData.ToArray();
         }
+
+        public void UpdateData(string songPath)
+        {
+            if (!File.Exists(songPath + "/info.json")) return;
+            var infoText = File.ReadAllText(songPath + "/info.json");
+
+            JObject info = JObject.Parse(infoText);
+            //Check if song uses legacy value for full song One Saber mode
+            bool legacyOneSaber = false;
+            if (info.ContainsKey("oneSaber")) legacyOneSaber = (bool)info["oneSaber"];
+
+
+            if (info.ContainsKey("contributors"))
+            {
+                contributors = info["contributors"].ToObject<Contributor[]>();
+            }
+            else
+            {
+                contributors = new Contributor[0];
+            }
+            if (info.ContainsKey("customEnvironment")) customEnvironmentName = (string)info["customEnvironment"];
+            if (info.ContainsKey("customEnvironmentHash")) customEnvironmentHash = (string)info["customEnvironmentHash"];
+            List<DifficultyData> diffData = difficultes.ToList();
+            JArray diffLevels = (JArray)info["difficultyLevels"];
+            for(int i = 0; i < diffData.Count; ++i)
+            {
+                var json = (JObject)diffLevels[i];
+
+                diffData[i].difficulty = Utilities.Utils.ToEnum((string)json["difficulty"], BeatmapDifficulty.Normal);
+                diffData[i].beatmapCharacteristicName = json.ContainsKey("characteristic") ? (string)json["characteristic"] : legacyOneSaber ? "One Saber" : "Standard";
+                diffData[i].difficultyLabel = "";
+                if (json.ContainsKey("difficultyLabel")) diffData[i].difficultyLabel = (string)json["difficultyLabel"];
+            }
+
+            difficultes = diffData.ToArray();
+        }
+
+        
+
 
         [Serializable]
         public class Contributor

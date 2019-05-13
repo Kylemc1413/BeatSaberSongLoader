@@ -16,24 +16,18 @@ namespace SongCore
 
         public static void AddSong(string levelID, string path, bool replace = false)
         {
-            if(customSongsData.Count == 0)
-            {
-                
-                customSongsData = JsonConvert.DeserializeObject<Dictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
-                if (customSongsData == null)
-                    customSongsData = new Dictionary<string, ExtraSongData>();
-            }
+            
             if (!customSongsData.ContainsKey(levelID))
-            customSongsData.Add(levelID, new ExtraSongData(levelID, path));
+                customSongsData.Add(levelID, new ExtraSongData(levelID, path));
             else
             {
                 if (replace)
                 {
-                    customSongsData.Remove(levelID);
-                    customSongsData.Add(levelID, new ExtraSongData(levelID, path));
+                    customSongsData[levelID].UpdateData(path);
+               //     customSongsData.Add(levelID, new ExtraSongData(levelID, path));
                 }
             }
-            Utilities.Logging.Log("Entry: :"  + levelID + "    " + customSongsData.Count);
+   //         Utilities.Logging.Log("Entry: :"  + levelID + "    " + customSongsData.Count);
         }
 
         public static ExtraSongData RetrieveExtraSongData(string levelID)
@@ -52,10 +46,7 @@ namespace SongCore
         }
         public static void Save()
         {
-            File.WriteAllText(dataPath, JsonConvert.SerializeObject(customSongsData, Formatting.Indented, new JsonSerializerSettings()
-            {
-
-            }));
+            File.WriteAllText(dataPath, JsonConvert.SerializeObject(customSongsData, Formatting.Indented));
         }
 
 
