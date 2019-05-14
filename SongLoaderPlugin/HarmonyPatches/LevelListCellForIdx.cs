@@ -33,7 +33,7 @@ namespace SongLoaderPlugin.HarmonyPatches
             if (!customLevel)
                 return;
 
-            if (customLevel.coverImage == SongLoader.CustomSongsIcon)
+            if (customLevel.coverImageTexture2D == SongLoader.CustomSongsIcon.texture)
             {
                 SongLoader.LoadSprite(customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.coverImagePath, customLevel);
             }

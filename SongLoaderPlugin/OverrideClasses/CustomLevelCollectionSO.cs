@@ -43,38 +43,39 @@ namespace SongLoaderPlugin.OverrideClasses
             foreach (var customLevel in customLevels)
             {
                 var characteristics = new List<BeatmapCharacteristicSO>();
-                    foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+                foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+                {
+                    switch (diffLevel.characteristic)
                     {
-                        switch (diffLevel.characteristic)
-                        {
-                            case "":
-                                if (!characteristics.Contains(_standardCharacteristic))
-                                    characteristics.Add(_standardCharacteristic);
-                                break;
+                        case "":
+                            if (!characteristics.Contains(_standardCharacteristic))
+                                characteristics.Add(_standardCharacteristic);
+                            break;
+                        case "LEVEL_STANDARD":
+                        case "Standard":
+                            if (!characteristics.Contains(_standardCharacteristic))
+                                characteristics.Add(_standardCharacteristic);
+                            break;
+                        case "LEVEL_ONE_SABER":
+                        case "One Saber":
+                            if (!characteristics.Contains(_oneSaberCharacteristic))
+                                characteristics.Add(_oneSaberCharacteristic);
+                            break;
+                        case "LEVEL_NO_ARROWS":
+                        case "No Arrows":
+                            if (!characteristics.Contains(_noArrowsCharacteristic))
+                                characteristics.Add(_noArrowsCharacteristic);
+                            break;
 
-                            case "Standard":
-                                if (!characteristics.Contains(_standardCharacteristic))
-                                    characteristics.Add(_standardCharacteristic);
-                                break;
-
-                            case "One Saber":
-                                if (!characteristics.Contains(_oneSaberCharacteristic))
-                                    characteristics.Add(_oneSaberCharacteristic);
-                                break;
-                            case "No Arrows":
-                                if (!characteristics.Contains(_noArrowsCharacteristic))
-                                    characteristics.Add(_noArrowsCharacteristic);
-                                break;
-
-                            default:
-                                BeatmapCharacteristicSO characteristic = SongCore.Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
-                                if (characteristic != null)
-                                    characteristics.Add(characteristic);
-                                break;
-                        }
-
+                        default:
+                            BeatmapCharacteristicSO characteristic = SongCore.Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
+                            if (characteristic != null)
+                                characteristics.Add(characteristic);
+                            break;
                     }
-                
+
+                }
+
                 customLevel.SetBeatmapCharacteristics(characteristics.ToArray());
 
                 _levelList.Add(customLevel);
@@ -86,38 +87,39 @@ namespace SongLoaderPlugin.OverrideClasses
         public void AddCustomLevel(CustomLevel customLevel)
         {
             var characteristics = new List<BeatmapCharacteristicSO>();
-                foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+            foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
+            {
+                switch (diffLevel.characteristic)
                 {
-                    switch (diffLevel.characteristic)
-                    {
-                        case "":
-                            if (!characteristics.Contains(_standardCharacteristic))
-                                characteristics.Add(_standardCharacteristic);
-                            break;
+                    case "":
+                        if (!characteristics.Contains(_standardCharacteristic))
+                            characteristics.Add(_standardCharacteristic);
+                        break;
+                    case "LEVEL_STANDARD":
+                    case "Standard":
+                        if (!characteristics.Contains(_standardCharacteristic))
+                            characteristics.Add(_standardCharacteristic);
+                        break;
+                    case "LEVEL_ONE_SABER":
+                    case "One Saber":
+                        if (!characteristics.Contains(_oneSaberCharacteristic))
+                            characteristics.Add(_oneSaberCharacteristic);
+                        break;
+                    case "LEVEL_NO_ARROWS":
+                    case "No Arrows":
+                        if (!characteristics.Contains(_noArrowsCharacteristic))
+                            characteristics.Add(_noArrowsCharacteristic);
+                        break;
 
-                        case "Standard":
-                            if (!characteristics.Contains(_standardCharacteristic))
-                                characteristics.Add(_standardCharacteristic);
-                            break;
+                    default:
+                        BeatmapCharacteristicSO characteristic = SongCore.Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
+                        if (characteristic != null)
+                            characteristics.Add(characteristic);
+                        else
+                            if (!characteristics.Contains(SongCore.Collections.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic")))
+                            characteristics.Add(SongCore.Collections.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic"));
+                        break;
 
-                        case "One Saber":
-                            if (!characteristics.Contains(_oneSaberCharacteristic))
-                                characteristics.Add(_oneSaberCharacteristic);
-                            break;
-                        case "No Arrows":
-                            if (!characteristics.Contains(_noArrowsCharacteristic))
-                                characteristics.Add(_noArrowsCharacteristic);
-                            break;
-
-                        default:
-                            BeatmapCharacteristicSO characteristic = SongCore.Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
-                            if (characteristic != null)
-                                characteristics.Add(characteristic);
-                            else
-                                if (!characteristics.Contains(SongCore.Collections.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic")))
-                                characteristics.Add(SongCore.Collections.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic"));
-                            break;
-                    
 
 
                 }

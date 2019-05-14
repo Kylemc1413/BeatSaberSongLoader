@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using System.Globalization;
 namespace SongCore.Data
 {
+
     [Serializable]
     public class ExtraSongData
     {
@@ -17,13 +18,29 @@ namespace SongCore.Data
         public Contributor[] contributors; //convert legacy mappers/lighters fields into contributors
         public string customEnvironmentName;
         public string customEnvironmentHash;
-        public DifficultyData[] difficultes;
+        public DifficultyData[] difficulties;
 
 
+        public ExtraSongData()
+        {
 
+        }
 
+        [Newtonsoft.Json.JsonConstructor]
+        public ExtraSongData(string levelID, string songPath, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
+        {
+      //      Utilities.Logging.Log("SongData full Ctor");
+            this.levelID = levelID;
+            this.songPath = songPath;
+            this.contributors = contributors;
+            this.customEnvironmentName = customEnvironmentName;
+            this.customEnvironmentHash = customEnvironmentHash;
+            this.difficulties = difficulties;
+
+        }
         public ExtraSongData(string levelID, string songPath)
         {
+    //        Utilities.Logging.Log("SongData Ctor");
             try
             {
                 this.levelID = levelID;
@@ -168,7 +185,7 @@ namespace SongCore.Data
                     );
 
                 }
-                difficultes = diffData.ToArray();
+                difficulties = diffData.ToArray();
 
             }
             catch (Exception ex)
@@ -199,7 +216,7 @@ namespace SongCore.Data
                 }
                 if (info.ContainsKey("customEnvironment")) customEnvironmentName = (string)info["customEnvironment"];
                 if (info.ContainsKey("customEnvironmentHash")) customEnvironmentHash = (string)info["customEnvironmentHash"];
-                List<DifficultyData> diffData = difficultes?.ToList();
+                List<DifficultyData> diffData = difficulties?.ToList();
                 if (diffData == null) return;
                 JArray diffLevels = (JArray)info["difficultyLevels"];
                 for (int i = 0; i < diffData.Count; ++i)
@@ -212,7 +229,7 @@ namespace SongCore.Data
                     if (json.ContainsKey("difficultyLabel")) diffData[i].difficultyLabel = (string)json["difficultyLabel"];
                 }
 
-                difficultes = diffData.ToArray();
+                difficulties = diffData.ToArray();
             }
             catch (Exception ex)
             {
@@ -229,6 +246,7 @@ namespace SongCore.Data
             public string role;
             public string name;
             public string iconPath;
+            [NonSerialized]
             public Sprite icon = null;
 
         }

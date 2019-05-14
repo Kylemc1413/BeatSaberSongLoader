@@ -26,7 +26,7 @@ namespace SongLoaderPlugin.OverrideClasses
             _previewStartTime = customSongInfo.previewStartTime;
             _previewDuration = customSongInfo.previewDuration;
             _environmentSceneInfo = EnvironmentsLoader.GetSceneInfo(customSongInfo.environmentName);
-            _coverImage = SongLoader.CustomSongsIcon;
+            _coverImageTexture2D = SongLoader.CustomSongsIcon.texture;
             string _customEnvironment = customSongInfo.customEnvironment;
             string _customEnvironmentHash = customSongInfo.customEnvironmentHash;
 
@@ -39,7 +39,7 @@ namespace SongLoaderPlugin.OverrideClasses
 
         public void SetCoverImage(Sprite newCoverImage)
         {
-            _coverImage = newCoverImage;
+            _coverImageTexture2D = newCoverImage.texture;
         }
 
         public void SetDifficultyBeatmaps(DifficultyBeatmap[] newDifficultyBeatmaps, BeatmapCharacteristicSO[] characteristicsSO, bool singleSaber = false)
@@ -53,7 +53,9 @@ namespace SongLoaderPlugin.OverrideClasses
                     foreach (DifficultyBeatmap beatmap in newDifficultyBeatmaps)
                     {
                         string characteristic = (beatmap as CustomDifficultyBeatmap).Characteristic;
-                        if (characteristic == characteristicsSO[i].characteristicName || (string.IsNullOrWhiteSpace(characteristic) && i == 0))
+                  
+
+                    if (characteristic == characteristicsSO[i].characteristicName || (string.IsNullOrWhiteSpace(characteristic) && i == 0))
                             beatmaps.Add(beatmap);
 
                     }
@@ -70,7 +72,7 @@ namespace SongLoaderPlugin.OverrideClasses
                         if (characteristic == SongCore.Collections.customCharacteristics[i].characteristicName)
                             beatmaps.Add(beatmap);
                         else if (!SongCore.Collections.customCharacteristics.Any(x => x.characteristicName == characteristic)
-                            && (characteristic != "Standard" && characteristic != "One Saber" && characteristic != "No Arrows" && !string.IsNullOrWhiteSpace(characteristic)) )
+                            && (characteristic != SongLoader.standardCharacteristicName && characteristic != SongLoader.oneSaberCharacteristicName && characteristic != SongLoader.noArrowsCharacteristicName && !string.IsNullOrWhiteSpace(characteristic)) )
                             missingCharacteristicBeatmaps.Add(beatmap);
 
                     }
@@ -111,11 +113,22 @@ namespace SongLoaderPlugin.OverrideClasses
 
                 string characteristic = diffLevel.characteristic;
                 if (string.IsNullOrEmpty(characteristic))
-                    characteristic = "Standard";
+                    characteristic = SongLoader.standardCharacteristicName;
 
-                else if (characteristic != "Standard" && characteristic != "One Saber" && characteristic != "No Arrows")
+                else if (characteristic != SongLoader.standardCharacteristicName && characteristic != SongLoader.oneSaberCharacteristicName && characteristic != SongLoader.noArrowsCharacteristicName)
                     missingChar = !(SongCore.Collections.customCharacteristics.Any(x => x.characteristicName == characteristic));
-
+                switch (characteristic)
+                {
+                    case "Standard":
+                        characteristic = SongLoader.standardCharacteristicName;
+                        break;
+                    case "One Saber":
+                        characteristic = SongLoader.oneSaberCharacteristicName;
+                        break;
+                    case "No Arrows":
+                        characteristic = SongLoader.noArrowsCharacteristicName;
+                        break;
+                }
                 if (missingChar)
                     characteristic = "Missing Characteristic";
                 foreach (DifficultyBeatmapSet set in _difficultyBeatmapSets)

@@ -72,7 +72,7 @@ namespace SongCore.HarmonyPatches
                 }
                 bool wipFolderSong = false;
                 IDifficultyBeatmap selectedDiff = ____selectedDifficultyBeatmap;
-                Data.ExtraSongData.DifficultyData diffData = songData.difficultes.FirstOrDefault(x => x.difficulty == selectedDiff.difficulty
+                Data.ExtraSongData.DifficultyData diffData = songData.difficulties.FirstOrDefault(x => x.difficulty == selectedDiff.difficulty
                 && x.beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName);
                 if(diffData != null)
                 {
@@ -145,7 +145,7 @@ namespace SongCore.HarmonyPatches
 
                 //Difficulty Label Handling
                 bool overrideLabels = false;
-                foreach (Data.ExtraSongData.DifficultyData diffLevel in songData.difficultes)
+                foreach (Data.ExtraSongData.DifficultyData diffLevel in songData.difficulties)
                 {
                     var difficulty = diffLevel.difficulty;
                     if (!string.IsNullOrWhiteSpace(diffLevel.difficultyLabel))

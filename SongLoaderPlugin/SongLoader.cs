@@ -22,6 +22,9 @@ namespace SongLoaderPlugin
         internal static Sprite LightshowIcon;
         internal static Sprite ExtraDiffsIcon;
 
+        public static string standardCharacteristicName = "LEVEL_STANDARD";
+        public static string oneSaberCharacteristicName = "LEVEL_ONE_SABER";
+        public static string noArrowsCharacteristicName = "LEVEL_NO_ARROWS";
 
         public static event Action<SongLoader> LoadingStartedEvent;
         public static event Action<SongLoader, List<CustomLevel>> SongsLoadedEvent;
@@ -149,11 +152,11 @@ namespace SongLoaderPlugin
                 //  }
 
                 beatmapCharacteristicSOCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
-
+                foreach (BeatmapCharacteristicSO bc in beatmapCharacteristicSOCollection)
+                    Log(bc.characteristicName);
                 var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
                 LevelPacksViewController levelPacksViewController = (LevelPacksViewController)soloFreePlay.GetField("_levelPacksViewController");
                 levelPacksViewController.SetData(CustomBeatmapLevelPackCollectionSO, 0);
-
                 if (_standardLevelDetailViewController == null)
                 {
                     _standardLevelDetailViewController = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().FirstOrDefault();
@@ -807,12 +810,12 @@ callback));
 
             foreach (BeatmapLevelSO level in CustomLevelCollectionSO._levelList)
             {
-                if (level as CustomLevel != null)
+                if (level is CustomLevel)
                     _alwaysOwnedBeatmapLevelIds.Add(level.levelID);
             }
             foreach (BeatmapLevelSO level in WIPCustomLevelCollectionSO._levelList)
             {
-                if (level as CustomLevel != null)
+                if (level is CustomLevel)
                     _alwaysOwnedBeatmapLevelIds.Add(level.levelID);
             }
 
@@ -820,9 +823,9 @@ callback));
             additionalContentModelSO.SetPrivateField("_alwaysOwnedPacksIds", _alwaysOwnedBeatmapLevelPackIds);
             //  Console.WriteLine("1");
             BeatmapLevelsModelSO beatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
-            Dictionary<string, IBeatmapLevel> _loadedBeatmapLevels = (Dictionary<string, IBeatmapLevel>)beatmapLevelsModelSO.GetField("_loadedBeatmapLevels");
-            Dictionary<string, IPreviewBeatmapLevel> _loadedPreviewBeatmapLevels = (Dictionary<string, IPreviewBeatmapLevel>)beatmapLevelsModelSO.GetField("_loadedPreviewBeatmapLevels");
-            //   Console.WriteLine("2");
+            HMCache<string, IBeatmapLevel> _loadedBeatmapLevels = beatmapLevelsModelSO.GetField<HMCache<string, IBeatmapLevel>>("_loadedBeatmapLevels");
+            Dictionary<string, IPreviewBeatmapLevel> _loadedPreviewBeatmapLevels = beatmapLevelsModelSO.GetField<Dictionary<string, IPreviewBeatmapLevel>>("_loadedPreviewBeatmapLevels");
+             //  Console.WriteLine("2");
             foreach (var packs in CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks)
             {
                 //       Console.WriteLine("3.1  " + packs?.packName);
@@ -833,21 +836,22 @@ callback));
                 }
                 foreach (var level in packs?.beatmapLevelCollection?.beatmapLevels)
                 {
-                    //             Console.WriteLine("3.2");
+               //                  Console.WriteLine("3.2");
                     if (level != null)
                         if (!_loadedPreviewBeatmapLevels.ContainsKey(level.levelID)) { _loadedPreviewBeatmapLevels.Add(level.levelID, level); }
-                    if ((level as IBeatmapLevel) != null)
+                    if (level is IBeatmapLevel)
                     {
-                        if (!_loadedBeatmapLevels.ContainsKey(level.levelID))
+                        if (_loadedBeatmapLevels.GetFromCache(level.levelID) == null)
                         {
-                            _loadedBeatmapLevels.Add(level.levelID, (IBeatmapLevel)level);
+                            _loadedBeatmapLevels.PutToCache(level.levelID, (IBeatmapLevel)level);
                         }
                     }
                 }
             }
-            //     Console.WriteLine("4");
+           //      Console.WriteLine("4");
             beatmapLevelsModelSO.SetField("_loadedBeatmapLevels", _loadedBeatmapLevels);
             beatmapLevelsModelSO.SetField("_loadedPreviewBeatmapLevels", _loadedPreviewBeatmapLevels);
+            beatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
 
         }
 
@@ -931,11 +935,24 @@ callback));
                 string characteristic = "";
 
                 if (songInfo.oneSaber)
-                    characteristic = "One Saber";
+                    characteristic = oneSaberCharacteristicName;
 
                 if (n["characteristic"] != null)
                 {
                     characteristic = n["characteristic"];
+                    switch (characteristic)
+                    {
+                        case "Standard":
+                            characteristic = SongLoader.standardCharacteristicName;
+                            break;
+                        case "One Saber":
+                            characteristic = SongLoader.oneSaberCharacteristicName;
+                            break;
+                        case "No Arrows":
+                            characteristic = SongLoader.noArrowsCharacteristicName;
+                            break;
+                    }
+
                 }
                 diffLevels.Add(new CustomSongInfo.DifficultyLevel
                 {

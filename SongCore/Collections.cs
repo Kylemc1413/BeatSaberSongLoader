@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using SongCore.Data;
 using Newtonsoft.Json;
 using UnityEngine;
 using SongCore.Utilities;
+
 namespace SongCore
 {
     public static class Collections
@@ -56,22 +58,23 @@ namespace SongCore
         {
             ExtraSongData data = RetrieveExtraSongData(beatmap.level.levelID);
             if (data == null) return null;
-            ExtraSongData.DifficultyData diffData = data.difficultes.FirstOrDefault(x => x.difficulty == beatmap.difficulty && x.beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName);
+            ExtraSongData.DifficultyData diffData = data.difficulties.FirstOrDefault(x => x.difficulty == beatmap.difficulty && x.beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName);
             return diffData;
         }
         public static void LoadExtraSongData()
         {
-            customSongsData = JsonConvert.DeserializeObject<Dictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
+                customSongsData = Newtonsoft.Json.JsonConvert.DeserializeObject < Dictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
             if (customSongsData == null)
                 customSongsData = new Dictionary<string, ExtraSongData>();
         }
+
         public static void SaveExtraSongData()
         {
-            File.WriteAllText(dataPath, JsonConvert.SerializeObject(customSongsData, Formatting.Indented));
+            File.WriteAllText(dataPath, Newtonsoft.Json.JsonConvert.SerializeObject(customSongsData));
         }
 
 
-
+        
         public static void RegisterCapability(string capability)
         {
             if (!_capabilities.Contains(capability))
