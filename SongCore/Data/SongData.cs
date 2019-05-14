@@ -13,6 +13,7 @@ namespace SongCore.Data
     public class ExtraSongData
     {
         public string levelID;
+        public string songPath;
         public Contributor[] contributors; //convert legacy mappers/lighters fields into contributors
         public string customEnvironmentName;
         public string customEnvironmentHash;
@@ -26,6 +27,7 @@ namespace SongCore.Data
             try
             { 
             this.levelID = levelID;
+            this.songPath = songPath;
             if (!File.Exists(songPath + "/info.json")) return;
             var infoText = File.ReadAllText(songPath + "/info.json");
 

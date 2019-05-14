@@ -5,57 +5,146 @@ using System.Text;
 using System.Threading.Tasks;
 using CustomUI.GameplaySettings;
 using CustomUI.Settings;
-
+using UnityEngine;
+using CustomUI.BeatSaber;
 namespace SongCore.UI
 {
     class BasicUI
     {
+        internal static UnityEngine.UI.Button infoButton;
+        internal static CustomUI.BeatSaber.CustomMenu reqDialog;
+        internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
+        internal static Sprite HaveReqIcon;
+        internal static Sprite MissingReqIcon;
+        internal static Sprite HaveSuggestionIcon;
+        internal static Sprite MissingSuggestionIcon;
+        internal static Sprite WarningIcon;
+        internal static Sprite InfoIcon;
+        //    internal static Sprite CustomSongsIcon;
+        //    internal static Sprite MissingCharIcon;
+        //    internal static Sprite LightshowIcon;
+        //    internal static Sprite ExtraDiffsIcon;
+
+
+
         public static void CreateUI()
         {
-            //This will create the UI for the plugin when called, keep in mind that the mod will require CustomUI when executing this as it calls functions etc from the library
-            CreateGameplayOptionsUI();
-            CreateSettingsUI();
-
 
 
         }
-        
 
 
-        public static void CreateSettingsUI()
+
+
+        internal static void InitRequirementsMenu()
         {
-            //This will create a menu tab in the settings menu for your plugin
-            var pluginSettingsSubmenu = SettingsUI.CreateSubMenu("Submenu Name");
+            reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
+            reqViewController = BeatSaberUI.CreateViewController<CustomListViewController>();
+            RectTransform confirmContainer = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
+            confirmContainer.SetParent(reqViewController.rectTransform, false);
+            confirmContainer.sizeDelta = new Vector2(60f, 0f);
+            GetIcons();
+            reqDialog.SetMainViewController(reqViewController, true);
 
-            var exampleToggle = pluginSettingsSubmenu.AddBool("Example Toggle");
-            //Fetch your initial value for the option from within the braces, or simply have it default to a value
-            exampleToggle.GetValue += delegate { return false; };
-            exampleToggle.SetValue += delegate (bool value)
+
+        }
+
+        internal static void showSongRequirements(Data.ExtraSongData songData, Data.ExtraSongData.DifficultyData diffData)
+        {
+            //   suggestionsList.text = "";
+
+            reqViewController.Data.Clear();
+            //Contributors
+            if (songData.contributors.Count() > 0)
             {
-                //Whatever execution you want to occur after setting the value
+                foreach (Data.ExtraSongData.Contributor author in songData.contributors)
+                {
+                    if (author.icon == null)
+                        if (!string.IsNullOrWhiteSpace(author.iconPath))
+                        {
+                            Utilities.Logging.Log(songData.songPath + "/" + author.iconPath);
+                            author.icon = Utilities.Utils.LoadSpriteFromFile(songData.songPath + "/" + author.iconPath);
+                            reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, author.icon));
+                        }
+                        else
+                            reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, InfoIcon));
+                }
+            }
 
-            };
+            if (diffData.additionalDifficultyData.requirements.Count() > 0)
+            {
+                foreach (string req in diffData.additionalDifficultyData.requirements)
+                {
+                    //    Console.WriteLine(req);
+                    if (!Collections.capabilities.Contains(req))
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
+                    else
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
+                }
+            }
+            if (diffData.additionalDifficultyData.warnings.Count() > 0)
+            {
+                foreach (string req in diffData.additionalDifficultyData.warnings)
+                {
+
+                    //    Console.WriteLine(req);
+
+                    reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
+                }
+            }
+            if (diffData.additionalDifficultyData.information.Count() > 0)
+            {
+                foreach (string req in diffData.additionalDifficultyData.information)
+                {
+
+                    //    Console.WriteLine(req);
+
+                    reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Info", InfoIcon));
+                }
+            }
+            if (diffData.additionalDifficultyData.suggestions.Count() > 0)
+            {
+                foreach (string req in diffData.additionalDifficultyData.suggestions)
+                {
+
+                    //    Console.WriteLine(req);
+                    if (!Collections.capabilities.Contains(req))
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));
+                    else
+                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon));
+                }
+            }
+
+
+
+            reqDialog.Present();
+            reqViewController._customListTableView.ReloadData();
 
         }
-
-        public static void CreateGameplayOptionsUI()
+        internal static void GetIcons()
         {
-
-            //Example submenu option
-            var pluginSubmenu = GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.ModifiersLeft, "Plugin Name", "MainMenu", "pluginMenu1", "You can keep all your plugin's gameplay options nested within this one button");
-
-            //Example Toggle Option within a submenu
-            var exampleOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.ModifiersLeft, "Example Toggle", "pluginMenu1", "Put a toggle for a setting you want easily accessible in game here.");
-            exampleOption.GetValue = /* Fetch the initial value for the option here*/ false;
-            exampleOption.OnToggle += (value) => { /*  You can execute whatever you want to occur when the value is toggled here, usually that would include updating wherever the value is pulled from   */};
-            exampleOption.AddConflict("Conflicting Option Name"); //You can add conflicts with other gameplay options settings here, preventing both from being active at the same time, including that of other mods
-
-
+            //      if (!CustomSongsIcon)
+            //           CustomSongsIcon = Utilities.Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+            if (!MissingReqIcon)
+                MissingReqIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.RedX.png");
+            if (!HaveReqIcon)
+                HaveReqIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.GreenCheck.png");
+            if (!HaveSuggestionIcon)
+                HaveSuggestionIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.YellowCheck.png");
+            if (!MissingSuggestionIcon)
+                MissingSuggestionIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.YellowX.png");
+            if (!WarningIcon)
+                WarningIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Warning.png");
+            if (!InfoIcon)
+                InfoIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Info.png");
+            //        if (!MissingCharIcon)
+            //            MissingCharIcon = Utilities.Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
+            //        if (!LightshowIcon)
+            //          LightshowIcon = Utilities.Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Lightshow.png");
+            //       if (!ExtraDiffsIcon)
+            //            ExtraDiffsIcon = Utilities.Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.ExtraDiffsIcon.png");
 
         }
-
-
-
 
 
     }

@@ -13,6 +13,18 @@ namespace SongCore
         internal static string dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"..\LocalLow\Hyperbolic Magnetism\Beat Saber\SongCoreExtraData.dat");
         internal static Dictionary<string, ExtraSongData> customSongsData = new Dictionary<string, ExtraSongData>();
 
+        private static List<string> _capabilities = new List<string>();
+        public static System.Collections.ObjectModel.ReadOnlyCollection<string> capabilities
+        {
+            get { return _capabilities.AsReadOnly(); }
+        }
+
+        private static List<BeatmapCharacteristicSO> _customCharacteristics = new List<BeatmapCharacteristicSO>();
+        public static System.Collections.ObjectModel.ReadOnlyCollection<BeatmapCharacteristicSO> customCharacteristics
+        {
+            get { return _customCharacteristics.AsReadOnly(); }
+        }
+
 
         public static void AddSong(string levelID, string path, bool replace = false)
         {

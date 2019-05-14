@@ -26,7 +26,7 @@ namespace SongCore
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
             if (!File.Exists(Collections.dataPath)) File.Create(Collections.dataPath);
             Collections.Load();
-
+            UI.BasicUI.GetIcons();
 
         }
 
@@ -38,7 +38,13 @@ namespace SongCore
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-            if (scene.name == "MenuCore")
+            if (scene.name == "MenuViewControllers")
+            {
+
+                if (UI.BasicUI.reqDialog == null)
+                    UI.BasicUI.InitRequirementsMenu();
+            }
+                if (scene.name == "MenuCore")
                 UI.BasicUI.CreateUI();
         }
 

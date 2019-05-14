@@ -11,6 +11,7 @@ using UnityEngine.UI;
 using CustomUI.BeatSaber;
 namespace SongLoaderPlugin.HarmonyPatches
 {
+    /*
     [HarmonyPatch(typeof(StandardLevelDetailView))]
     [HarmonyPatch("RefreshContent", MethodType.Normal)]
 
@@ -169,5 +170,6 @@ namespace SongLoaderPlugin.HarmonyPatches
         }
         
     }
+    */
 }
 

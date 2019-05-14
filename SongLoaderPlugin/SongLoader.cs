@@ -314,7 +314,7 @@ namespace SongLoaderPlugin
 
             if (CustomPlatformsPresent && customSongPlatforms)
             {
-                if (customLevel.customSongInfo.customEnvironment != null)
+                if (!string.IsNullOrWhiteSpace(customLevel.customSongInfo.customEnvironment))
                 {
                     if (findCustomEnvironment(customLevel.customSongInfo.customEnvironment) == -1)
                     {
