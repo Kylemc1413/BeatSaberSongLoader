@@ -13,6 +13,7 @@ namespace SongLoaderPlugin
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
 
+
         public string Name
         {
             get { return "Song Loader Plugin"; }
@@ -70,26 +71,7 @@ namespace SongLoaderPlugin
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-            if (scene.name == "MenuViewControllers")
-            {
 
-                if (SongLoader.reqDialog == null)
-                    SongLoader.InitRequirementsMenu();
-
-                var subMenuCC = GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.PlayerSettingsLeft, "Song Loader", "MainMenu",
-                    "songloader", "Songloader Options");
-
-                var colorOverrideOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsLeft, "Allow Custom Song Colors",
-                    "songloader", "Allow Custom Songs to override note/light colors if Custom Colors or Chroma is installed");
-                colorOverrideOption.GetValue = ModPrefs.GetBool("Songloader", "customSongColors", true, true);
-                colorOverrideOption.OnToggle += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongColors", value); };
-
-                var platformOverrideOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsLeft, "Allow Custom Song Platforms",
-                    "songloader", "Allow Custom Songs to override your Custom Platform if Custom Platforms is installed");
-                platformOverrideOption.GetValue = ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
-                platformOverrideOption.OnToggle += delegate (bool value) { ModPrefs.SetBool("Songloader", "customSongPlatforms", value); };
-
-            }
         }
 
         public void OnSceneUnloaded(Scene scene)

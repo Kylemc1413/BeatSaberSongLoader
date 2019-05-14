@@ -25,103 +25,155 @@ namespace SongCore.Data
         public ExtraSongData(string levelID, string songPath)
         {
             try
-            { 
-            this.levelID = levelID;
-            this.songPath = songPath;
-            if (!File.Exists(songPath + "/info.json")) return;
-            var infoText = File.ReadAllText(songPath + "/info.json");
-
-            JObject info = JObject.Parse(infoText);
-            //Check if song uses legacy value for full song One Saber mode
-            bool legacyOneSaber = false;
-            if (info.ContainsKey("oneSaber")) legacyOneSaber = (bool)info["oneSaber"];
-
-
-            if (info.ContainsKey("contributors"))
             {
-                contributors = info["contributors"].ToObject<Contributor[]>();
-            }
-            else
-            {
-                contributors = new Contributor[0];
-            }
-            if (info.ContainsKey("customEnvironment")) customEnvironmentName = (string)info["customEnvironment"];
-            if (info.ContainsKey("customEnvironmentHash")) customEnvironmentHash = (string)info["customEnvironmentHash"];
-            List<DifficultyData> diffData = new List<DifficultyData>();
-            JArray diffLevels = (JArray)info["difficultyLevels"];
-            foreach (JObject diff in diffLevels)
-            {
-                //       Utilities.Logging.Log((string)diff["difficulty"]);
-                if (!File.Exists(songPath + "/" + diff["jsonPath"])) continue;
-                JObject diffFile = JObject.Parse(File.ReadAllText(songPath + "/" + diff["jsonPath"]));
+                this.levelID = levelID;
+                this.songPath = songPath;
+                if (!File.Exists(songPath + "/info.json")) return;
+                var infoText = File.ReadAllText(songPath + "/info.json");
 
+                JObject info = JObject.Parse(infoText);
+                //Check if song uses legacy value for full song One Saber mode
+                bool legacyOneSaber = false;
+                if (info.ContainsKey("oneSaber")) legacyOneSaber = (bool)info["oneSaber"];
 
-                string diffCharacteristic = legacyOneSaber ? "One Saber" : "Standard";
-                if (diff.ContainsKey("characteristic")) diffCharacteristic = (string)diff["characteristic"];
-
-                BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diff["difficulty"], BeatmapDifficulty.Normal);
-
-                string diffLabel = "";
-                if (diff.ContainsKey("difficultyLabel")) diffLabel = (string)diff["difficultyLabel"];
-
-
-                //Get difficulty json fields
-                MapColor diffLeft = null;
-                if (diffFile.ContainsKey("_colorLeft"))
+                List<Contributor> levelContributors = new List<Contributor>();
+                if (info.ContainsKey("contributors"))
                 {
-                    diffLeft = new MapColor(0, 0, 0);
-                    diffLeft.r = (float)diffFile["_colorLeft"]["r"];
-                    diffLeft.g = (float)diffFile["_colorLeft"]["g"];
-                    diffLeft.b = (float)diffFile["_colorLeft"]["b"];
+                    levelContributors.AddRange(info["contributors"].ToObject<Contributor[]>());
                 }
-                MapColor diffRight = null;
-                if (diffFile.ContainsKey("_colorRight"))
+                if(info.ContainsKey("mappers"))
                 {
-                    diffRight = new MapColor(0, 0, 0);
-                    diffRight.r = (float)diffFile["_colorRight"]["r"];
-                    diffRight.g = (float)diffFile["_colorRight"]["g"];
-                    diffRight.b = (float)diffFile["_colorRight"]["b"];
+                    foreach (JToken mapper in (JArray)info["mappers"])
+                        levelContributors.Add(new Contributor
+                        {
+                            name = (string)mapper,
+                            role = "Mapper",
+                            iconPath = ""
+                        });
                 }
-
-                string[] diffRequirements = new string[0];
-                string[] diffSuggestions = new string[0];
-                string[] diffWarnings = new string[0];
-                string[] diffInfo = new string[0];
-                if (diffFile.ContainsKey("_requirements"))
-                    diffRequirements = ((JArray)diffFile["_requirements"]).Select(c => (string)c).ToArray();
-                if (diffFile.ContainsKey("_suggestions"))
-                    diffSuggestions = ((JArray)diffFile["_suggestions"]).Select(c => (string)c).ToArray();
-                if (diffFile.ContainsKey("_warnings"))
-                    diffWarnings = ((JArray)diffFile["_warnings"]).Select(c => (string)c).ToArray();
-                if (diffFile.ContainsKey("_information"))
-                    diffInfo = ((JArray)diffFile["_information"]).Select(c => (string)c).ToArray();
-                RequirementData diffReqData = new RequirementData
+                if (info.ContainsKey("lighters"))
                 {
-                    requirements = diffRequirements,
-                    suggestions = diffSuggestions,
-                    information = diffInfo,
-                    warnings = diffWarnings
-                };
-
-                diffData.Add(new DifficultyData
+                    foreach (JToken lighter in (JArray)info["lighters"])
+                        levelContributors.Add(new Contributor
+                        {
+                            name = (string)lighter,
+                            role = "Lighter",
+                            iconPath = ""
+                        });
+                }
+                contributors = levelContributors.ToArray();
+                if (info.ContainsKey("customEnvironment")) customEnvironmentName = (string)info["customEnvironment"];
+                if (info.ContainsKey("customEnvironmentHash")) customEnvironmentHash = (string)info["customEnvironmentHash"];
+                List<DifficultyData> diffData = new List<DifficultyData>();
+                JArray diffLevels = (JArray)info["difficultyLevels"];
+                foreach (JObject diff in diffLevels)
                 {
-                    beatmapCharacteristicName = diffCharacteristic,
-                    difficulty = diffDifficulty,
-                    difficultyLabel = diffLabel,
-                    additionalDifficultyData = diffReqData,
-                    colorLeft = diffLeft,
-                    colorRight = diffRight
+                    //       Utilities.Logging.Log((string)diff["difficulty"]);
+                    if (!File.Exists(songPath + "/" + diff["jsonPath"])) continue;
+                    string diffText = File.ReadAllText(songPath + "/" + diff["jsonPath"]);
+
+                    List<string> diffRequirements = new List<string>();
+                    List<string> diffSuggestions = new List<string>();
+                    List<string> diffWarnings = new List<string>();
+                    List<string> diffInfo = new List<string>();
+                    var split = diffText.Split(':');
+                    JObject diffFile = JObject.Parse(diffText);
+                    try
+                    {
+                        for (var i = 0; i < split.Length; i++)
+                        {
+                            int value;
+                            if (split[i].Contains("_lineIndex"))
+                            {
+                                value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                                if ((value < 0 || value > 3) && !(value >= 1000 || value <= -1000))
+                                    if (!diffRequirements.Contains("Mapping Extensions-More Lanes")) diffRequirements.Add("Mapping Extensions-More Lanes");
+                                if (value >= 1000 || value <= -1000)
+                                    if (!diffRequirements.Contains("Mapping Extensions-Precision Placement")) diffRequirements.Add("Mapping Extensions-Precision Placement");
+                            }
+                            if (split[i].Contains("_lineLayer"))
+                            {
+                                value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
+                                if ((value < 0 || value > 2) && !(value >= 1000 || value <= -1000))
+                                    if (!diffRequirements.Contains("Mapping Extensions-More Lanes")) diffRequirements.Add("Mapping Extensions-More Lanes");
+                                if (value >= 1000 || value <= -1000)
+                                    if (!diffRequirements.Contains("Mapping Extensions-Precision Placement")) diffRequirements.Add("Mapping Extensions-Precision Placement");
+                            }
+                            if (split[i].Contains("_cutDirection"))
+                            {
+                                value = Convert.ToInt32(split[i + 1].Split(',', '}')[0], CultureInfo.InvariantCulture);
+                                if ((value >= 1000 && value <= 1360) || (value >= 2000 && value <= 2360))
+                                    if (!diffRequirements.Contains("Mapping Extensions-Extra Note Angles")) diffRequirements.Add("Mapping Extensions-Extra Note Angles");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utilities.Logging.Log($"Exception in Parsing Split JSON of: {songPath}", IPA.Logging.Logger.Level.Warning);
+                    }
+
+                    string diffCharacteristic = legacyOneSaber ? "One Saber" : "Standard";
+                    if (diff.ContainsKey("characteristic")) diffCharacteristic = (string)diff["characteristic"];
+
+                    BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diff["difficulty"], BeatmapDifficulty.Normal);
+
+                    string diffLabel = "";
+                    if (diff.ContainsKey("difficultyLabel")) diffLabel = (string)diff["difficultyLabel"];
+
+
+                    //Get difficulty json fields
+                    MapColor diffLeft = null;
+                    if (diffFile.ContainsKey("_colorLeft"))
+                    {
+                        diffLeft = new MapColor(0, 0, 0);
+                        diffLeft.r = (float)diffFile["_colorLeft"]["r"];
+                        diffLeft.g = (float)diffFile["_colorLeft"]["g"];
+                        diffLeft.b = (float)diffFile["_colorLeft"]["b"];
+                    }
+                    MapColor diffRight = null;
+                    if (diffFile.ContainsKey("_colorRight"))
+                    {
+                        diffRight = new MapColor(0, 0, 0);
+                        diffRight.r = (float)diffFile["_colorRight"]["r"];
+                        diffRight.g = (float)diffFile["_colorRight"]["g"];
+                        diffRight.b = (float)diffFile["_colorRight"]["b"];
+                    }
+
+                    if (diffFile.ContainsKey("_requirements"))
+                        diffRequirements.AddRange(((JArray)diffFile["_requirements"]).Select(c => (string)c));
+                    if (diffFile.ContainsKey("_suggestions"))
+                        diffSuggestions.AddRange(((JArray)diffFile["_suggestions"]).Select(c => (string)c));
+                    if (diffFile.ContainsKey("_warnings"))
+                        diffWarnings.AddRange(((JArray)diffFile["_warnings"]).Select(c => (string)c));
+                    if (diffFile.ContainsKey("_information"))
+                        diffInfo.AddRange(((JArray)diffFile["_information"]).Select(c => (string)c));
+                    RequirementData diffReqData = new RequirementData
+                    {
+                        requirements = diffRequirements.ToArray(),
+                        suggestions = diffSuggestions.ToArray(),
+                        information = diffInfo.ToArray(),
+                        warnings = diffWarnings.ToArray()
+                    };
+
+                    diffData.Add(new DifficultyData
+                    {
+                        beatmapCharacteristicName = diffCharacteristic,
+                        difficulty = diffDifficulty,
+                        difficultyLabel = diffLabel,
+                        additionalDifficultyData = diffReqData,
+                        colorLeft = diffLeft,
+                        colorRight = diffRight
+
+                    }
+                    );
 
                 }
-                );
+                difficultes = diffData.ToArray();
 
             }
-            difficultes = diffData.ToArray();
-
-        }
-        catch(Exception ex)
+            catch (Exception ex)
             {
-                Utilities.Logging.Log($"Error in Level {levelID}: \n {ex}", IPA.Logging.Logger.Level.Error);
+                Utilities.Logging.Log($"Error in Level {songPath}: \n {ex}", IPA.Logging.Logger.Level.Error);
             }
         }
 
@@ -132,43 +184,43 @@ namespace SongCore.Data
             try
             {
                 JObject info = JObject.Parse(infoText);
-            //Check if song uses legacy value for full song One Saber mode
-            bool legacyOneSaber = false;
-            if (info.ContainsKey("oneSaber")) legacyOneSaber = (bool)info["oneSaber"];
+                //Check if song uses legacy value for full song One Saber mode
+                bool legacyOneSaber = false;
+                if (info.ContainsKey("oneSaber")) legacyOneSaber = (bool)info["oneSaber"];
 
 
-            if (info.ContainsKey("contributors"))
-            {
-                contributors = info["contributors"].ToObject<Contributor[]>();
-            }
-            else
-            {
-                contributors = new Contributor[0];
-            }
-            if (info.ContainsKey("customEnvironment")) customEnvironmentName = (string)info["customEnvironment"];
-            if (info.ContainsKey("customEnvironmentHash")) customEnvironmentHash = (string)info["customEnvironmentHash"];
-            List<DifficultyData> diffData = difficultes?.ToList();
+                if (info.ContainsKey("contributors"))
+                {
+                    contributors = info["contributors"].ToObject<Contributor[]>();
+                }
+                else
+                {
+                    contributors = new Contributor[0];
+                }
+                if (info.ContainsKey("customEnvironment")) customEnvironmentName = (string)info["customEnvironment"];
+                if (info.ContainsKey("customEnvironmentHash")) customEnvironmentHash = (string)info["customEnvironmentHash"];
+                List<DifficultyData> diffData = difficultes?.ToList();
                 if (diffData == null) return;
-            JArray diffLevels = (JArray)info["difficultyLevels"];
-            for(int i = 0; i < diffData.Count; ++i)
-            {
-                var json = (JObject)diffLevels[i];
+                JArray diffLevels = (JArray)info["difficultyLevels"];
+                for (int i = 0; i < diffData.Count; ++i)
+                {
+                    var json = (JObject)diffLevels[i];
 
-                diffData[i].difficulty = Utilities.Utils.ToEnum((string)json["difficulty"], BeatmapDifficulty.Normal);
-                diffData[i].beatmapCharacteristicName = json.ContainsKey("characteristic") ? (string)json["characteristic"] : legacyOneSaber ? "One Saber" : "Standard";
-                diffData[i].difficultyLabel = "";
-                if (json.ContainsKey("difficultyLabel")) diffData[i].difficultyLabel = (string)json["difficultyLabel"];
+                    diffData[i].difficulty = Utilities.Utils.ToEnum((string)json["difficulty"], BeatmapDifficulty.Normal);
+                    diffData[i].beatmapCharacteristicName = json.ContainsKey("characteristic") ? (string)json["characteristic"] : legacyOneSaber ? "One Saber" : "Standard";
+                    diffData[i].difficultyLabel = "";
+                    if (json.ContainsKey("difficultyLabel")) diffData[i].difficultyLabel = (string)json["difficultyLabel"];
+                }
+
+                difficultes = diffData.ToArray();
             }
-
-            difficultes = diffData.ToArray();
+            catch (Exception ex)
+            {
+                Utilities.Logging.Log($"Error in Level {songPath}: \n {ex}", IPA.Logging.Logger.Level.Error);
+            }
         }
-        catch(Exception ex)
-            {
-                Utilities.Logging.Log($"Error in Level {levelID}: \n {ex}", IPA.Logging.Logger.Level.Error);
-            }
-}
 
-        
+
 
 
         [Serializable]
@@ -216,5 +268,4 @@ namespace SongCore.Data
     }
 }
 
- 
- 
+

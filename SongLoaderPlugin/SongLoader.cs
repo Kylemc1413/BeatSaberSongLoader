@@ -13,33 +13,10 @@ using UnityEngine.Networking;
 using CustomUI.BeatSaber;
 using UnityEngine.UI;
 using TMPro;
-using CustomFloorPlugin;
 namespace SongLoaderPlugin
 {
     public class SongLoader : MonoBehaviour
     {
-        private static List<string> _capabilities = new List<string>();
-        public static System.Collections.ObjectModel.ReadOnlyCollection<string> capabilities
-        {
-            get { return _capabilities.AsReadOnly(); }
-        }
-
-        private static List<BeatmapCharacteristicSO> _customCharacteristics = new List<BeatmapCharacteristicSO>();
-        public static System.Collections.ObjectModel.ReadOnlyCollection<BeatmapCharacteristicSO> customCharacteristics
-        {
-            get { return _customCharacteristics.AsReadOnly(); }
-        }
-
-
-        public static UnityEngine.UI.Button infoButton;
-        internal static CustomUI.BeatSaber.CustomMenu reqDialog;
-        internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
-        internal static Sprite HaveReqIcon;
-        internal static Sprite MissingReqIcon;
-        internal static Sprite HaveSuggestionIcon;
-        internal static Sprite MissingSuggestionIcon;
-        internal static Sprite WarningIcon;
-        internal static Sprite InfoIcon;
         internal static Sprite CustomSongsIcon;
         internal static Sprite MissingCharIcon;
         internal static Sprite LightshowIcon;
@@ -57,9 +34,6 @@ namespace SongLoaderPlugin
         public static CustomBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
         public static CustomBeatmapLevelPackSO CustomBeatmapLevelPackSO { get; private set; }
         public static CustomBeatmapLevelPackSO WIPCustomBeatmapLevelPackSO { get; private set; }
-        private bool CustomPlatformsPresent = IPA.Loader.PluginManager.AllPlugins.Any(x => x.Metadata.Id == "Custom Platforms") || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "Custom Platforms");
-        private bool CustomColorsPresent = IPA.Loader.PluginManager.AllPlugins.Any(x => x.Metadata.Id == "Custom Colors" || x.Metadata.Name == "Chroma")  || IPA.Loader.PluginManager.Plugins.Any(x => x.Name == "Custom Colors" || x.Name == "CustomColorsEdit" || x.Name == "Chroma");
-        private int _currentPlatform = -1;
 
         public const string MenuSceneName = "MenuCore";
         public const string GameSceneName = "GameCore";
@@ -83,15 +57,11 @@ namespace SongLoaderPlugin
         private SceneEvents _sceneEvents;
 
         public static CustomLevel.CustomDifficultyBeatmap CurrentLevelPlaying { get; private set; }
-        public static System.Collections.ObjectModel.ReadOnlyCollection<string> currentRequirements;
-        public static System.Collections.ObjectModel.ReadOnlyCollection<string> currentSuggestions;
 
         public static readonly AudioClip TemporaryAudioClip = AudioClip.Create("temp", 1, 2, 1000, true);
 
         private LogSeverity _minLogSeverity;
         internal static bool firstLoad = false;
-        private bool customSongColors;
-        private bool customSongPlatforms;
         public static void OnLoad()
         {
             if (Instance != null) return;
@@ -117,10 +87,7 @@ namespace SongLoaderPlugin
 
         private void OnSceneTransitioned(Scene activeScene)
         {
-            GameObject.Destroy(GameObject.Find("SongLoader Color Setter"));
-            customSongColors = Plugin.ModPrefs.GetBool("Songloader", "customSongColors", true, true);
-            customSongPlatforms = Plugin.ModPrefs.GetBool("Songloader", "customSongPlatforms", true, true);
-            if (AreSongsLoading)
+              if (AreSongsLoading)
             {
                 //Scene changing while songs are loading. Since we are using a separate thread while loading, this is bad and could cause a crash.
                 //So we have to stop loading.
@@ -202,8 +169,7 @@ namespace SongLoaderPlugin
                     _LevelListViewController.didSelectLevelEvent += StandardLevelListViewControllerOnDidSelectLevelEvent;
                 }
 
-                if (CustomPlatformsPresent)
-                    CheckForPreviousPlatform();
+
 
             }
             else if (activeScene.name == GameSceneName)
@@ -224,15 +190,6 @@ namespace SongLoaderPlugin
                 var song = CustomLevels.FirstOrDefault(x => x.levelID == level.level.levelID);
                 if (song == null) return;
                 NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
-
-                //Set environment if the song has customEnvironment
-                if (CustomPlatformsPresent)
-                    CheckCustomSongEnvironment(song);
-                //Set enviroment colors for the song if it has song specific colors
-
-
-                if (customSongColors && CustomColorsPresent)
-                    song.SetSongColors(CurrentLevelPlaying.colorLeft, CurrentLevelPlaying.colorRight, CurrentLevelPlaying.hasCustomColors);
 
             }
         }
@@ -272,28 +229,7 @@ namespace SongLoaderPlugin
             */
         }
 
-        private void CheckForPreviousPlatform()
-        {
-            if (_currentPlatform != -1)
-            {
-                CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
-            }
-        }
-        private void CheckCustomSongEnvironment(CustomLevel song)
-        {
-            if (song.customSongInfo.customEnvironment != null)
-            {
-                int _customPlatform = customEnvironment(song);
-                if (_customPlatform != -1)
-                {
-                    _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
-                    if (customSongPlatforms && _customPlatform != _currentPlatform)
-                    {
-                        CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
-                    }
-                }
-            }
-        }
+     
 
         private void StandardLevelListViewControllerOnDidSelectLevelEvent(LevelPackLevelsViewController levelListViewController, IPreviewBeatmapLevel level)
         {
@@ -312,21 +248,7 @@ namespace SongLoaderPlugin
     "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel,
     callback));
 
-            if (CustomPlatformsPresent && customSongPlatforms)
-            {
-                if (!string.IsNullOrWhiteSpace(customLevel.customSongInfo.customEnvironment))
-                {
-                    if (findCustomEnvironment(customLevel.customSongInfo.customEnvironment) == -1)
-                    {
-                        Console.WriteLine("CustomPlatform not found: " + customLevel.customSongInfo.customEnvironment);
-                        if (customLevel.customSongInfo.customEnvironmentHash != null)
-                        {
-                            Console.WriteLine("Downloading with hash: " + customLevel.customSongInfo.customEnvironmentHash);
-                            StartCoroutine(downloadCustomPlatform(customLevel.customSongInfo.customEnvironmentHash, customLevel.customSongInfo.customEnvironment));
-                        }
-                    }
-                }
-            }
+          
 
 
         }
@@ -865,7 +787,7 @@ callback));
 
                 SongsLoadedEvent?.Invoke(this, CustomLevels);
 
-                SongCore.Collections.Save();
+                SongCore.Collections.SaveExtraSongData();
 
             };
 
@@ -997,11 +919,6 @@ callback));
             }
 
             songInfo.path = songPath;
-            if (songInfo.lighters == null)
-                songInfo.lighters = new string[0];
-            if (songInfo.mappers == null)
-                songInfo.mappers = new string[0];
-
             //Here comes SimpleJSON to the rescue when JSONUtility can't handle an array.
             var diffLevels = new List<CustomSongInfo.DifficultyLevel>();
             var n = JSON.Parse(infoText);
@@ -1020,12 +937,6 @@ callback));
                 {
                     characteristic = n["characteristic"];
                 }
-
-                string difficultyLabel = "";
-                if (n["difficultyLabel"] != null)
-                {
-                    difficultyLabel = n["difficultyLabel"];
-                }
                 diffLevels.Add(new CustomSongInfo.DifficultyLevel
                 {
                     difficulty = n["difficulty"],
@@ -1034,31 +945,8 @@ callback));
                     jsonPath = n["jsonPath"],
                     noteJumpMovementSpeed = n["noteJumpMovementSpeed"],
                     characteristic = characteristic,
-                    difficultyLabel = difficultyLabel
                 });
             }
-            var o = JSON.Parse(infoText);
-            var contributors = new List<CustomSongInfo.Contributor>();
-                var authors = o["contributors"];
-            if (authors != null)
-            for (int i = 0; i < authors.AsArray.Count; i++)
-            {
-                o = authors[i];
-
-
-
-                contributors.Add(new CustomSongInfo.Contributor
-                {
-                    role = o["role"],
-                    name = o["name"],
-                    iconPath = o["iconPath"],
-                    //icon = Utils.LoadSpriteFromFile(songPath + o["iconPath"])
-
-
-
-                });
-            }
-                songInfo.contributors = contributors.ToArray();
            
 
             songInfo.difficultyLevels = diffLevels.ToArray();
@@ -1070,121 +958,11 @@ callback));
             Console.WriteLine("Song Loader [" + severity.ToString().ToUpper() + "]: " + message);
         }
 
-        internal static void InitRequirementsMenu()
-        {
-            reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
-            reqViewController = BeatSaberUI.CreateViewController<CustomListViewController>();
-            RectTransform confirmContainer = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
-            confirmContainer.SetParent(reqViewController.rectTransform, false);
-            confirmContainer.sizeDelta = new Vector2(60f, 0f);
-            GetIcons();
-            reqDialog.SetMainViewController(reqViewController, true);
-
-
-        }
-
-
-        internal static void showSongRequirements(CustomLevel.CustomDifficultyBeatmap beatmap, CustomSongInfo songInfo)
-        {
-            //   suggestionsList.text = "";
-
-            reqViewController.Data.Clear();
-            if(songInfo?.contributors?.Length > 0)
-            {
-                foreach(CustomSongInfo.Contributor author in songInfo.contributors)
-                {
-                    if (author.icon == null)
-                        if(!string.IsNullOrWhiteSpace(author.iconPath))
-                        {
-                            author.icon = Utils.LoadSpriteFromFile(songInfo.path + "/" + author.iconPath);
-                            reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, author.icon));
-                        }
-                    else
-                            reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, InfoIcon));
-
-                }
-            }
-
-            if (songInfo?.mappers?.Length > 0)
-            {
-                foreach (string mapper in songInfo.mappers)
-                {
-                    reqViewController.Data.Add(new CustomCellInfo(mapper, "Mapping", InfoIcon));
-                }
-            }
-            if (songInfo?.lighters?.Length > 0)
-            {
-                foreach (string lighter in songInfo.lighters)
-                {
-                    reqViewController.Data.Add(new CustomCellInfo(lighter, "Lighting", InfoIcon));
-                }
-            }
-            if (beatmap.requirements.Count > 0)
-            {
-                foreach (string req in beatmap.requirements)
-                {
-                    //    Console.WriteLine(req);
-                    if (!capabilities.Contains(req))
-                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
-                    else
-                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
-                }
-            }
-            if (beatmap.warnings.Count > 0)
-            {
-                foreach (string req in beatmap.warnings)
-                {
-
-                    //    Console.WriteLine(req);
-
-                    reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
-                }
-            }
-            if (beatmap.information.Count > 0)
-            {
-                foreach (string req in beatmap.information)
-                {
-
-                    //    Console.WriteLine(req);
-
-                    reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Info", InfoIcon));
-                }
-            }
-            if (beatmap.suggestions.Count > 0)
-            {
-                foreach (string req in beatmap.suggestions)
-                {
-
-                    //    Console.WriteLine(req);
-                    if (!capabilities.Contains(req))
-                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));
-                    else
-                        reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon));
-                }
-            }
-
-            reqDialog.Present();
-            reqViewController._customListTableView.ReloadData();
-
-        }
-
 
         internal static void GetIcons()
         {
             if(!CustomSongsIcon)
             CustomSongsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
-            if (!MissingReqIcon)
-                MissingReqIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.RedX.png");
-            if (!HaveReqIcon)
-                HaveReqIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.GreenCheck.png");
-            if (!HaveSuggestionIcon)
-                HaveSuggestionIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowCheck.png");
-            if (!MissingSuggestionIcon)
-                MissingSuggestionIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.YellowX.png");
-            if (!WarningIcon)
-                WarningIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Warning.png");
-            if (!InfoIcon)
-                InfoIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Info.png");
             if (!MissingCharIcon)
                 MissingCharIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
             if (!LightshowIcon)
@@ -1251,112 +1029,29 @@ callback));
             return path;
         }
 
-        private int customEnvironment(CustomLevel song)
-        {
-            if (!CustomPlatformsPresent)
-                return -1;
-            return findCustomEnvironment(song.customSongInfo.customEnvironment);
-        }
 
 
 
-        private int findCustomEnvironment(string name)
-        {
 
-            CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
-            int platIndex = 0;
-            foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
-            {
-                if (plat?.platName == name)
-                    return platIndex;
-                platIndex++;
-            }
-            Console.WriteLine(name + " not found!");
+     
 
-            return -1;
-        }
-
-        [Serializable]
-        public class platformDownloadData
-        {
-            public string name;
-            public string author;
-            public string image;
-            public string hash;
-            public string download;
-            public string date;
-        }
-
-        private IEnumerator downloadCustomPlatform(string hash, string name)
-        {
-            using (UnityWebRequest www = UnityWebRequest.Get("https://modelsaber.assistant.moe/api/v1/platform/get.php?filter=hash:" + hash))
-            {
-                yield return www.SendWebRequest();
-
-                if (www.isNetworkError || www.isHttpError)
-                {
-                    Console.WriteLine(www.error);
-                }
-                else
-                {
-                    platformDownloadData downloadData = JsonUtility.FromJson<platformDownloadData>(JSON.Parse(www.downloadHandler.text)[0].ToString());
-                    if (downloadData.name == name)
-                    {
-                        StartCoroutine(_downloadCustomPlatform(downloadData));
-                    }
-                }
-            }
-        }
-
-        private IEnumerator _downloadCustomPlatform(platformDownloadData downloadData)
-        {
-            using (UnityWebRequest www = UnityWebRequest.Get(downloadData.download))
-            {
-                yield return www.SendWebRequest();
-
-                if (www.isNetworkError || www.isHttpError)
-                {
-                    Console.WriteLine(www.error);
-                }
-                else
-                {
-                    string customPlatformsFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomPlatforms", downloadData.name);
-                    System.IO.File.WriteAllBytes(@customPlatformsFolderPath + ".plat", www.downloadHandler.data);
-                    CustomFloorPlugin.PlatformManager.Instance.AddPlatform(customPlatformsFolderPath + ".plat");
-                }
-            }
-        }
+        
 
         public static void RegisterCapability(string capability)
         {
-            if (!_capabilities.Contains(capability))
-                _capabilities.Add(capability);
+            SongCore.Collections.RegisterCapability(capability);
         }
 
         public static BeatmapCharacteristicSO RegisterCustomCharacteristic(Sprite Icon, string CharacteristicName, string HintText, string SerializedName, string CompoundIdPartName)
         {
-            BeatmapCharacteristicSO newChar = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
-
-            newChar.SetField("_icon", Icon);
-            newChar.SetField("_hintText", HintText);
-            newChar.SetField("_serializedName", SerializedName);
-            newChar.SetField("_characteristicName", CharacteristicName);
-            newChar.SetField("_compoundIdPartName", CompoundIdPartName);
-
-            if (!_customCharacteristics.Any(x => x.serializedName == newChar.serializedName))
-            {
-                _customCharacteristics.Add(newChar);
-                return newChar;
-            }
-
-            return null;
+            return SongCore.Collections.RegisterCustomCharacteristic(Icon, CharacteristicName, HintText, SerializedName, CompoundIdPartName);
         }
 
 
 
         public static void DeregisterizeCapability(string capability)
         {
-            _capabilities.Remove(capability);
+            SongCore.Collections.DeregisterizeCapability(capability);
         }
 
 

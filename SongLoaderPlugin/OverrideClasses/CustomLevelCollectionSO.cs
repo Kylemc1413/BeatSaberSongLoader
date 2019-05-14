@@ -67,7 +67,7 @@ namespace SongLoaderPlugin.OverrideClasses
                                 break;
 
                             default:
-                                BeatmapCharacteristicSO characteristic = SongLoader.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
+                                BeatmapCharacteristicSO characteristic = SongCore.Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
                                 if (characteristic != null)
                                     characteristics.Add(characteristic);
                                 break;
@@ -110,12 +110,12 @@ namespace SongLoaderPlugin.OverrideClasses
                             break;
 
                         default:
-                            BeatmapCharacteristicSO characteristic = SongLoader.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
+                            BeatmapCharacteristicSO characteristic = SongCore.Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == diffLevel.characteristic);
                             if (characteristic != null)
                                 characteristics.Add(characteristic);
                             else
-                                if (!characteristics.Contains(SongLoader.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic")))
-                                characteristics.Add(SongLoader.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic"));
+                                if (!characteristics.Contains(SongCore.Collections.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic")))
+                                characteristics.Add(SongCore.Collections.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic"));
                             break;
                     
 

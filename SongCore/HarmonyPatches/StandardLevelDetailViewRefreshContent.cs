@@ -70,51 +70,78 @@ namespace SongCore.HarmonyPatches
                     MenuUI.infoButton.interactable = false;
                     return;
                 }
-
+                bool wipFolderSong = false;
                 IDifficultyBeatmap selectedDiff = ____selectedDifficultyBeatmap;
-                Data.ExtraSongData.DifficultyData diffData = songData.difficultes.First(x => x.difficulty == selectedDiff.difficulty
+                Data.ExtraSongData.DifficultyData diffData = songData.difficultes.FirstOrDefault(x => x.difficulty == selectedDiff.difficulty
                 && x.beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName);
+                if(diffData != null)
+                {
+                    //If no additional information is present
+                    if (diffData.additionalDifficultyData.requirements.Count() == 0 && diffData.additionalDifficultyData.requirements.Count() == 0
+                        && diffData.additionalDifficultyData.requirements.Count() == 0 && diffData.additionalDifficultyData.requirements.Count() == 0
+                        && songData.contributors.Count() == 0)
+                    {
+                        MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
+                        MenuUI.infoButton.interactable = false;
+                    }
+                    else if (diffData.additionalDifficultyData.warnings.Count() == 0)
+                    {
+                        MenuUI.infoButton.interactable = true;
+                        MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.blue;
+                    }
+                    else if (diffData.additionalDifficultyData.warnings.Count() > 0)
+                    {
+                        MenuUI.infoButton.interactable = true;
+                        MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                        if (diffData.additionalDifficultyData.warnings.Contains("WIP"))
+                        {
+                            ____playButton.interactable = false;
+                            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                        }
+
+                    }
+                }
+             
+                if (songData.songPath.Contains("WIP Songs"))
+                {
+                    MenuUI.infoButton.interactable = true;
+                    MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                    ____playButton.interactable = false;
+                    ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                    wipFolderSong = true;
+
+                }
+                if(diffData != null)
+                {
+
+                    for (int i = 0; i < diffData.additionalDifficultyData.requirements.Count(); i++)
+                    {
+                        if (!Collections.capabilities.Contains(diffData.additionalDifficultyData.requirements[i]))
+                        {
+                            ____playButton.interactable = false;
+                            ____practiceButton.interactable = false;
+                            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                            MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                        }
+                    }
+                }
+
+
+                if(selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName == "Missing Characteristic")
+                {
+                    ____playButton.interactable = false;
+                    ____practiceButton.interactable = false;
+                    ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                    MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                }
+
                 MenuUI.infoButton.onClick.RemoveAllListeners();
                 MenuUI.infoButton.onClick.AddListener(delegate ()
                 {
                     //Console.WriteLine("Click");
-                    MenuUI.showSongRequirements(songData, diffData);
+                    MenuUI.showSongRequirements(songData, diffData, wipFolderSong);
                 });
-                //If no additional information is present
-                if(diffData.additionalDifficultyData.requirements.Count() == 0 && diffData.additionalDifficultyData.requirements.Count() == 0 
-                    && diffData.additionalDifficultyData.requirements.Count() == 0 && diffData.additionalDifficultyData.requirements.Count() == 0 
-                    && songData.contributors.Count() == 0 )
-                {
-                    MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
-                    MenuUI.infoButton.interactable = false;
-                }
-                else if(diffData.additionalDifficultyData.warnings.Count() == 0)
-                {
-                    MenuUI.infoButton.interactable = true;
-                    MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.blue;
-                }
-                else if (diffData.additionalDifficultyData.warnings.Count() > 0)
-                {
-                    MenuUI.infoButton.interactable = true;
-                    MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
-                    if(diffData.additionalDifficultyData.warnings.Contains("WIP"))
-                    {
-                        ____playButton.interactable = false;
-                        ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
-                    }
-                    
-                }
 
-                for (int i = 0; i < diffData.additionalDifficultyData.requirements.Count(); i++)
-                {
-                    if (!Collections.capabilities.Contains(diffData.additionalDifficultyData.requirements[i]))
-                    {
-                        ____playButton.interactable = false;
-                        ____practiceButton.interactable = false;
-                        ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
-                        MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
-                    }
-                }
 
                 //Difficulty Label Handling
                 bool overrideLabels = false;

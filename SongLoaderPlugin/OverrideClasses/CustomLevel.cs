@@ -61,25 +61,25 @@ namespace SongLoaderPlugin.OverrideClasses
                         beatmapsets.Add(new DifficultyBeatmapSet(characteristicsSO[i], beatmaps.ToArray()));
                 }
                 //Check Custom Charactersistics
-                for (int i = 0; i < SongLoader.customCharacteristics.Count; i++)
+                for (int i = 0; i < SongCore.Collections.customCharacteristics.Count; i++)
                 {
                     List<DifficultyBeatmap> beatmaps = new List<DifficultyBeatmap>();
                     foreach (DifficultyBeatmap beatmap in newDifficultyBeatmaps)
                     {
                         string characteristic = (beatmap as CustomDifficultyBeatmap).Characteristic;
-                        if (characteristic == SongLoader.customCharacteristics[i].characteristicName)
+                        if (characteristic == SongCore.Collections.customCharacteristics[i].characteristicName)
                             beatmaps.Add(beatmap);
-                        else if (!SongLoader.customCharacteristics.Any(x => x.characteristicName == characteristic)
+                        else if (!SongCore.Collections.customCharacteristics.Any(x => x.characteristicName == characteristic)
                             && (characteristic != "Standard" && characteristic != "One Saber" && characteristic != "No Arrows" && !string.IsNullOrWhiteSpace(characteristic)) )
                             missingCharacteristicBeatmaps.Add(beatmap);
 
                     }
                     if (beatmaps.Count > 0)
-                        beatmapsets.Add(new DifficultyBeatmapSet(SongLoader.customCharacteristics[i], beatmaps.ToArray()));
+                        beatmapsets.Add(new DifficultyBeatmapSet(SongCore.Collections.customCharacteristics[i], beatmaps.ToArray()));
                 }
                 if (missingCharacteristicBeatmaps.Count > 0)
                     beatmapsets.Add(new DifficultyBeatmapSet
-                        (SongLoader.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic"), missingCharacteristicBeatmaps.ToArray()));
+                        (SongCore.Collections.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic"), missingCharacteristicBeatmaps.ToArray()));
 
 
 
@@ -114,7 +114,7 @@ namespace SongLoaderPlugin.OverrideClasses
                     characteristic = "Standard";
 
                 else if (characteristic != "Standard" && characteristic != "One Saber" && characteristic != "No Arrows")
-                    missingChar = !(SongLoader.customCharacteristics.Any(x => x.characteristicName == characteristic));
+                    missingChar = !(SongCore.Collections.customCharacteristics.Any(x => x.characteristicName == characteristic));
 
                 if (missingChar)
                     characteristic = "Missing Characteristic";
@@ -131,16 +131,9 @@ namespace SongLoaderPlugin.OverrideClasses
 
                 var customBeatmap = diffBeatmap as CustomDifficultyBeatmap;
                 if (customBeatmap == null) continue;
-                if (missingChar)
-                {
 
-                    customBeatmap.AddWarning($"Missing Characteristic.");
-                    customBeatmap.AddRequirement("Must have Beatmap Characteristic");
-                }
 
-                if (inWipFolder) customBeatmap.AddWarning("WIP");
-
-                customBeatmap.ParseDiffJson(diffLevel.json, out bpm, out noteSpeed, out noteJumpStartBeatOffset, out colorLeft, out colorRight);
+                customBeatmap.ParseDiffJson(diffLevel.json, out bpm, out noteSpeed, out noteJumpStartBeatOffset);
                 if (bpm.HasValue)
                 {
                     if (bpms.ContainsKey(bpm.Value))
@@ -159,23 +152,8 @@ namespace SongLoaderPlugin.OverrideClasses
                 if (noteJumpStartBeatOffset.HasValue)
                     customBeatmap.SetNoteJumpStartBeatOffset(noteJumpStartBeatOffset.Value);
 
-                try
-                {
-                    if (colorLeft.HasValue)
-                    {
-                        customBeatmap.SetLeftColor(colorLeft.Value);
-                        customBeatmap.hasCustomColors = true;
-                    }
-                    if (colorRight.HasValue)
-                    {
-                        customBeatmap.SetRightColor(colorRight.Value);
-                        customBeatmap.hasCustomColors = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
+
+
 
             }
 
@@ -202,30 +180,8 @@ namespace SongLoaderPlugin.OverrideClasses
 
         public class CustomDifficultyBeatmap : DifficultyBeatmap
         {
-            public Color colorLeft { get; private set; }
-            public Color colorRight { get; private set; }
-            internal bool hasCustomColors { get; set; } = false;
             public string Characteristic { get; private set; }
-            private List<string> Requirements = new List<string>();
-            public System.Collections.ObjectModel.ReadOnlyCollection<string> requirements
-            {
-                get { return Requirements.AsReadOnly(); }
-            }
-            private List<string> Suggestions = new List<string>();
-            public System.Collections.ObjectModel.ReadOnlyCollection<string> suggestions
-            {
-                get { return Suggestions.AsReadOnly(); }
-            }
-            private List<string> Warnings = new List<string>();
-            public System.Collections.ObjectModel.ReadOnlyCollection<string> warnings
-            {
-                get { return Warnings.AsReadOnly(); }
-            }
-            private List<string> Information = new List<string>();
-            public System.Collections.ObjectModel.ReadOnlyCollection<string> information
-            {
-                get { return Information.AsReadOnly(); }
-            }
+      
 
 
             public CustomDifficultyBeatmap(IBeatmapLevel parentLevel, BeatmapDifficulty difficulty, int difficultyRank, float noteJumpMovementSpeed, int noteJumpStartBeatOffset, BeatmapDataSO beatmapData, string characteristic = "") : base(parentLevel, difficulty, difficultyRank, noteJumpMovementSpeed, noteJumpStartBeatOffset, beatmapData)
@@ -251,25 +207,14 @@ namespace SongLoaderPlugin.OverrideClasses
             {
                 _noteJumpStartBeatOffset = newNoteJumpStartBeatOffset;
             }
-            public void SetLeftColor(Color colorLeft)
-            {
-                this.colorLeft = colorLeft;
-            }
-            public void SetRightColor(Color colorRight)
-            {
-                this.colorRight = colorRight;
-            }
 
 
             //This is quicker than using a JSON parser
-            internal void ParseDiffJson(string json, out float? bpm, out float? noteJumpSpeed, out int? noteJumpStartBeatOffset, out Color? colorLeft, out Color? colorRight)
+            internal void ParseDiffJson(string json, out float? bpm, out float? noteJumpSpeed, out int? noteJumpStartBeatOffset)
             {
-                int value;
                 bpm = null;
                 noteJumpSpeed = null;
                 noteJumpStartBeatOffset = null;
-                colorLeft = null;
-                colorRight = null;
                 var split = json.Split(':');
                 for (var i = 0; i < split.Length; i++)
                 {
@@ -290,74 +235,6 @@ namespace SongLoaderPlugin.OverrideClasses
                             noteJumpStartBeatOffset = (int)Convert.ToDouble(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
                         }
 
-                        //Song Colors
-                        if (split[i].Contains("_colorLeft"))
-                        {
-                            float? r = null;
-                            float? g = null;
-                            float? b = null;
-
-                            if (split[i + 1].Contains("r"))
-                                r = Convert.ToSingle(split[i + 2].Split(',')[0], CultureInfo.InvariantCulture);
-                            if (split[i + 2].Contains("g"))
-                                g = Convert.ToSingle(split[i + 3].Split(',')[0], CultureInfo.InvariantCulture);
-                            if (split[i + 3].Contains("b"))
-                                b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
-
-                            if (!(r.Value < 0 || g.Value < 0 || b.Value < 0))
-                                colorLeft = new Color(r.Value, g.Value, b.Value);
-                        }
-                        if (split[i].Contains("_colorRight"))
-                        {
-                            float? r = null;
-                            float? g = null;
-                            float? b = null;
-
-                            if (split[i + 1].Contains("r"))
-                                r = Convert.ToSingle(split[i + 2].Split(',')[0], CultureInfo.InvariantCulture);
-                            if (split[i + 2].Contains("g"))
-                                g = Convert.ToSingle(split[i + 3].Split(',')[0], CultureInfo.InvariantCulture);
-                            if (split[i + 3].Contains("b"))
-                                b = Convert.ToSingle(split[i + 4].Split('}')[0], CultureInfo.InvariantCulture);
-
-                            if (!(r.Value < 0 || g.Value < 0 || b.Value < 0))
-                                colorRight = new Color(r.Value, g.Value, b.Value);
-                        }
-
-                        //Requirements etc
-                        if (split[i].Contains("_warnings"))
-                        {
-                            string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
-                            for (int j = 0; j < reqs.Length; j++)
-                                if (!string.IsNullOrEmpty(reqs[j]))
-                                    AddWarning(reqs[j]);
-
-
-                        }
-
-                        if (split[i].Contains("_requirements"))
-                        {
-                            string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
-                            for (int j = 0; j < reqs.Length; j++)
-                                if(!string.IsNullOrEmpty(reqs[j]))
-                                AddRequirement(reqs[j]);
-                        }
-
-                        if (split[i].Contains("_suggestions"))
-                        {
-                            string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
-                            for (int j = 0; j < reqs.Length; j++)
-                                if (!string.IsNullOrEmpty(reqs[j]))
-                                    AddSuggestion(reqs[j]);
-                        }
-                        if (split[i].Contains("_information"))
-                        {
-                            string[] reqs = split[i + 1].Split('[', ']')[1].Replace("\"", "").Split(',');
-                            for (int j = 0; j < reqs.Length; j++)
-                                if (!string.IsNullOrEmpty(reqs[j]))
-                                    AddInformation(reqs[j]);
-                        }
-
                     }
                     catch (Exception ex)
                     {
@@ -371,28 +248,7 @@ namespace SongLoaderPlugin.OverrideClasses
                 }
             }
 
-            public void AddRequirement(string requirement)
-            {
-                if (!Requirements.Contains(requirement))
-                    Requirements.Add(requirement);
-            }
-
-            public void AddSuggestion(string suggestion)
-            {
-                if (!Suggestions.Contains(suggestion))
-                    Suggestions.Add(suggestion);
-            }
-
-            public void AddWarning(string warning)
-            {
-                if (!Warnings.Contains(warning))
-                    Warnings.Add(warning);
-            }
-            public void AddInformation(string info)
-            {
-                if (!Information.Contains(info))
-                    Information.Add(info);
-            }
+        
         }
 
         public void Reset()
@@ -401,63 +257,6 @@ namespace SongLoaderPlugin.OverrideClasses
             BPMAndNoteSpeedFixed = false;
         }
 
-        public void SetSongColors(Color colorLeft, Color colorRight, bool hasColors)
-        {
-            if (!hasColors) return;
-            GameObject colorSetterObj = null;
-            EnvironmentColorsSetter colorSetter;
-            if (customSongInfo.environmentName.Contains("KDA"))
-            {
-           //     Console.WriteLine("KDA");
-                colorSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
-            }
-            else
-            {
-                colorSetterObj = new GameObject("SongLoader Color Setter");
-
-                colorSetterObj.SetActive(false);
-                colorSetter = colorSetterObj.AddComponent<EnvironmentColorsSetter>();
-            }
-
-            var scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
-            SimpleColorSO[] A = new SimpleColorSO[2];
-            SimpleColorSO[] B = new SimpleColorSO[2];
-            foreach (var color in scriptableColors)
-            {
-           //     Console.WriteLine("Color: " + color.name);
-                int i = 0;
-                if (color.name == "BaseNoteColor1")
-                {
-                    B[0] = color;
-                    i++;
-                }
-                else if (color.name == "BaseNoteColor0")
-                {
-                    A[0] = color;
-                    i++;
-                }
-                else if (color.name == "BaseColor0")
-                {
-                    A[1] = color;
-                    i++;
-                }
-                else if (color.name == "BaseColor1")
-                {
-                    B[1] = color;
-                    i++;
-                }
-            }
-            colorSetter.SetPrivateField("_colorsA", A);
-            colorSetter.SetPrivateField("_colorsB", B);
-            colorSetter.SetPrivateField("_colorManager", Resources.FindObjectsOfTypeAll<ColorManager>().First());
-            colorSetter.SetPrivateField("_overrideColorA", colorRight);
-            colorSetter.SetPrivateField("_overrideColorB", colorLeft);
-        //    Console.WriteLine("Turning on");
-            if (colorSetterObj != null)
-                colorSetterObj.SetActive(true);
-
-            colorSetter.Awake();
-
-        }
+     
     }
 }

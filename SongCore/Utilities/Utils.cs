@@ -11,6 +11,24 @@ namespace SongCore.Utilities
 {
     public static class Utils
     {
+        public static bool IsModInstalled(string ModName)
+        {
+     //       Logging.Log($"Checking for Mod: {ModName}");
+            foreach (var mod in IPA.Loader.PluginManager.Plugins)
+            {
+        //        Logging.Log($"Comparing to: {mod.Name}");
+                if (mod.Name == ModName)
+                    return true;
+            }
+            foreach (var mod in IPA.Loader.PluginManager.AllPlugins)
+            {
+       //         Logging.Log($"Comparing to: {mod.Metadata.Id}");
+                if (mod.Metadata.Id == ModName)
+                    return true;
+            }
+            return false;
+        }
+
         public static TEnum ToEnum<TEnum>(this string strEnumValue, TEnum defaultValue)
         {
             if (!Enum.IsDefined(typeof(TEnum), strEnumValue))

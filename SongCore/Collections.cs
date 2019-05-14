@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using SongCore.Data;
 using Newtonsoft.Json;
+using UnityEngine;
+using SongCore.Utilities;
 namespace SongCore
 {
     public static class Collections
@@ -50,17 +52,57 @@ namespace SongCore
                 return null;
         }
 
-        public static void Load()
+        public static ExtraSongData.DifficultyData RetrieveDifficultyData(IDifficultyBeatmap beatmap)
+        {
+            ExtraSongData data = RetrieveExtraSongData(beatmap.level.levelID);
+            if (data == null) return null;
+            ExtraSongData.DifficultyData diffData = data.difficultes.FirstOrDefault(x => x.difficulty == beatmap.difficulty && x.beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName);
+            return diffData;
+        }
+        public static void LoadExtraSongData()
         {
             customSongsData = JsonConvert.DeserializeObject<Dictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
             if (customSongsData == null)
                 customSongsData = new Dictionary<string, ExtraSongData>();
         }
-        public static void Save()
+        public static void SaveExtraSongData()
         {
             File.WriteAllText(dataPath, JsonConvert.SerializeObject(customSongsData, Formatting.Indented));
         }
 
+
+
+        public static void RegisterCapability(string capability)
+        {
+            if (!_capabilities.Contains(capability))
+                _capabilities.Add(capability);
+        }
+
+        public static BeatmapCharacteristicSO RegisterCustomCharacteristic(Sprite Icon, string CharacteristicName, string HintText, string SerializedName, string CompoundIdPartName)
+        {
+            BeatmapCharacteristicSO newChar = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
+
+            newChar.SetField("_icon", Icon);
+            newChar.SetField("_hintText", HintText);
+            newChar.SetField("_serializedName", SerializedName);
+            newChar.SetField("_characteristicName", CharacteristicName);
+            newChar.SetField("_compoundIdPartName", CompoundIdPartName);
+
+            if (!_customCharacteristics.Any(x => x.serializedName == newChar.serializedName))
+            {
+                _customCharacteristics.Add(newChar);
+                return newChar;
+            }
+
+            return null;
+        }
+
+
+
+        public static void DeregisterizeCapability(string capability)
+        {
+            _capabilities.Remove(capability);
+        }
 
 
     }
