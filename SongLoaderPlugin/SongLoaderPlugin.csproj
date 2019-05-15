@@ -105,7 +105,6 @@
     <Compile Include="HarmonyPatches\LevelListCellForIdx.cs" />
     <Compile Include="Internals\Unzip.cs" />
     <Compile Include="IScriptableObjectResetable.cs" />
-    <Compile Include="LogSeverity.cs" />
     <Compile Include="OverrideClasses\CustomBeatmapLevelPackSO.cs" />
     <Compile Include="OverrideClasses\CustomBeatmapLevelPackCollectionSO.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

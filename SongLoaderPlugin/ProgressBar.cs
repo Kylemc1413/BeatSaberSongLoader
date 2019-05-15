@@ -23,7 +23,7 @@ namespace SongLoaderPlugin
 
         private static readonly Vector2 CanvasSize = new Vector2(100, 50);
 
-        private const string AuthorNameText = "xyonico's";
+        private const string AuthorNameText = "";
         private const float AuthorNameFontSize = 7f;
         private static readonly Vector2 AuthorNamePosition = new Vector2(10, 31);
 

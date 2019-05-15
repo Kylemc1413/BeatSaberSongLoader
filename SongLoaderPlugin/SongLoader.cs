@@ -537,10 +537,10 @@ namespace SongLoaderPlugin
 
                     var loadedIDs = new List<string>();
                     var songZips = Directory.GetFiles(path + "/CustomSongs")
-.Where(x =>
-x.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-|| x.EndsWith(".beat", StringComparison.OrdinalIgnoreCase)
-|| x.EndsWith(".bmap", StringComparison.OrdinalIgnoreCase)).ToArray();
+                    .Where(x =>
+                    x.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                    || x.EndsWith(".beat", StringComparison.OrdinalIgnoreCase)
+                    || x.EndsWith(".bmap", StringComparison.OrdinalIgnoreCase)).ToArray();
 
 
 
@@ -625,11 +625,11 @@ x.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
                         }
 
 
-                        foreach (var result in results)
+                        for (int i7 = 0; i7 < results.Length; i7++)
                         {
                             try
                             {
-                                var songPath = Path.GetDirectoryName(result).Replace('\\', '/');
+                                var songPath = Path.GetDirectoryName(results[i7]).Replace('\\', '/');
                                 if (!fullRefresh)
                                 {
                                     if (CustomLevels.Any(x => x.customSongInfo.path == songPath))
@@ -666,7 +666,7 @@ x.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
                             }
                             catch (Exception e)
                             {
-                                Log("Failed to load song folder: " + result, LogSeverity.Error);
+                                Log("Failed to load song folder: " + results[i7], LogSeverity.Error);
                                 Log(e.ToString(), LogSeverity.Error);
                             }
                         }
@@ -682,11 +682,11 @@ x.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
                         }
 
 
-                        foreach (var result in results)
+                        for (int i6 = 0; i6 < results.Length; i6++)
                         {
                             try
                             {
-                                var songPath = Path.GetDirectoryName(result).Replace('\\', '/');
+                                var songPath = Path.GetDirectoryName(results[i6]).Replace('\\', '/');
                                 if (!fullRefresh)
                                 {
                                     if (CustomLevels.Any(x => x.customSongInfo.path == songPath))
@@ -726,7 +726,7 @@ x.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
                             }
                             catch (Exception e)
                             {
-                                Log("Failed to load song folder: " + result, LogSeverity.Warning);
+                                Log("Failed to load song folder: " + results[i6], LogSeverity.Warning);
                                 Log(e.ToString(), LogSeverity.Warning);
                             }
                         }
@@ -749,12 +749,12 @@ x.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
                 var orderedList = CustomLevels.OrderBy(x => x.songName);
                 CustomLevels = orderedList.ToList();
 
-                foreach (var customLevel in CustomLevels)
+                for (int i = 0; i < CustomLevels.Count; i++)
                 {
-                    if (!customLevel.inWipFolder)
-                        CustomLevelCollectionSO.AddCustomLevel(customLevel);
+                    if (!CustomLevels[i].inWipFolder)
+                        CustomLevelCollectionSO.AddCustomLevel(CustomLevels[i]);
                     else
-                        WIPCustomLevelCollectionSO.AddCustomLevel(customLevel);
+                        WIPCustomLevelCollectionSO.AddCustomLevel(CustomLevels[i]);
                 }
 
                 ReloadHashes();
@@ -843,8 +843,9 @@ x.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
                 newLevel.SetAudioClip(TemporaryAudioClip);
 
                 var difficultyBeatmaps = new List<BeatmapLevelSO.DifficultyBeatmap>();
-                foreach (var diffBeatmap in song.difficultyLevels)
+                for (int i = 0; i < song.difficultyLevels.Length; i++)
                 {
+                    CustomSongInfo.DifficultyLevel diffBeatmap = song.difficultyLevels[i];
                     try
                     {
                         var difficulty = diffBeatmap.difficulty.ToEnum(BeatmapDifficulty.Normal);
