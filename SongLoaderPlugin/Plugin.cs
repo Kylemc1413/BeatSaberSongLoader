@@ -3,6 +3,7 @@ using IPA;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Harmony;
+using IPALogger = IPA.Logging.Logger;
 namespace SongLoaderPlugin
 {
     public class Plugin : IBeatSaberPlugin
@@ -11,8 +12,7 @@ namespace SongLoaderPlugin
         public static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongLoader");
         internal static HarmonyInstance harmony;
         private SceneEvents _sceneEvents;
-
-
+        public static IPALogger logger;
         public string Name
         {
             get { return "Song Loader Plugin"; }
@@ -34,6 +34,13 @@ namespace SongLoaderPlugin
             SongLoader.RegisterCustomCharacteristic(SongLoader.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow");
             SongLoader.RegisterCustomCharacteristic(SongLoader.ExtraDiffsIcon, "Lawless", "Lawless - These difficulties don't follow conventional standards, and should not necessarily be expected to reflect their given names.", "Lawless", "Lawless");
 
+
+        }
+
+        public void Init(object thisIsNull, IPALogger pluginLogger)
+        {
+
+            logger = pluginLogger;
         }
 
         private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode arg1)

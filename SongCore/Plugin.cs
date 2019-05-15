@@ -43,6 +43,9 @@ namespace SongCore
             CustomUI.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
            
             Collections.LoadExtraSongData();
+
+
+
         }
 
         private void BSEvents_levelSelected(LevelPackLevelsViewController arg1, IBeatmapLevel level)
