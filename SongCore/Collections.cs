@@ -32,7 +32,7 @@ namespace SongCore
 
         public static void AddSong(string levelID, string path, bool replace = false)
         {
-            
+
             if (!customSongsData.ContainsKey(levelID))
                 customSongsData.Add(levelID, new ExtraSongData(levelID, path));
             else
@@ -40,18 +40,26 @@ namespace SongCore
                 if (replace)
                 {
                     customSongsData[levelID].UpdateData(path);
-               //     customSongsData.Add(levelID, new ExtraSongData(levelID, path));
+                    //     customSongsData.Add(levelID, new ExtraSongData(levelID, path));
                 }
             }
-   //         Utilities.Logging.Log("Entry: :"  + levelID + "    " + customSongsData.Count);
+            //         Utilities.Logging.Log("Entry: :"  + levelID + "    " + customSongsData.Count);
         }
 
-        public static ExtraSongData RetrieveExtraSongData(string levelID)
+        public static ExtraSongData RetrieveExtraSongData(string levelID, string loadIfNullPath = "")
         {
             if (customSongsData.ContainsKey(levelID))
                 return customSongsData[levelID];
-            else
-                return null;
+
+            if (!string.IsNullOrWhiteSpace(loadIfNullPath))
+            {
+                AddSong(levelID, loadIfNullPath);
+
+                if (customSongsData.ContainsKey(levelID))
+                    return customSongsData[levelID];
+            }
+
+            return null;
         }
 
         public static ExtraSongData.DifficultyData RetrieveDifficultyData(IDifficultyBeatmap beatmap)
@@ -63,7 +71,7 @@ namespace SongCore
         }
         public static void LoadExtraSongData()
         {
-                customSongsData = Newtonsoft.Json.JsonConvert.DeserializeObject < Dictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
+            customSongsData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
             if (customSongsData == null)
                 customSongsData = new Dictionary<string, ExtraSongData>();
         }
@@ -74,7 +82,7 @@ namespace SongCore
         }
 
 
-        
+
         public static void RegisterCapability(string capability)
         {
             if (!_capabilities.Contains(capability))

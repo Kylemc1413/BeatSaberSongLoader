@@ -14,7 +14,6 @@ namespace SongCore.Data
     [Serializable]
     public class ExtraSongData
     {
-        public string levelID;
         public string songPath;
         public Contributor[] contributors; //convert legacy mappers/lighters fields into contributors
         public string customEnvironmentName;
@@ -31,7 +30,6 @@ namespace SongCore.Data
         public ExtraSongData(string levelID, string songPath, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
         {
       //      Utilities.Logging.Log("SongData full Ctor");
-            this.levelID = levelID;
             this.songPath = songPath;
             this.contributors = contributors;
             this.customEnvironmentName = customEnvironmentName;
@@ -44,7 +42,6 @@ namespace SongCore.Data
     //        Utilities.Logging.Log("SongData Ctor");
             try
             {
-                this.levelID = levelID;
                 this.songPath = songPath;
                 if (!File.Exists(songPath + "/info.json")) return;
                 var infoText = File.ReadAllText(songPath + "/info.json");
@@ -132,6 +129,18 @@ namespace SongCore.Data
 
                     string diffCharacteristic = legacyOneSaber ? "One Saber" : "Standard";
                     if (diff.ContainsKey("characteristic")) diffCharacteristic = (string)diff["characteristic"];
+                    switch (diffCharacteristic)
+                    {
+                        case "Standard":
+                            diffCharacteristic = Plugin.standardCharacteristicName;
+                            break;
+                        case "One Saber":
+                            diffCharacteristic = Plugin.oneSaberCharacteristicName;
+                            break;
+                        case "No Arrows":
+                            diffCharacteristic = Plugin.noArrowsCharacteristicName;
+                            break;
+                    }
 
 
                     BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diff["difficulty"], BeatmapDifficulty.Normal);
@@ -198,6 +207,7 @@ namespace SongCore.Data
 
         public void UpdateData(string songPath)
         {
+            this.songPath = songPath;
             if (!File.Exists(songPath + "/info.json")) return;
             var infoText = File.ReadAllText(songPath + "/info.json");
             try
@@ -227,18 +237,6 @@ namespace SongCore.Data
 
                     diffData[i].difficulty = Utilities.Utils.ToEnum((string)json["difficulty"], BeatmapDifficulty.Normal);
                     diffData[i].beatmapCharacteristicName = json.ContainsKey("characteristic") ? (string)json["characteristic"] : legacyOneSaber ? "One Saber" : "Standard";
-                    switch (diffData[i].beatmapCharacteristicName)
-                    {
-                        case "Standard":
-                            diffData[i].beatmapCharacteristicName = Plugin.standardCharacteristicName;
-                            break;
-                        case "One Saber":
-                            diffData[i].beatmapCharacteristicName = Plugin.oneSaberCharacteristicName;
-                            break;
-                        case "No Arrows":
-                            diffData[i].beatmapCharacteristicName = Plugin.noArrowsCharacteristicName;
-                            break;
-                    }
                     diffData[i].difficultyLabel = "";
                     if (json.ContainsKey("difficultyLabel")) diffData[i].difficultyLabel = (string)json["difficultyLabel"];
                 }

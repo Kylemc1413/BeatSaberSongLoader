@@ -461,7 +461,7 @@ namespace SongLoaderPlugin
                     Log("Loaded new song.");
                     var level = LoadSong(customSongInfo);
 
-                    SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
+
 
 
                     CustomLevels.Add(level);
@@ -581,10 +581,6 @@ namespace SongLoaderPlugin
                                     var level = LoadSong(customSongInfo);
                                     if (level != null)
                                     {
-                                        if (fullRefresh)
-                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path, true);
-                                        else
-                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
                                         levelList.Add(level);
                                     }
 
@@ -644,10 +640,6 @@ namespace SongLoaderPlugin
                                     level.inWipFolder = true;
                                     if (level != null)
                                     {
-                                        if (fullRefresh)
-                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path, true);
-                                        else
-                                            SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
 
 
                                         levelList.Add(level);
