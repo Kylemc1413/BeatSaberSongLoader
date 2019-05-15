@@ -634,8 +634,10 @@ namespace SongLoaderPlugin
                                 var songPath = Path.GetDirectoryName(results[i7]).Replace('\\', '/');
                                 if (!fullRefresh)
                                 {
-                                    if (CustomLevels.Any(x => x.customSongInfo.path == songPath))
+                                    var c = CustomLevels.FirstOrDefault(x => x.customSongInfo.path == songPath);
+                                    if(c)
                                     {
+                                        loadedIDs.Add(c.levelID);
                                         continue;
                                     }
                                 }
@@ -691,8 +693,10 @@ namespace SongLoaderPlugin
                                 var songPath = Path.GetDirectoryName(results[i6]).Replace('\\', '/');
                                 if (!fullRefresh)
                                 {
-                                    if (CustomLevels.Any(x => x.customSongInfo.path == songPath))
+                                    var c = CustomLevels.FirstOrDefault(x => x.customSongInfo.path == songPath);
+                                    if (c)
                                     {
+                                        loadedIDs.Add(c.levelID);
                                         continue;
                                     }
                                 }
