@@ -89,12 +89,12 @@ namespace SongLoaderPlugin.OverrideClasses
             var characteristics = new List<BeatmapCharacteristicSO>();
             foreach (CustomSongInfo.DifficultyLevel diffLevel in customLevel.customSongInfo.difficultyLevels)
             {
+                if(string.IsNullOrWhiteSpace(diffLevel.characteristic))
+                    characteristics.Add(_standardCharacteristic);
+                else
                 switch (diffLevel.characteristic)
                 {
                     case "":
-                        if (!characteristics.Contains(_standardCharacteristic))
-                            characteristics.Add(_standardCharacteristic);
-                        break;
                     case "LEVEL_STANDARD":
                     case "Standard":
                         if (!characteristics.Contains(_standardCharacteristic))

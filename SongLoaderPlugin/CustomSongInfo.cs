@@ -41,7 +41,7 @@ namespace SongLoaderPlugin
             public string json;
             public int noteJumpStartBeatOffset;
             public float noteJumpMovementSpeed;
-            public string characteristic;
+            public string characteristic = "";
         }
 
         public string GetIdentifier()

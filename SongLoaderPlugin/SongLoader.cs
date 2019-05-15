@@ -14,6 +14,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using LogSeverity = IPA.Logging.Logger.Level;
 namespace SongLoaderPlugin
 {
@@ -855,7 +857,18 @@ namespace SongLoaderPlugin
                             Log("Couldn't find or parse difficulty json " + song.path + "/" + diffBeatmap.jsonPath, LogSeverity.Notice);
                             continue;
                         }
-
+                        switch (diffBeatmap.characteristic)
+                        {
+                            case "Standard":
+                                diffBeatmap.characteristic = SongLoader.standardCharacteristicName;
+                                break;
+                            case "One Saber":
+                                diffBeatmap.characteristic = SongLoader.oneSaberCharacteristicName;
+                                break;
+                            case "No Arrows":
+                                diffBeatmap.characteristic = SongLoader.noArrowsCharacteristicName;
+                                break;
+                        }
                         var newBeatmapData = _beatmapDataPool.Get();
                         newBeatmapData.SetJsonData(diffBeatmap.json);
 
@@ -893,7 +906,7 @@ namespace SongLoaderPlugin
             CustomSongInfo songInfo;
             try
             {
-                songInfo = JsonUtility.FromJson<CustomSongInfo>(infoText);
+                songInfo = JsonConvert.DeserializeObject<CustomSongInfo>(infoText);
             }
             catch (Exception)
             {
@@ -902,50 +915,6 @@ namespace SongLoaderPlugin
             }
 
             songInfo.path = songPath;
-            //Here comes SimpleJSON to the rescue when JSONUtility can't handle an array.
-            var diffLevels = new List<CustomSongInfo.DifficultyLevel>();
-            var n = JSON.Parse(infoText);
-            var diffs = n["difficultyLevels"];
-            for (int i = 0; i < diffs.AsArray.Count; i++)
-            {
-                n = diffs[i];
-                var difficulty = Utils.ToEnum(n["difficulty"], BeatmapDifficulty.Normal);
-                var difficultyRank = (int)difficulty;// * 100 + UnityEngine.Mathf.Clamp(n["difficultyRank"].AsInt, 0, 10);
-                string characteristic = "";
-
-                if (songInfo.oneSaber)
-                    characteristic = oneSaberCharacteristicName;
-
-                if (n["characteristic"] != null)
-                {
-                    characteristic = n["characteristic"];
-                    switch (characteristic)
-                    {
-                        case "Standard":
-                            characteristic = SongLoader.standardCharacteristicName;
-                            break;
-                        case "One Saber":
-                            characteristic = SongLoader.oneSaberCharacteristicName;
-                            break;
-                        case "No Arrows":
-                            characteristic = SongLoader.noArrowsCharacteristicName;
-                            break;
-                    }
-
-                }
-                diffLevels.Add(new CustomSongInfo.DifficultyLevel
-                {
-                    difficulty = n["difficulty"],
-                    difficultyRank = difficultyRank,
-                    audioPath = n["audioPath"],
-                    jsonPath = n["jsonPath"],
-                    noteJumpMovementSpeed = n["noteJumpMovementSpeed"],
-                    characteristic = characteristic,
-                });
-            }
-
-
-            songInfo.difficultyLevels = diffLevels.ToArray();
             return songInfo;
         }
 
