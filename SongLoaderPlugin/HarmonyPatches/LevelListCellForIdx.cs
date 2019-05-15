@@ -28,7 +28,6 @@ namespace SongLoaderPlugin.HarmonyPatches
 
             if (!(____pack.beatmapLevelCollection.beatmapLevels[num] is OverrideClasses.CustomLevel))
                 return;
-
             OverrideClasses.CustomLevel customLevel = ____pack.beatmapLevelCollection.beatmapLevels[num] as OverrideClasses.CustomLevel;
             if (!customLevel)
                 return;
@@ -37,6 +36,32 @@ namespace SongLoaderPlugin.HarmonyPatches
             {
                 SongLoader.LoadSprite(customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.coverImagePath, customLevel);
             }
+
+
         }
     }
+    [HarmonyPatch(typeof(LevelPackLevelsViewController))]
+    [HarmonyPatch("HandleLevelPackLevelsTableViewDidSelectLevel", MethodType.Normal)]
+    class LevelPackLevelsSelectedPatch
+    {
+  //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
+        static void Prefix(LevelPackLevelsTableView tableView, IPreviewBeatmapLevel level)
+        {
+            OverrideClasses.CustomLevel customLevel = level as OverrideClasses.CustomLevel;
+
+      //      if (previouslySelectedSong != null)
+      //         SongLoader.Instance.UnloadAudio(previouslySelectedSong);
+
+            if (customLevel != null)
+            {
+                if (customLevel.previewAudioClip != SongLoader.TemporaryAudioClip || customLevel.AudioClipLoading) return;
+                customLevel.FixBPMAndGetNoteJumpMovementSpeed();
+                SongLoader.Instance.LoadAudio(
+                    "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel, null);
+    //            previouslySelectedSong = customLevel;
+            }
+        }
+    }
+
+
 }

@@ -12,6 +12,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using TMPro;
+using System.Threading;
+using System.Threading.Tasks;
 namespace SongLoaderPlugin
 {
     public class SongLoader : MonoBehaviour
@@ -24,7 +26,6 @@ namespace SongLoaderPlugin
         public static string standardCharacteristicName = "LEVEL_STANDARD";
         public static string oneSaberCharacteristicName = "LEVEL_ONE_SABER";
         public static string noArrowsCharacteristicName = "LEVEL_NO_ARROWS";
-
         public static event Action<SongLoader> LoadingStartedEvent;
         public static event Action<SongLoader, List<CustomLevel>> SongsLoadedEvent;
         public static List<CustomLevel> CustomLevels = new List<CustomLevel>();
@@ -45,7 +46,7 @@ namespace SongLoaderPlugin
 
         private LeaderboardScoreUploader _leaderboardScoreUploader;
         private StandardLevelDetailViewController _standardLevelDetailViewController;
-        private LevelPackLevelsViewController _LevelListViewController;
+        internal LevelPackLevelsViewController _LevelListViewController;
 
         private BeatmapCharacteristicSO[] beatmapCharacteristicSOCollection;
 
@@ -89,7 +90,7 @@ namespace SongLoaderPlugin
 
         private void OnSceneTransitioned(Scene activeScene)
         {
-              if (AreSongsLoading)
+            if (AreSongsLoading)
             {
                 //Scene changing while songs are loading. Since we are using a separate thread while loading, this is bad and could cause a crash.
                 //So we have to stop loading.
@@ -229,27 +230,10 @@ namespace SongLoaderPlugin
             */
         }
 
-     
+
 
         private void StandardLevelListViewControllerOnDidSelectLevelEvent(LevelPackLevelsViewController levelListViewController, IPreviewBeatmapLevel level)
         {
-            var customLevel = level as CustomLevel;
-            if (customLevel == null) return;
-
-            if (customLevel.previewAudioClip != TemporaryAudioClip || customLevel.AudioClipLoading) return;
-
-            Action callback = delegate
-            {
-                levelListViewController.HandleLevelPackLevelsTableViewDidSelectLevel(null, level);
-            };
-
-            customLevel.FixBPMAndGetNoteJumpMovementSpeed();
-            StartCoroutine(LoadAudio(
-    "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel,
-    callback));
-
-          
-
 
         }
 
@@ -258,9 +242,8 @@ namespace SongLoaderPlugin
             Action callback = delegate { clipReadyCallback(customLevel); };
 
             customLevel.FixBPMAndGetNoteJumpMovementSpeed();
-            StartCoroutine(LoadAudio(
-"file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel,
-callback));
+            LoadAudio(
+            "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel, callback);
 
         }
 
@@ -401,7 +384,15 @@ callback));
             customLevel.SetCoverImage(sprite);
         }
 
-        private IEnumerator LoadAudio(string audioPath, CustomLevel customLevel, Action callback)
+   //     internal void UnloadAudio(CustomLevel level)
+   //     {
+   //         string audioPath = "file:///" + level.customSongInfo.path + "/" + level.customSongInfo.GetAudioPath();
+   //         level.SetAudioClip(TemporaryAudioClip);
+   //         level.beatmapLevelData.SetField("_audioClip", TemporaryAudioClip);
+    //        Resources.UnloadUnusedAssets();
+    //        
+    //    }
+        internal void LoadAudio(string audioPath, CustomLevel customLevel, Action callback)
         {
             AudioClip audioClip;
             if (!LoadedAudioClips.ContainsKey(audioPath))
@@ -409,7 +400,6 @@ callback));
                 using (var www = new WWW(EncodePath(audioPath)))
                 {
                     customLevel.AudioClipLoading = true;
-                    yield return www;
 
                     audioClip = www.GetAudioClip(true, true, AudioType.UNKNOWN);
 
@@ -422,7 +412,6 @@ callback));
                             break;
                         }
 
-                        yield return null;
                     }
 
                     LoadedAudioClips.Add(audioPath, audioClip);
@@ -435,8 +424,10 @@ callback));
 
             customLevel.SetAudioClip(audioClip);
             customLevel.InitData();
-            callback.Invoke();
+            if (callback != null)
+                callback.Invoke();
             customLevel.AudioClipLoading = false;
+      //      return null;
         }
 
         public void RetrieveNewSong(string songFolderName)
@@ -590,7 +581,7 @@ callback));
                                     var level = LoadSong(customSongInfo);
                                     if (level != null)
                                     {
-                                        if(fullRefresh)
+                                        if (fullRefresh)
                                             SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path, true);
                                         else
                                             SongCore.Collections.AddSong(level.levelID, level.customSongInfo.path);
@@ -822,7 +813,7 @@ callback));
             BeatmapLevelsModelSO beatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
             HMCache<string, IBeatmapLevel> _loadedBeatmapLevels = beatmapLevelsModelSO.GetField<HMCache<string, IBeatmapLevel>>("_loadedBeatmapLevels");
             Dictionary<string, IPreviewBeatmapLevel> _loadedPreviewBeatmapLevels = beatmapLevelsModelSO.GetField<Dictionary<string, IPreviewBeatmapLevel>>("_loadedPreviewBeatmapLevels");
-             //  Console.WriteLine("2");
+            //  Console.WriteLine("2");
             foreach (var packs in CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks)
             {
                 //       Console.WriteLine("3.1  " + packs?.packName);
@@ -833,7 +824,7 @@ callback));
                 }
                 foreach (var level in packs?.beatmapLevelCollection?.beatmapLevels)
                 {
-               //                  Console.WriteLine("3.2");
+                    //                  Console.WriteLine("3.2");
                     if (level != null)
                         if (!_loadedPreviewBeatmapLevels.ContainsKey(level.levelID)) { _loadedPreviewBeatmapLevels.Add(level.levelID, level); }
                     if (level is IBeatmapLevel)
@@ -845,11 +836,11 @@ callback));
                     }
                 }
             }
-           //      Console.WriteLine("4");
+            //      Console.WriteLine("4");
             beatmapLevelsModelSO.SetField("_loadedBeatmapLevels", _loadedBeatmapLevels);
             beatmapLevelsModelSO.SetField("_loadedPreviewBeatmapLevels", _loadedPreviewBeatmapLevels);
             beatmapLevelsModelSO.SetField("_loadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
-    //        beatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
+            //        beatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
 
         }
 
@@ -962,7 +953,7 @@ callback));
                     characteristic = characteristic,
                 });
             }
-           
+
 
             songInfo.difficultyLevels = diffLevels.ToArray();
             return songInfo;
@@ -976,8 +967,8 @@ callback));
 
         internal static void GetIcons()
         {
-            if(!CustomSongsIcon)
-            CustomSongsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+            if (!CustomSongsIcon)
+                CustomSongsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
             if (!MissingCharIcon)
                 MissingCharIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.MissingChar.png");
             if (!LightshowIcon)
@@ -1048,9 +1039,9 @@ callback));
 
 
 
-     
 
-        
+
+
 
         public static void RegisterCapability(string capability)
         {
