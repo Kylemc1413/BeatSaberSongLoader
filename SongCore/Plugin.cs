@@ -18,6 +18,10 @@ namespace SongCore
 {
     public class Plugin : IBeatSaberPlugin
     {
+        public static string standardCharacteristicName = "LEVEL_STANDARD";
+        public static string oneSaberCharacteristicName = "LEVEL_ONE_SABER";
+        public static string noArrowsCharacteristicName = "LEVEL_NO_ARROWS";
+
         internal static HarmonyInstance harmony;
         internal static bool ColorsInstalled = false;
         internal static bool PlatformsInstalled = false;
@@ -26,7 +30,7 @@ namespace SongCore
         internal static int _currentPlatform = -1;
 
 
-
+        
         public void OnApplicationStart()
         {
             ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
