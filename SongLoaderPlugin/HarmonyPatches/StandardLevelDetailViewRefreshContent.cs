@@ -8,7 +8,6 @@ using UnityEngine;
 using TMPro;
 using SongLoaderPlugin.OverrideClasses;
 using UnityEngine.UI;
-using CustomUI.BeatSaber;
 namespace SongLoaderPlugin.HarmonyPatches
 {
     /*

@@ -2,7 +2,6 @@
 using IPA;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using CustomUI.GameplaySettings;
 using Harmony;
 namespace SongLoaderPlugin
 {

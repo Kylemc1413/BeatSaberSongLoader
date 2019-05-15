@@ -22,9 +22,9 @@ namespace SongCore.UI
         internal static Sprite WarningIcon;
         internal static Sprite InfoIcon;
         //    internal static Sprite CustomSongsIcon;
-        internal static Sprite MissingCharIcon;
-        internal static Sprite LightshowIcon;
-        internal static Sprite ExtraDiffsIcon;
+   //     internal static Sprite MissingCharIcon;
+   //     internal static Sprite LightshowIcon;
+   //     internal static Sprite ExtraDiffsIcon;
 
 
 
@@ -80,6 +80,8 @@ namespace SongCore.UI
                         }
                         else
                             reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, InfoIcon));
+                    else
+                        reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, author.icon));
                 }
             }
             //WIP Check
@@ -157,12 +159,12 @@ namespace SongCore.UI
                 WarningIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Warning.png");
             if (!InfoIcon)
                 InfoIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Info.png");
-            if (!MissingCharIcon)
-                MissingCharIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.MissingChar.png");
-            if (!LightshowIcon)
-                LightshowIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Lightshow.png");
-            if (!ExtraDiffsIcon)
-                ExtraDiffsIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.ExtraDiffsIcon.png");
+     //       if (!MissingCharIcon)
+     //           MissingCharIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.MissingChar.png");
+     //       if (!LightshowIcon)
+     //           LightshowIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Lightshow.png");
+     //       if (!ExtraDiffsIcon)
+     //           ExtraDiffsIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.ExtraDiffsIcon.png");
 
         }
 

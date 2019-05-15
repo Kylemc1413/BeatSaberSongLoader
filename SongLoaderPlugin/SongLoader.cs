@@ -10,7 +10,6 @@ using SongLoaderPlugin.Internals;
 using SongLoaderPlugin.OverrideClasses;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
-using CustomUI.BeatSaber;
 using UnityEngine.UI;
 using TMPro;
 namespace SongLoaderPlugin
