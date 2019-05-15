@@ -153,7 +153,7 @@ namespace SongLoaderPlugin
 
                 beatmapCharacteristicSOCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
                 var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
-                LevelPacksViewController levelPacksViewController = (LevelPacksViewController)soloFreePlay.GetField("_levelPacksViewController");
+                LevelPacksViewController levelPacksViewController = soloFreePlay.GetField<LevelPacksViewController>("_levelPacksViewController");
                 levelPacksViewController.SetData(CustomBeatmapLevelPackCollectionSO, 0);
                 if (_standardLevelDetailViewController == null)
                 {
@@ -849,7 +849,8 @@ callback));
            //      Console.WriteLine("4");
             beatmapLevelsModelSO.SetField("_loadedBeatmapLevels", _loadedBeatmapLevels);
             beatmapLevelsModelSO.SetField("_loadedPreviewBeatmapLevels", _loadedPreviewBeatmapLevels);
-            beatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
+            beatmapLevelsModelSO.SetField("_loadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
+    //        beatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
 
         }
 
