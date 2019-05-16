@@ -157,7 +157,6 @@ Right, 0, 0.706, 1
  // If replace is true it will update an existing ExtraSongData for that song if one is present, otherwise if one already exists it will do nothing
  ```
  * You can add/remove capabilities to your mods for maps to be able to use by doing the following
- * You can register a beatmap characteristic OnApplicationStart by doing the following **Make sure to do this before songloader loads songs**
  ```csharp
  // To register
  SongCore.Collections.RegisterCapability("Capability name");
@@ -166,7 +165,7 @@ Right, 0, 0.706, 1
  
  //If you make a mod that registers a capability feel free to message me on Discord ( Kyle1413#1413 ) and I will add it to the list below
  ```
- 
+  * You can register a beatmap characteristic OnApplicationStart by doing the following **Make sure to do this before songloader loads songs**
  ```csharp
  SongCore.Collections.RegisterCustomCharacteristic(Sprite Icon, "Characteristic Name", "Hint Text", "SerializedName", "CompoundIdPartName");
 //For the SerializedName and CompoundIdPartName, as a basic rule can just put the characteristic name without spaces or special characters
