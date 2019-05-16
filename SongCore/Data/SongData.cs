@@ -20,6 +20,49 @@ namespace SongCore.Data
         public string customEnvironmentHash;
         public DifficultyData[] difficulties;
 
+        [Serializable]
+        public class Contributor
+        {
+            public string role;
+            public string name;
+            public string iconPath;
+            [NonSerialized]
+            public Sprite icon = null;
+
+        }
+        [Serializable]
+        public class DifficultyData
+        {
+            public string beatmapCharacteristicName;
+            public BeatmapDifficulty difficulty;
+            public string difficultyLabel;
+            public RequirementData additionalDifficultyData;
+            public MapColor colorLeft;
+            public MapColor colorRight;
+        }
+        [Serializable]
+        public class RequirementData
+        {
+            public string[] requirements;
+            public string[] suggestions;
+            public string[] warnings;
+            public string[] information;
+        }
+        [Serializable]
+        public class MapColor
+        {
+            public float r;
+            public float g;
+            public float b;
+
+
+            public MapColor(float r, float g, float b)
+            {
+                this.r = r;
+                this.g = g;
+                this.b = b;
+            }
+        }
 
         public ExtraSongData()
         {
@@ -264,49 +307,7 @@ namespace SongCore.Data
 
 
 
-        [Serializable]
-        public class Contributor
-        {
-            public string role;
-            public string name;
-            public string iconPath;
-            [NonSerialized]
-            public Sprite icon = null;
-
-        }
-        [Serializable]
-        public class DifficultyData
-        {
-            public string beatmapCharacteristicName;
-            public BeatmapDifficulty difficulty;
-            public string difficultyLabel;
-            public RequirementData additionalDifficultyData;
-            public MapColor colorLeft;
-            public MapColor colorRight;
-        }
-        [Serializable]
-        public class RequirementData
-        {
-            public string[] requirements;
-            public string[] suggestions;
-            public string[] warnings;
-            public string[] information;
-        }
-        [Serializable]
-        public class MapColor
-        {
-            public float r;
-            public float g;
-            public float b;
-
-
-            public MapColor(float r, float g, float b)
-            {
-                this.r = r;
-                this.g = g;
-                this.b = b;
-            }
-        }
+ 
     }
 }
 
