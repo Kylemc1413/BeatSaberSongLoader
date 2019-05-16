@@ -62,7 +62,6 @@ The following is a template for you to use:
   "customEnvironmentHash": "<platform's ModelSaber md5sum hash>",
   "shuffle":1,
   "shufflePeriod":0.2,
-  "oneSaber":true,
   "difficultyLevels": [
 	{ "difficulty":"Expert", "difficultyRank":4, "jsonPath":"expert.json" },
 	{ "difficulty":"Easy", "difficultyRank":0, "jsonPath":"easy.json", "characteristic":"Standard", "difficultyLabel":"EX" }
@@ -90,8 +89,7 @@ ___
 "customEnvironmentHash" - The hash found on ModelSaber, used to download missing platforms
 "shuffle" - Time in number of beats how much a note should shift
 "shufflePeriod" - Time in number of beats how often a note should shift. Don't ask me why this is a feature, I don't know
-"oneSaber" - true or false if it should appear in the one saber list 
-(If the WHOLE map is only one saber! For one saber difficulties use the characteristic in the difficultylevels)
+# Instead of the legacy one saber setting just use characteristics for each difficulty
 
 All possible environmentNames:
 -DefaultEnvironment
@@ -143,26 +141,41 @@ Right, 0, 0.706, 1
 "_noteJumpStartBeatOffset":1, - Set the noteJumpStartBeatOffset for the song, default value is 0 if not implemented
 ```
 ### For modders
+ * Extra data contained in songs that are not part of the base game, i.e. requirements, colors, custom platforms, etc etc can be accessed using SongCore.
+ ```csharp
+ //To retrieve the data for a song
+ SongCore.Collections.RetrieveExtraSongData(string levelID, string loadIfNullPath = "");
+ //This will return the ExtraSongData for the given levelID if it finds it, and if it does not find it, it will attempt
+ // To load it using the loadIfNullPath if one is provided, otherwise it will return null
+
+ //You can also use the below function to specifically get the DifficultyData for a song, which contains information such as requirements that difficulty has
+   SongCore.Collections.RetrieveDifficultyData(IDifficultyBeatmap beatmap)
+  // This will attempt to retrieve the DifficultyData, and return null if it does not find one
+ 
+ //You can also use this function to manually load and add the ExtraSongData for a song by giving it the levelID and path which can be found in the CustomSongInfo for a song
+ SongCore.Collections.AddSong(string levelID, string path, bool replace = false)
+ // If replace is true it will update an existing ExtraSongData for that song if one is present, otherwise if one already exists it will do nothing
+ ```
  * You can add/remove capabilities to your mods for maps to be able to use by doing the following
  * You can register a beatmap characteristic OnApplicationStart by doing the following **Make sure to do this before songloader loads songs**
  ```csharp
  // To register
- SongLoaderPlugin.SongLoader.RegisterCapability("Capability name");
+ SongCore.Collections.RegisterCapability("Capability name");
  // To remove
- SongLoaderPlugin.SongLoader.DeregisterizeCapability("Capability name");
+  SongCore.Collections.DeregisterizeCapability("Capability name");
  
  //If you make a mod that registers a capability feel free to message me on Discord ( Kyle1413#1413 ) and I will add it to the list below
  ```
  
  ```csharp
-SongLoader.RegisterCustomCharacteristic(Sprite Icon, "Characteristic Name", "Hint Text", "SerializedName", "CompoundIdPartName");
+ SongCore.Collections.RegisterCustomCharacteristic(Sprite Icon, "Characteristic Name", "Hint Text", "SerializedName", "CompoundIdPartName");
 //For the SerializedName and CompoundIdPartName, as a basic rule can just put the characteristic name without spaces or special characters
 //The Characteristic Name will be what mappers put as the characteristic when labelling their difficulties
 //If you make a mod that registers a characteristic feel free to message me on Discord ( Kyle1413#1413 ) and I will add it to the list below
 
  ```
 #### Capabilities
-- Note: Songloader currently auto detects Precision Placement, Extra Note Angles, and More Lanes. Other features of mapping extensions require you to add the "Mapping Extensions" Capability as a requirement for your song, and it is advised if you use any of the capabilities of a mpod, you assume it will not be auto added and add the capability to the JSON.
+- Note: Make sure to add a requirement if your map uses Capabilities from a mod that are not compatible with the base game! Example being anything from Mapping Extensions
 
 | Capability | Mod |
 | - | - |
