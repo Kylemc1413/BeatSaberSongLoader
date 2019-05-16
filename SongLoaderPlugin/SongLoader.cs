@@ -785,10 +785,10 @@ namespace SongLoaderPlugin
             var additionalContentModelSO = Resources.FindObjectsOfTypeAll<AdditionalContentModelSO>().FirstOrDefault();
             HashSet<string> _alwaysOwnedBeatmapLevelIds = (HashSet<string>)additionalContentModelSO.GetField("_alwaysOwnedBeatmapLevelIds");
             HashSet<string> _alwaysOwnedBeatmapLevelPackIds = (HashSet<string>)additionalContentModelSO.GetField("_alwaysOwnedPacksIds");
-            if (!_alwaysOwnedBeatmapLevelPackIds.Contains("CustomMaps"))
-                _alwaysOwnedBeatmapLevelPackIds.Add("CustomMaps");
-            if (!_alwaysOwnedBeatmapLevelPackIds.Contains("WIPMaps"))
-                _alwaysOwnedBeatmapLevelPackIds.Add("WIPMaps");
+            if (!_alwaysOwnedBeatmapLevelPackIds.Contains("ModdedCustomMaps"))
+                _alwaysOwnedBeatmapLevelPackIds.Add("ModdedCustomMaps");
+            if (!_alwaysOwnedBeatmapLevelPackIds.Contains("ModdedWIPMaps"))
+                _alwaysOwnedBeatmapLevelPackIds.Add("ModdedWIPMaps");
 
             foreach (BeatmapLevelSO level in CustomLevelCollectionSO._levelList)
             {
@@ -860,6 +860,9 @@ namespace SongLoaderPlugin
                             Log("Couldn't find or parse difficulty json " + song.path + "/" + diffBeatmap.jsonPath, LogSeverity.Notice);
                             continue;
                         }
+                        if(newLevel.customSongInfo.oneSaber)
+                            diffBeatmap.characteristic = SongLoader.oneSaberCharacteristicName;
+                        else
                         switch (diffBeatmap.characteristic)
                         {
                             case "Standard":

@@ -127,7 +127,7 @@ namespace SongCore.Data
                         Utilities.Logging.Log($"Exception in Parsing Split JSON of: {songPath}", IPA.Logging.Logger.Level.Warning);
                     }
 
-                    string diffCharacteristic = legacyOneSaber ? "One Saber" : "Standard";
+                    string diffCharacteristic = legacyOneSaber ? Plugin.oneSaberCharacteristicName : Plugin.standardCharacteristicName;
                     if (diff.ContainsKey("characteristic")) diffCharacteristic = (string)diff["characteristic"];
                     switch (diffCharacteristic)
                     {
@@ -236,7 +236,19 @@ namespace SongCore.Data
                     var json = (JObject)diffLevels[i];
 
                     diffData[i].difficulty = Utilities.Utils.ToEnum((string)json["difficulty"], BeatmapDifficulty.Normal);
-                    diffData[i].beatmapCharacteristicName = json.ContainsKey("characteristic") ? (string)json["characteristic"] : legacyOneSaber ? "One Saber" : "Standard";
+                    diffData[i].beatmapCharacteristicName = json.ContainsKey("characteristic") ? (string)json["characteristic"] : legacyOneSaber ? Plugin.oneSaberCharacteristicName : Plugin.standardCharacteristicName;
+                    switch (diffData[i].beatmapCharacteristicName)
+                    {
+                        case "Standard":
+                            diffData[i].beatmapCharacteristicName = Plugin.standardCharacteristicName;
+                            break;
+                        case "One Saber":
+                            diffData[i].beatmapCharacteristicName = Plugin.oneSaberCharacteristicName;
+                            break;
+                        case "No Arrows":
+                            diffData[i].beatmapCharacteristicName = Plugin.noArrowsCharacteristicName;
+                            break;
+                    }
                     diffData[i].difficultyLabel = "";
                     if (json.ContainsKey("difficultyLabel")) diffData[i].difficultyLabel = (string)json["difficultyLabel"];
                 }

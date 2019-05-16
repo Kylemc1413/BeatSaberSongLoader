@@ -112,7 +112,7 @@ namespace SongLoaderPlugin.OverrideClasses
 
                 string characteristic = diffLevel.characteristic;
                 if (string.IsNullOrEmpty(characteristic))
-                    characteristic = SongLoader.standardCharacteristicName;
+                    characteristic = customSongInfo.oneSaber? SongLoader.oneSaberCharacteristicName : SongLoader.standardCharacteristicName;
 
                 else if (characteristic != SongLoader.standardCharacteristicName && characteristic != SongLoader.oneSaberCharacteristicName && characteristic != SongLoader.noArrowsCharacteristicName)
                     missingChar = !(SongCore.Collections.customCharacteristics.Any(x => x.characteristicName == characteristic));
