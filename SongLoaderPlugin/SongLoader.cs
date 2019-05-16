@@ -911,6 +911,10 @@ namespace SongLoaderPlugin
             try
             {
                 songInfo = JsonConvert.DeserializeObject<CustomSongInfo>(infoText);
+                for (int i = 0; i < songInfo.difficultyLevels.Length; i++)
+                {
+                    songInfo.difficultyLevels[i].difficultyRank = (int)Utils.ToEnum(songInfo.difficultyLevels[i].difficulty, BeatmapDifficulty.Normal);
+                }
             }
             catch (Exception)
             {
