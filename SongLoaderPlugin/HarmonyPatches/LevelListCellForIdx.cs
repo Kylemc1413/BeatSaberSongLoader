@@ -59,7 +59,7 @@ namespace SongLoaderPlugin.HarmonyPatches
                 SongLoader.Instance.LoadAudio(
                     "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel, null);
                 //            previouslySelectedSong = customLevel;
-                SongCore.Collections.AddSong(customLevel.levelID, customLevel.customSongInfo.path);
+                SongCore.Collections.AddSong(customLevel.levelID, customLevel.customSongInfo.path, true);
                 SongCore.Collections.SaveExtraSongData();
             }
         }
