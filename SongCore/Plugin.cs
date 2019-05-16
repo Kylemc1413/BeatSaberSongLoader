@@ -21,7 +21,6 @@ namespace SongCore
         public static string standardCharacteristicName = "LEVEL_STANDARD";
         public static string oneSaberCharacteristicName = "LEVEL_ONE_SABER";
         public static string noArrowsCharacteristicName = "LEVEL_NO_ARROWS";
-
         internal static HarmonyInstance harmony;
         internal static bool ColorsInstalled = false;
         internal static bool PlatformsInstalled = false;
