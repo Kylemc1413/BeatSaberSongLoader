@@ -835,7 +835,7 @@ namespace SongLoaderPlugin
             beatmapLevelsModelSO.SetField("_loadedBeatmapLevels", _loadedBeatmapLevels);
             beatmapLevelsModelSO.SetField("_loadedPreviewBeatmapLevels", _loadedPreviewBeatmapLevels);
             beatmapLevelsModelSO.SetField("_loadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
-            //        beatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
+            beatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
 
         }
 
