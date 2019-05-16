@@ -106,7 +106,6 @@ namespace SongLoaderPlugin.OverrideClasses
                 if (string.IsNullOrEmpty(diffLevel.json)) continue;
 
                 float? bpm, noteSpeed;
-                Color? colorLeft, colorRight;
                 int? noteJumpStartBeatOffset;
                 IDifficultyBeatmap diffBeatmap = null;
                 bool missingChar = false;

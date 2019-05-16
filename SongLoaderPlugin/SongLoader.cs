@@ -60,7 +60,6 @@ namespace SongLoaderPlugin
 
         private HMTask _loadingTask;
         private bool _loadingCancelled;
-        private SceneEvents _sceneEvents;
 
         public static CustomLevel.CustomDifficultyBeatmap CurrentLevelPlaying { get; private set; }
 
