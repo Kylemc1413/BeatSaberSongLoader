@@ -1,4 +1,4 @@
-﻿namespace SongLoaderPlugin.OverrideClasses
+﻿namespace SongCore.OverrideClasses
 {
     public class CustomBeatmapDataSO : BeatmapDataSO, IScriptableObjectResetable
     {

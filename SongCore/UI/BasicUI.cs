@@ -9,23 +9,23 @@ using UnityEngine;
 using CustomUI.BeatSaber;
 namespace SongCore.UI
 {
-    internal static class BasicUI
+    public static class BasicUI
     {
         internal static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore");
         internal static UnityEngine.UI.Button infoButton;
         internal static CustomUI.BeatSaber.CustomMenu reqDialog;
         internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
-        internal static Sprite HaveReqIcon;
-        internal static Sprite MissingReqIcon;
-        internal static Sprite HaveSuggestionIcon;
-        internal static Sprite MissingSuggestionIcon;
-        internal static Sprite WarningIcon;
-        internal static Sprite InfoIcon;
-        //    internal static Sprite CustomSongsIcon;
-   //     internal static Sprite MissingCharIcon;
-   //     internal static Sprite LightshowIcon;
-   //     internal static Sprite ExtraDiffsIcon;
-
+        public static Sprite HaveReqIcon { get; internal set; }
+        public static Sprite MissingReqIcon { get; internal set; }
+        public static Sprite HaveSuggestionIcon { get; internal set; }
+        public static Sprite MissingSuggestionIcon { get; internal set; }
+        public static Sprite WarningIcon { get; internal set; }
+        public static Sprite InfoIcon { get; internal set; }
+        public static Sprite CustomSongsIcon { get; internal set; }
+        public static Sprite MissingCharIcon { get; internal set; }
+        public static Sprite LightshowIcon { get; internal set; }
+        public static Sprite ExtraDiffsIcon { get; internal set; }
+        public static Sprite WIPIcon { get; internal set; }
 
 
         public static void CreateUI()
@@ -75,6 +75,7 @@ namespace SongCore.UI
                     if (author.icon == null)
                         if (!string.IsNullOrWhiteSpace(author.iconPath))
                         {
+             //               Utilities.Logging.Log("Fetching Icon from: " + songData.songPath + "/" + author.iconPath);
                             author.icon = Utilities.Utils.LoadSpriteFromFile(songData.songPath + "/" + author.iconPath);
                             reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, author.icon));
                         }
@@ -145,8 +146,8 @@ namespace SongCore.UI
         }
         internal static void GetIcons()
         {
-            //      if (!CustomSongsIcon)
-            //           CustomSongsIcon = Utilities.Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+                  if (!CustomSongsIcon)
+                       CustomSongsIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.CustomSongs.png");
             if (!MissingReqIcon)
                 MissingReqIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.RedX.png");
             if (!HaveReqIcon)
@@ -159,12 +160,14 @@ namespace SongCore.UI
                 WarningIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Warning.png");
             if (!InfoIcon)
                 InfoIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Info.png");
-     //       if (!MissingCharIcon)
-     //           MissingCharIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.MissingChar.png");
-     //       if (!LightshowIcon)
-     //           LightshowIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Lightshow.png");
-     //       if (!ExtraDiffsIcon)
-     //           ExtraDiffsIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.ExtraDiffsIcon.png");
+            if (!MissingCharIcon)
+                MissingCharIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.MissingChar.png");
+            if (!LightshowIcon)
+                LightshowIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Lightshow.png");
+            if (!ExtraDiffsIcon)
+                ExtraDiffsIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.ExtraDiffsIcon.png");
+            if (!WIPIcon)
+                WIPIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.squek.png");
 
         }
 

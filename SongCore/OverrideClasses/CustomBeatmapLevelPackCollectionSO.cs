@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using SongCore.Utilities;
 
-
-namespace SongLoaderPlugin.OverrideClasses
+namespace SongCore.OverrideClasses
 {
     public class CustomBeatmapLevelPackCollectionSO : BeatmapLevelPackCollectionSO
     {
 
-        internal List<BeatmapLevelPackSO> _customBeatmapLevelPacks = new List<BeatmapLevelPackSO>();
+        public List<BeatmapLevelPackSO> _customBeatmapLevelPacks = new List<BeatmapLevelPackSO>();
 
         public static CustomBeatmapLevelPackCollectionSO ReplaceOriginal(BeatmapLevelPackCollectionSO original)
         {

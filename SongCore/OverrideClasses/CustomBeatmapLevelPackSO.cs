@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-namespace SongLoaderPlugin.OverrideClasses
+using SongCore.Utilities;
+namespace SongCore.OverrideClasses
 {
     public class CustomBeatmapLevelPackSO : BeatmapLevelPackSO
     {
@@ -41,13 +42,13 @@ namespace SongLoaderPlugin.OverrideClasses
             {
             _packID = "ModdedCustomMaps";
             _packName = "Modded Custom Maps";
-            _coverImage = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+            _coverImage = Utils.LoadSpriteFromResources("SongCore.Icons.CustomSongs.png");
             }
             else
             {
                 _packID = "ModdedWIPMaps";
                 _packName = "Modded WIP Maps";
-                _coverImage = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.squek.png");
+                _coverImage = Utils.LoadSpriteFromResources("SongCore.Icons.squek.png");
             }
 
             _beatmapLevelCollection = beatmapLevelCollectionSO;
@@ -58,7 +59,7 @@ namespace SongLoaderPlugin.OverrideClasses
             _isPackAlwaysOwned = true;
                 _packID = "ModdedCustomMaps";
                 _packName = "Modded Custom Maps";
-                _coverImage = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
+                _coverImage = Utils.LoadSpriteFromResources("SongCore.Icons.CustomSongs.png");
 
 
             _beatmapLevelCollection = beatmapLevelCollectionSO;

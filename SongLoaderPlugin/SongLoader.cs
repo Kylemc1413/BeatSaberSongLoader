@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using SimpleJSON;
 using SongLoaderPlugin.Internals;
-using SongLoaderPlugin.OverrideClasses;
+using SongCore.OverrideClasses;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -21,11 +21,6 @@ namespace SongLoaderPlugin
 {
     public class SongLoader : MonoBehaviour
     {
-        internal static Sprite CustomSongsIcon;
-        internal static Sprite MissingCharIcon;
-        internal static Sprite LightshowIcon;
-        internal static Sprite ExtraDiffsIcon;
-
         public static string standardCharacteristicName = "LEVEL_STANDARD";
         public static string oneSaberCharacteristicName = "LEVEL_ONE_SABER";
         public static string noArrowsCharacteristicName = "LEVEL_NO_ARROWS";
@@ -51,7 +46,7 @@ namespace SongLoaderPlugin
         private StandardLevelDetailViewController _standardLevelDetailViewController;
         internal LevelPackLevelsViewController _LevelListViewController;
 
-        private BeatmapCharacteristicSO[] beatmapCharacteristicSOCollection;
+        private BeatmapCharacteristicCollectionSO beatmapCharacteristicSOCollection;
 
         private readonly ScriptableObjectPool<CustomLevel> _customLevelPool = new ScriptableObjectPool<CustomLevel>();
         private readonly ScriptableObjectPool<CustomBeatmapDataSO> _beatmapDataPool = new ScriptableObjectPool<CustomBeatmapDataSO>();
@@ -152,7 +147,7 @@ namespace SongLoaderPlugin
                 //    ReloadHashes();
                 //  }
 
-                beatmapCharacteristicSOCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault().beatmapCharacteristics;
+                beatmapCharacteristicSOCollection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault();
                 var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
                 LevelPacksViewController levelPacksViewController = soloFreePlay.GetField<LevelPacksViewController>("_levelPacksViewController");
                 levelPacksViewController.SetData(CustomBeatmapLevelPackCollectionSO, 0);
@@ -191,7 +186,6 @@ namespace SongLoaderPlugin
                 if (NoteHitVolumeChanger.PrefabFound) return;
                 var song = CustomLevels.FirstOrDefault(x => x.levelID == level.level.levelID);
                 if (song == null) return;
-                NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
 
             }
         }
@@ -244,7 +238,7 @@ namespace SongLoaderPlugin
 
             customLevel.FixBPMAndGetNoteJumpMovementSpeed();
             LoadAudio(
-            "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel, callback);
+            "file:///" + customLevel.customSongInfo.customLevelPath + "/" + customLevel.customSongInfo.songFilename, customLevel, callback);
 
         }
 
@@ -260,7 +254,6 @@ namespace SongLoaderPlugin
             var level = songDetailViewController.selectedDifficultyBeatmap.level;
             var song = CustomLevels.FirstOrDefault(x => x.levelID == level.levelID);
             if (song == null) return;
-            NoteHitVolumeChanger.SetVolume(song.customSongInfo.noteHitVolume, song.customSongInfo.noteMissVolume);
         }
 
         public void RefreshSongs(bool fullRefresh = true)
@@ -302,7 +295,7 @@ namespace SongLoaderPlugin
         //This is so you don't have to do a full refresh.
         public void RemoveSongWithPath(string path)
         {
-            RemoveSong(CustomLevels.FirstOrDefault(x => x.customSongInfo.path == path));
+            RemoveSong(CustomLevels.FirstOrDefault(x => x.customSongInfo.customLevelPath == path));
         }
 
         public void RemoveSongWithLevelID(string levelID)
@@ -442,10 +435,10 @@ namespace SongLoaderPlugin
             }
             string newSongPath = Environment.CurrentDirectory + "/CustomSongs/" + songFolderName;
             Log("Path: " + newSongPath);
-            var results = Directory.GetFiles(newSongPath, "info.json", SearchOption.AllDirectories);
+            var results = Directory.GetFiles(newSongPath, "info.dat", SearchOption.AllDirectories);
             if (results.Length == 0)
             {
-                Log("Custom song folder '" + newSongPath + "' is missing info.json files!", LogSeverity.Notice);
+                Log("Custom song folder '" + newSongPath + "' is missing info.dat files!", LogSeverity.Notice);
             }
             foreach (var result in results)
             {
@@ -456,8 +449,12 @@ namespace SongLoaderPlugin
                     var customSongInfo = GetCustomSongInfo(songPath);
 
                     if (customSongInfo == null) continue;
-
-
+                    var c = CustomLevels.FirstOrDefault(x => x.customSongInfo.customLevelPath == songPath);
+                    if (c)
+                    {
+                        Log("Duplicate song found at " + customSongInfo.customLevelPath, LogSeverity.Notice);
+                        continue;
+                    }
 
                     Log("Loaded new song.");
                     var level = LoadSong(customSongInfo);
@@ -618,10 +615,10 @@ namespace SongLoaderPlugin
                     for (int i1 = 0; i1 < songFolders.Count; i1++)
                     {
                         i++;
-                        var results = Directory.GetFiles(songFolders[i1], "info.json", SearchOption.AllDirectories);
+                        var results = Directory.GetFiles(songFolders[i1], "info.dat", SearchOption.AllDirectories);
                         if (results.Length == 0)
                         {
-                            Log("Custom song folder '" + songFolders[i1] + "' is missing info.json files!", LogSeverity.Notice);
+                            Log("Custom song folder '" + songFolders[i1] + "' is missing info.dat files!", LogSeverity.Notice);
                             continue;
                         }
 
@@ -630,10 +627,15 @@ namespace SongLoaderPlugin
                         {
                             try
                             {
+                                
                                 var songPath = Path.GetDirectoryName(results[i7]).Replace('\\', '/');
+                                if (Directory.GetParent(songPath).Name == "Backups")
+                                {
+                                    continue;
+                                }
                                 if (!fullRefresh)
                                 {
-                                    var c = CustomLevels.FirstOrDefault(x => x.customSongInfo.path == songPath);
+                                    var c = CustomLevels.FirstOrDefault(x => x.customSongInfo.customLevelPath == songPath);
                                     if(c)
                                     {
                                         loadedIDs.Add(c.levelID);
@@ -644,10 +646,10 @@ namespace SongLoaderPlugin
                                 var customSongInfo = GetCustomSongInfo(songPath);
 
                                 if (customSongInfo == null) continue;
-                                var id = customSongInfo.GetIdentifier();
+                                var id = customSongInfo.levelId;
                                 if (loadedIDs.Any(x => x == id))
                                 {
-                                    Log("Duplicate song found at " + customSongInfo.path, LogSeverity.Notice);
+                                    Log("Duplicate song found at " + customSongInfo.customLevelPath, LogSeverity.Notice);
                                     continue;
                                 }
 
@@ -677,10 +679,10 @@ namespace SongLoaderPlugin
                     for (int i2 = 0; i2 < WIPFolders.Count; i2++)
                     {
                         i++;
-                        var results = Directory.GetFiles(WIPFolders[i2], "info.json", SearchOption.AllDirectories);
+                        var results = Directory.GetFiles(WIPFolders[i2], "info.dat", SearchOption.AllDirectories);
                         if (results.Length == 0)
                         {
-                            Log("Custom song folder '" + WIPFolders[i2] + "' is missing info.json files!", LogSeverity.Notice);
+                            Log("Custom song folder '" + WIPFolders[i2] + "' is missing info.dat files!", LogSeverity.Notice);
                             continue;
                         }
 
@@ -690,9 +692,13 @@ namespace SongLoaderPlugin
                             try
                             {
                                 var songPath = Path.GetDirectoryName(results[i6]).Replace('\\', '/');
+                                if (Directory.GetParent(songPath).Name == "Backups")
+                                {
+                                    continue;
+                                }
                                 if (!fullRefresh)
                                 {
-                                    var c = CustomLevels.FirstOrDefault(x => x.customSongInfo.path == songPath);
+                                    var c = CustomLevels.FirstOrDefault(x => x.customSongInfo.customLevelPath == songPath);
                                     if (c)
                                     {
                                         loadedIDs.Add(c.levelID);
@@ -703,30 +709,27 @@ namespace SongLoaderPlugin
                                 var customSongInfo = GetCustomSongInfo(songPath);
 
                                 if (customSongInfo == null) continue;
-                                var id = customSongInfo.GetIdentifier();
+                                var id = customSongInfo.levelId;
                                 if (loadedIDs.Any(x => x == id))
                                 {
-                                    Log("Duplicate song found at " + customSongInfo.path, LogSeverity.Notice);
+                                    Log("Duplicate song found at " + customSongInfo.customLevelPath, LogSeverity.Notice);
                                     continue;
                                 }
 
                                 loadedIDs.Add(id);
-
-
 
                                 var count = i;
                                 HMMainThreadDispatcher.instance.Enqueue(delegate
                                 {
                                     if (_loadingCancelled) return;
                                     var level = LoadSong(customSongInfo);
-                                    level.inWipFolder = true;
                                     if (level != null)
                                     {
-
+                                        level.inWipFolder = true;
                                         levelList.Add(level);
                                     }
 
-                                    LoadingProgress = count / WIPFolders.Count;
+                                    LoadingProgress = count / songFolders.Count;
                                 });
                             }
                             catch (Exception e)
@@ -844,54 +847,75 @@ namespace SongLoaderPlugin
             {
                 var newLevel = _customLevelPool.Get();
                 newLevel.Init(song);
-                song.difficultyLevels = song.difficultyLevels.ToList().OrderBy(x => x.difficultyRank).ToList().ToArray();
+             //   song.difficultyLevels = song.difficultyLevels.ToList().OrderBy(x => x.difficultyRank).ToList().ToArray();
                 newLevel.SetAudioClip(TemporaryAudioClip);
-
-                var difficultyBeatmaps = new List<BeatmapLevelSO.DifficultyBeatmap>();
-                for (int i = 0; i < song.difficultyLevels.Length; i++)
+                List<BeatmapLevelSO.DifficultyBeatmapSet> beatmapSets = new List<BeatmapLevelSO.DifficultyBeatmapSet>();
+                foreach (var beatmapSet in song.difficultyBeatmapSets)
                 {
-                    CustomSongInfo.DifficultyLevel diffBeatmap = song.difficultyLevels[i];
-                    try
+                    BeatmapCharacteristicSO characteristic = beatmapCharacteristicSOCollection.GetBeatmapCharacteristicBySerialiedName(beatmapSet.beatmapCharacteristicName);
+                    List<BeatmapLevelSO.DifficultyBeatmap> diffBeatmaps = new List<BeatmapLevelSO.DifficultyBeatmap>();
+                    foreach (var beatmap in beatmapSet.difficultyBeatmaps)
                     {
-                        var difficulty = diffBeatmap.difficulty.ToEnum(BeatmapDifficulty.Normal);
-
-                        if (string.IsNullOrEmpty(diffBeatmap.json))
-                        {
-                            Log("Couldn't find or parse difficulty json " + song.path + "/" + diffBeatmap.jsonPath, LogSeverity.Notice);
-                            continue;
-                        }
-                        if(newLevel.customSongInfo.oneSaber)
-                            diffBeatmap.characteristic = SongLoader.oneSaberCharacteristicName;
-                        else
-                        switch (diffBeatmap.characteristic)
-                        {
-                            case "Standard":
-                                diffBeatmap.characteristic = SongLoader.standardCharacteristicName;
-                                break;
-                            case "One Saber":
-                                diffBeatmap.characteristic = SongLoader.oneSaberCharacteristicName;
-                                break;
-                            case "No Arrows":
-                                diffBeatmap.characteristic = SongLoader.noArrowsCharacteristicName;
-                                break;
-                        }
-                        var newBeatmapData = _beatmapDataPool.Get();
-                        newBeatmapData.SetJsonData(diffBeatmap.json);
-
-                        var newDiffBeatmap = new CustomLevel.CustomDifficultyBeatmap(newLevel, difficulty,
-                            diffBeatmap.difficultyRank, diffBeatmap.noteJumpMovementSpeed, diffBeatmap.noteJumpStartBeatOffset, newBeatmapData, diffBeatmap.characteristic);
-                        difficultyBeatmaps.Add(newDiffBeatmap);
+                        //      Log(song.songName);SetJsonData
+                        //    Log(beatmap.difficulty);
+                        BeatmapDifficulty difficulty = beatmap.difficulty.ToEnum(BeatmapDifficulty.Normal);
+                        string filePath = (song.customLevelPath + "/" + beatmap.beatmapFilename);
+                        if (!File.Exists(filePath)) continue;
+                        CustomBeatmapDataSO beatmapData = _beatmapDataPool.Get();
+                        beatmapData.SetJsonData(File.ReadAllText(filePath));
+                        var newDiffBeatmap = new CustomLevel.CustomDifficultyBeatmap(newLevel, difficulty, beatmap.difficultyRank, beatmap.noteJumpMovementSpeed, beatmap.noteJumpStartBeatOffset, beatmapData);
+                        diffBeatmaps.Add(newDiffBeatmap);
                     }
-                    catch (Exception e)
-                    {
-                        Log("Error parsing difficulty level in song: " + song.path, LogSeverity.Warning);
-                        Log(e.Message, LogSeverity.Warning);
-                    }
+                    if(diffBeatmaps.Count > 0)
+                    beatmapSets.Add(new BeatmapLevelSO.DifficultyBeatmapSet(characteristic, diffBeatmaps.ToArray()));
                 }
 
-                if (difficultyBeatmaps.Count == 0) return null;
+                //     var difficultyBeatmaps = new List<BeatmapLevelSO.DifficultyBeatmap>();
+                /*
+                 for (int i = 0; i < song.difficultyLevels.Length; i++)
+                 {
+                     CustomSongInfo.DifficultyLevel diffBeatmap = song.difficultyLevels[i];
+                     try
+                     {
+                         var difficulty = diffBeatmap.difficulty.ToEnum(BeatmapDifficulty.Normal);
 
-                newLevel.SetDifficultyBeatmaps(difficultyBeatmaps.ToArray(), beatmapCharacteristicSOCollection, newLevel.customSongInfo.oneSaber);
+                         if (string.IsNullOrEmpty(diffBeatmap.json))
+                         {
+                             Log("Couldn't find or parse difficulty json " + song.customLevelPath + "/" + diffBeatmap.jsonPath, LogSeverity.Notice);
+                             continue;
+                         }
+                         if(newLevel.customSongInfo.oneSaber)
+                             diffBeatmap.characteristic = SongLoader.oneSaberCharacteristicName;
+                         else
+                         switch (diffBeatmap.characteristic)
+                         {
+                             case "Standard":
+                                 diffBeatmap.characteristic = SongLoader.standardCharacteristicName;
+                                 break;
+                             case "One Saber":
+                                 diffBeatmap.characteristic = SongLoader.oneSaberCharacteristicName;
+                                 break;
+                             case "No Arrows":
+                                 diffBeatmap.characteristic = SongLoader.noArrowsCharacteristicName;
+                                 break;
+                         }
+                         var newBeatmapData = _beatmapDataPool.Get();
+                         newBeatmapData.SetJsonData(diffBeatmap.json);
+
+                         var newDiffBeatmap = new CustomLevel.CustomDifficultyBeatmap(newLevel, difficulty,
+                             diffBeatmap.difficultyRank, diffBeatmap.noteJumpMovementSpeed, diffBeatmap.noteJumpStartBeatOffset, newBeatmapData, diffBeatmap.characteristic);
+                         difficultyBeatmaps.Add(newDiffBeatmap);
+                     }
+                     catch (Exception e)
+                     {
+                         Log("Error parsing difficulty level in song: " + song.customLevelPath, LogSeverity.Warning);
+                         Log(e.Message, LogSeverity.Warning);
+                     }
+                 }
+                 */
+                //    if (difficultyBeatmaps.Count == 0) return null;
+
+                newLevel.SetDifficultyBeatmaps(beatmapSets.ToArray());
                 newLevel.InitData();
                 //LoadSprite(song.path + "/" + song.coverImagePath, newLevel);
 
@@ -899,7 +923,7 @@ namespace SongLoaderPlugin
             }
             catch (Exception e)
             {
-                Log("Failed to load song: " + song.path, LogSeverity.Warning);
+                Log("Failed to load song: " + song.customLevelPath, LogSeverity.Warning);
                 Log(e.ToString(), LogSeverity.Warning);
             }
 
@@ -908,15 +932,13 @@ namespace SongLoaderPlugin
 
         private CustomSongInfo GetCustomSongInfo(string songPath)
         {
-            var infoText = File.ReadAllText(songPath + "/info.json");
+            var infoText = File.ReadAllText(songPath + "/info.dat");
             CustomSongInfo songInfo;
             try
             {
                 songInfo = JsonConvert.DeserializeObject<CustomSongInfo>(infoText);
-                for (int i = 0; i < songInfo.difficultyLevels.Length; i++)
-                {
-                    songInfo.difficultyLevels[i].difficultyRank = (int)Utils.ToEnum(songInfo.difficultyLevels[i].difficulty, BeatmapDifficulty.Normal);
-                }
+                songInfo.customLevelPath = songPath;
+                songInfo.levelId = "custom_level_" + new DirectoryInfo(songPath).Name;
             }
             catch (Exception)
             {
@@ -924,7 +946,7 @@ namespace SongLoaderPlugin
                 return null;
             }
 
-            songInfo.path = songPath;
+            songInfo.customLevelPath = songPath;
             return songInfo;
         }
 
@@ -936,6 +958,7 @@ namespace SongLoaderPlugin
 
         internal static void GetIcons()
         {
+            /*
             if (!CustomSongsIcon)
                 CustomSongsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
             if (!MissingCharIcon)
@@ -944,7 +967,7 @@ namespace SongLoaderPlugin
                 LightshowIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.Lightshow.png");
             if (!ExtraDiffsIcon)
                 ExtraDiffsIcon = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.ExtraDiffsIcon.png");
-
+            */
         }
 
         private void Update()
@@ -967,7 +990,7 @@ namespace SongLoaderPlugin
             if (!BS_Utils.Plugin.LevelData.IsSet) return;
 
             if (!data.gameplayModifiers.noFail) return;
-            var reloadedLevel = LoadSong(GetCustomSongInfo(CurrentLevelPlaying.customLevel.customSongInfo.path));
+            var reloadedLevel = LoadSong(GetCustomSongInfo(CurrentLevelPlaying.customLevel.customSongInfo.customLevelPath));
             if (reloadedLevel == null) return;
 
             reloadedLevel.FixBPMAndGetNoteJumpMovementSpeed();
@@ -975,7 +998,7 @@ namespace SongLoaderPlugin
 
             RemoveSong(CurrentLevelPlaying.customLevel);
 
-            SongCore.Collections.AddSong(reloadedLevel.levelID, reloadedLevel.customSongInfo.path, true);
+            SongCore.Collections.AddSong(reloadedLevel.customSongInfo.GetIdentifier(), reloadedLevel.customSongInfo.customLevelPath);
 
             CustomLevels.Add(reloadedLevel);
 

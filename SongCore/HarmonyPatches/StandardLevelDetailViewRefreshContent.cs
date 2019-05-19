@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine.UI;
 using CustomUI.BeatSaber;
 using MenuUI = SongCore.UI.BasicUI;
+using SongCore.OverrideClasses;
 namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(StandardLevelDetailView))]
@@ -35,7 +36,9 @@ namespace SongCore.HarmonyPatches
         static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
             ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController)
         {
-            IBeatmapLevel level = ____selectedDifficultyBeatmap?.level;
+            string levelID = null;
+            CustomLevel customLevel = null;
+            var level = ____selectedDifficultyBeatmap.level is CustomBeatmapLevel ? ____selectedDifficultyBeatmap.level as CustomPreviewBeatmapLevel : null;
 
             ____playButton.interactable = true;
             ____practiceButton.interactable = true;
@@ -44,11 +47,25 @@ namespace SongCore.HarmonyPatches
             //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
             //     ____songNameText.enableWordWrapping = false;
             ____songNameText.richText = true;
+
             if (level != null)
             {
-                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(level.levelID);
+                levelID = Utilities.Utils.GetCustomLevelIdentifier(level);
+            }
+            else if (____selectedDifficultyBeatmap.level is CustomLevel)
+            {
+                customLevel = ____selectedDifficultyBeatmap.level as CustomLevel;
+                levelID = customLevel.customSongInfo.GetIdentifier();
+            }
+            if (levelID == null) return;
 
-                if (MenuUI.infoButton == null)
+            Data.ExtraSongData songData = null;
+            if (level != null)
+                songData = Collections.RetrieveExtraSongData(levelID, level.customLevelPath);
+            else if(customLevel != null)
+                songData = Collections.RetrieveExtraSongData(levelID, customLevel.customSongInfo.customLevelPath);
+
+            if (MenuUI.infoButton == null)
                 {
                     Console.WriteLine("Creating Info Button");
 
@@ -72,8 +89,7 @@ namespace SongCore.HarmonyPatches
                 }
                 bool wipFolderSong = false;
                 IDifficultyBeatmap selectedDiff = ____selectedDifficultyBeatmap;
-                Data.ExtraSongData.DifficultyData diffData = songData.difficulties.FirstOrDefault(x => x.difficulty == selectedDiff.difficulty
-                && x.beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName);
+                Data.ExtraSongData.DifficultyData diffData = Collections.RetrieveDifficultyData(selectedDiff);
                 if(diffData != null)
                 {
                     //If no additional information is present
@@ -101,7 +117,7 @@ namespace SongCore.HarmonyPatches
 
                     }
                 }
-             
+            
                 if (songData.songPath.Contains("WIP Songs"))
                 {
                     MenuUI.infoButton.interactable = true;
@@ -145,6 +161,7 @@ namespace SongCore.HarmonyPatches
 
                 //Difficulty Label Handling
                 bool overrideLabels = false;
+            if(songData != null)
                 foreach (Data.ExtraSongData.DifficultyData diffLevel in songData.difficulties)
                 {
                     var difficulty = diffLevel.difficulty;
@@ -182,7 +199,7 @@ namespace SongCore.HarmonyPatches
 
 
 
-            }
+            
 
             /*
             if (level != null)

@@ -104,13 +104,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomSongInfo.cs" />
-    <Compile Include="EnvironmentsLoader.cs" />
     <Compile Include="HarmonyPatches\LevelListCellForIdx.cs" />
     <Compile Include="Internals\Unzip.cs" />
-    <Compile Include="IScriptableObjectResetable.cs" />
-    <Compile Include="OverrideClasses\CustomBeatmapLevelPackSO.cs" />
-    <Compile Include="OverrideClasses\CustomBeatmapLevelPackCollectionSO.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -118,9 +113,6 @@
     </Compile>
     <Compile Include="SceneEvents.cs" />
     <Compile Include="NoteHitVolumeChanger.cs" />
-    <Compile Include="OverrideClasses\CustomBeatmapDataSO.cs" />
-    <Compile Include="OverrideClasses\CustomLevel.cs" />
-    <Compile Include="OverrideClasses\CustomLevelCollectionSO.cs" />
     <Compile Include="ProgressBar.cs" />
     <Compile Include="ReflectionUtil.cs" />
     <Compile Include="ScriptableObjectPool.cs" />
@@ -142,22 +134,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Icons\CustomSongs.png" />
-  </ItemGroup>
-  <ItemGroup>
+    <Folder Include="Icons\" />
+    <Folder Include="OverrideClasses\" />
     <Folder Include="Resources\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\MissingChar.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\squek.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\Lightshow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\ExtraDiffsIcon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

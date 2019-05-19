@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
-using SongLoaderPlugin.OverrideClasses;
+using SongCore.OverrideClasses;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;

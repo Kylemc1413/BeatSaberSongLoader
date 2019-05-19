@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Harmony;
 using UnityEngine;
+using SongCore.OverrideClasses;
 namespace SongLoaderPlugin.HarmonyPatches
 {
 
@@ -26,15 +27,15 @@ namespace SongLoaderPlugin.HarmonyPatches
 
             //     Console.WriteLine($"Num: {num}   Size: {____pack.beatmapLevelCollection.beatmapLevels.Length}");
 
-            if (!(____pack.beatmapLevelCollection.beatmapLevels[num] is OverrideClasses.CustomLevel))
+            if (!(____pack.beatmapLevelCollection.beatmapLevels[num] is CustomLevel))
                 return;
-            OverrideClasses.CustomLevel customLevel = ____pack.beatmapLevelCollection.beatmapLevels[num] as OverrideClasses.CustomLevel;
+            CustomLevel customLevel = ____pack.beatmapLevelCollection.beatmapLevels[num] as CustomLevel;
             if (!customLevel)
                 return;
 
-            if (customLevel.coverImageTexture2D == SongLoader.CustomSongsIcon.texture)
+            if (customLevel.coverImageTexture2D == SongCore.UI.BasicUI.CustomSongsIcon.texture)
             {
-                SongLoader.LoadSprite(customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.coverImagePath, customLevel);
+                SongLoader.LoadSprite(customLevel.customSongInfo.customLevelPath + "/" + customLevel.customSongInfo.coverImageFilename, customLevel);
             }
 
 
@@ -47,7 +48,7 @@ namespace SongLoaderPlugin.HarmonyPatches
   //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
         static void Prefix(LevelPackLevelsTableView tableView, IPreviewBeatmapLevel level)
         {
-            OverrideClasses.CustomLevel customLevel = level as OverrideClasses.CustomLevel;
+            CustomLevel customLevel = level as CustomLevel;
 
       //      if (previouslySelectedSong != null)
       //         SongLoader.Instance.UnloadAudio(previouslySelectedSong);
@@ -57,9 +58,9 @@ namespace SongLoaderPlugin.HarmonyPatches
                 if (customLevel.previewAudioClip != SongLoader.TemporaryAudioClip || customLevel.AudioClipLoading) return;
                 customLevel.FixBPMAndGetNoteJumpMovementSpeed();
                 SongLoader.Instance.LoadAudio(
-                    "file:///" + customLevel.customSongInfo.path + "/" + customLevel.customSongInfo.GetAudioPath(), customLevel, null);
+                    "file:///" + customLevel.customSongInfo.customLevelPath + "/" + customLevel.customSongInfo.songFilename, customLevel, null);
                 //            previouslySelectedSong = customLevel;
-                SongCore.Collections.AddSong(customLevel.levelID, customLevel.customSongInfo.path, true);
+                SongCore.Collections.AddSong(customLevel.customSongInfo.GetIdentifier(), customLevel.customSongInfo.customLevelPath);
                 SongCore.Collections.SaveExtraSongData();
             }
         }

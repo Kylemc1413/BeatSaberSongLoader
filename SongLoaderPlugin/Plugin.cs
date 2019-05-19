@@ -30,9 +30,9 @@ namespace SongLoaderPlugin
             harmony = HarmonyInstance.Create("com.xyoncio.BeatSaber.SongLoaderPlugin");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
             SongLoader.GetIcons();
-            SongLoader.RegisterCustomCharacteristic(SongLoader.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic");
-            SongLoader.RegisterCustomCharacteristic(SongLoader.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow");
-            SongLoader.RegisterCustomCharacteristic(SongLoader.ExtraDiffsIcon, "Lawless", "Lawless - These difficulties don't follow conventional standards, and should not necessarily be expected to reflect their given names.", "Lawless", "Lawless");
+      ///      SongLoader.RegisterCustomCharacteristic(SongLoader.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic");
+     ///       SongLoader.RegisterCustomCharacteristic(SongLoader.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow");
+     //       SongLoader.RegisterCustomCharacteristic(SongLoader.ExtraDiffsIcon, "Lawless", "Lawless - These difficulties don't follow conventional standards, and should not necessarily be expected to reflect their given names.", "Lawless", "Lawless");
 
 
         }

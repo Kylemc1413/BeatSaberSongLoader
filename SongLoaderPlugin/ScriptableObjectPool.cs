@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SongLoaderPlugin
 {
-    public class ScriptableObjectPool<T> where T : ScriptableObject, IScriptableObjectResetable
+    public class ScriptableObjectPool<T> where T : ScriptableObject, SongCore.OverrideClasses.IScriptableObjectResetable
     {
         private readonly List<T> _pool = new List<T>();
         private readonly List<T> _createdObj = new List<T>();
