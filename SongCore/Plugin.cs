@@ -47,7 +47,7 @@ namespace SongCore
 
         }
 
-        private void BSEvents_levelSelected(LevelPackLevelsViewController arg1, IBeatmapLevel level)
+        private void BSEvents_levelSelected(LevelPackLevelsViewController arg1, IPreviewBeatmapLevel level)
         {
             Data.ExtraSongData songData = Collections.RetrieveExtraSongData(level.levelID);
             if (songData == null)

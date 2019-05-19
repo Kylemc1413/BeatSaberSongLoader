@@ -65,5 +65,4 @@ namespace SongLoaderPlugin.HarmonyPatches
         }
     }
 
-
 }
