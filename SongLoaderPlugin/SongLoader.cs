@@ -355,7 +355,7 @@ namespace SongLoaderPlugin
             scores.RemoveAll(x => scoresToRemove.Contains(x));
         }
 
-        internal static void LoadSprite(string spritePath, CustomLevel customLevel)
+        public static void LoadSprite(string spritePath, CustomLevel customLevel)
         {
             Sprite sprite;
             if (!LoadedSprites.ContainsKey(spritePath))
