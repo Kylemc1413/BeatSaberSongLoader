@@ -56,7 +56,7 @@ namespace SongLoaderPlugin.HarmonyPatches
             if (customLevel != null)
             {
                 if (customLevel.previewAudioClip != SongLoader.TemporaryAudioClip || customLevel.AudioClipLoading) return;
-                customLevel.FixBPMAndGetNoteJumpMovementSpeed();
+            //    customLevel.FixBPMAndGetNoteJumpMovementSpeed();
                 SongLoader.Instance.LoadAudio(
                     "file:///" + customLevel.customSongInfo.customLevelPath + "/" + customLevel.customSongInfo.songFilename, customLevel, null);
                 //            previouslySelectedSong = customLevel;

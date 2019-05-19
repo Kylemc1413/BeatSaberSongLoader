@@ -75,18 +75,22 @@ namespace SongCore
         public static ExtraSongData.DifficultyData RetrieveDifficultyData(IDifficultyBeatmap beatmap)
         {
             ExtraSongData songData = null;
-            if (beatmap.level is CustomPreviewBeatmapLevel)
-            {
-                var customLevel = beatmap.level as CustomPreviewBeatmapLevel;
-               songData = RetrieveExtraSongData(Utils.GetCustomLevelIdentifier(customLevel), customLevel.customLevelPath);
-            }
-            else if (beatmap.level is OverrideClasses.CustomLevel)
+            if (beatmap.level is OverrideClasses.CustomLevel)
             {
                 OverrideClasses.CustomLevel customLevel = beatmap.level as OverrideClasses.CustomLevel;
                 songData = RetrieveExtraSongData(customLevel.customSongInfo.GetIdentifier(), customLevel.customSongInfo.customLevelPath);
             }
-            if (songData == null) return null;
-            ExtraSongData.DifficultyData diffData = songData.difficulties?.FirstOrDefault(x => x.difficulty == beatmap.difficulty && x.beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName);
+            else if(beatmap.level is CustomPreviewBeatmapLevel)
+            {
+                var customLevel = beatmap.level as CustomPreviewBeatmapLevel;
+               songData = RetrieveExtraSongData(Utils.GetCustomLevelIdentifier(customLevel), customLevel.customLevelPath);
+            }
+            if (songData == null)
+            {
+                return null;
+            }
+
+            ExtraSongData.DifficultyData diffData = songData._difficulties.FirstOrDefault(x => x._difficulty == beatmap.difficulty && (x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName || x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
             return diffData;
         }
         public static void LoadExtraSongData()

@@ -236,7 +236,7 @@ namespace SongLoaderPlugin
         {
             Action callback = delegate { clipReadyCallback(customLevel); };
 
-            customLevel.FixBPMAndGetNoteJumpMovementSpeed();
+       //     customLevel.FixBPMAndGetNoteJumpMovementSpeed();
             LoadAudio(
             "file:///" + customLevel.customSongInfo.customLevelPath + "/" + customLevel.customSongInfo.songFilename, customLevel, callback);
 
@@ -993,7 +993,7 @@ namespace SongLoaderPlugin
             var reloadedLevel = LoadSong(GetCustomSongInfo(CurrentLevelPlaying.customLevel.customSongInfo.customLevelPath));
             if (reloadedLevel == null) return;
 
-            reloadedLevel.FixBPMAndGetNoteJumpMovementSpeed();
+   //         reloadedLevel.FixBPMAndGetNoteJumpMovementSpeed();
             reloadedLevel.SetAudioClip(CurrentLevelPlaying.customLevel.previewAudioClip);
 
             RemoveSong(CurrentLevelPlaying.customLevel);
