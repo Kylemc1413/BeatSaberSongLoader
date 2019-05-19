@@ -388,6 +388,7 @@ namespace SongLoaderPlugin
         //    }
         internal void LoadAudio(string audioPath, CustomLevel customLevel, Action callback)
         {
+            Console.WriteLine(audioPath);
             AudioClip audioClip;
             if (!LoadedAudioClips.ContainsKey(audioPath))
             {
@@ -449,6 +450,7 @@ namespace SongLoaderPlugin
                     var customSongInfo = GetCustomSongInfo(songPath);
 
                     if (customSongInfo == null) continue;
+                    if (customSongInfo.difficultyBeatmapSets.Count() == 0 || string.IsNullOrWhiteSpace(customSongInfo.songFilename)) continue;
                     var c = CustomLevels.FirstOrDefault(x => x.customSongInfo.customLevelPath == songPath);
                     if (c)
                     {
@@ -646,6 +648,7 @@ namespace SongLoaderPlugin
                                 var customSongInfo = GetCustomSongInfo(songPath);
 
                                 if (customSongInfo == null) continue;
+                                if (customSongInfo.difficultyBeatmapSets.Count() == 0 || string.IsNullOrWhiteSpace(customSongInfo.songFilename)) continue;
                                 var id = customSongInfo.levelId;
                                 if (loadedIDs.Any(x => x == id))
                                 {
@@ -709,6 +712,7 @@ namespace SongLoaderPlugin
                                 var customSongInfo = GetCustomSongInfo(songPath);
 
                                 if (customSongInfo == null) continue;
+                                if (customSongInfo.difficultyBeatmapSets.Count() == 0 || string.IsNullOrWhiteSpace(customSongInfo.songFilename)) continue;
                                 var id = customSongInfo.levelId;
                                 if (loadedIDs.Any(x => x == id))
                                 {
