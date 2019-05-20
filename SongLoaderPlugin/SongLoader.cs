@@ -202,7 +202,7 @@ namespace SongLoaderPlugin
             //Beat Saber 0.11.1 introduced a check for if noteJumpMovementSpeed <= 0
             //This breaks songs that have a negative noteJumpMovementSpeed and previously required a patcher to get working again
             //I've added this to add support for that again, because why not.
-            if (CurrentLevelPlaying.noteJumpMovementSpeed <= 0)
+            if (CurrentLevelPlaying.noteJumpMovementSpeed < 0)
             {
                 var beatmapObjectSpawnController =
                     Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
