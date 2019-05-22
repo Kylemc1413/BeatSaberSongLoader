@@ -72,7 +72,7 @@ namespace SongCore.HarmonyPatches
                 }
                 bool wipFolderSong = false;
                 IDifficultyBeatmap selectedDiff = ____selectedDifficultyBeatmap;
-                Data.ExtraSongData.DifficultyData diffData = songData.difficulties.FirstOrDefault(x => x.difficulty == selectedDiff.difficulty
+                Data.ExtraSongData.DifficultyData diffData = songData?.difficulties?.FirstOrDefault(x => x.difficulty == selectedDiff.difficulty
                 && x.beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName);
                 if(diffData != null)
                 {
