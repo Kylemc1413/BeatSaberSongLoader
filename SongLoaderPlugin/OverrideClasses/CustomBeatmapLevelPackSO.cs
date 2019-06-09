@@ -36,7 +36,6 @@ namespace SongLoaderPlugin.OverrideClasses
 
         private void Init(CustomLevelCollectionSO beatmapLevelCollectionSO, bool WipPack = false)
         {
-            _isPackAlwaysOwned = true;
             if(!WipPack)
             {
             _packID = "ModdedCustomMaps";
@@ -55,7 +54,6 @@ namespace SongLoaderPlugin.OverrideClasses
 
         private void Init(CustomLevelCollectionSO beatmapLevelCollectionSO)
         {
-            _isPackAlwaysOwned = true;
                 _packID = "ModdedCustomMaps";
                 _packName = "Modded Custom Maps";
                 _coverImage = Utils.LoadSpriteFromResources("SongLoaderPlugin.Icons.CustomSongs.png");
